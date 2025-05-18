@@ -10,15 +10,22 @@ import {
 import '@xyflow/react/dist/style.css';
 
 
-import { type CanvasConfig, type FlowJson } from '../type';
+import { type CanvasConfig, type CustomEdgeType, type FlowJson } from '../type';
 import { ParseBackground } from './BackGround';
+import createCustomEdgeType from './Edges';
 
 export interface BasicFlowProps {
   json: FlowJson;
 }
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
-  const { nodes, edges, canvas } = json;
+  const { nodes, edges, canvas, customEdge } = json;
+  const edgeName: CustomEdgeType[] = []
+  customEdge.forEach(ele => edgeName.push(ele))
+
+  const edgeMaps = Object.fromEntries(edgeName.map(name => [name.typeName,createCustomEdgeType(name)]))
+
+  console.log(edgeMaps)
 
   return (
     <>
@@ -27,6 +34,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           <ReactFlow
             nodes={nodes}
             edges={edges}
+            edgeTypes={edgeMaps}
             fitView
           >
             <Background {...ParseBackground(canvas as CanvasConfig)}/>

@@ -36,12 +36,19 @@ export const flowJson = {
     {
       id: 'e1',
       source: 'start',
-      target: 'condition'
+      target: 'condition',
+      type:"testing"
     },
     {
       id: 'e2',
       source: 'condition',
       target: 'slack'
+    }
+  ],
+  customEdge:[
+    {
+      typeName : "testing",
+      path : "straight",
     }
   ]
 };
