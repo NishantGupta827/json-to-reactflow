@@ -1,4 +1,4 @@
-import { type Node, type Edge, BackgroundVariant, type BackgroundProps } from '@xyflow/react';
+import { type Node, type Edge, BackgroundVariant } from '@xyflow/react';
 import type { CSSProperties } from 'react';
 
 export interface CanvasConfig {
@@ -13,9 +13,8 @@ export interface CanvasConfig {
 }
 
 export interface CustomEdgeType{
-  type?: string
+  typeName?: string
   path?: string
-  label?: string
   labelStyle?: CSSProperties
 }
 

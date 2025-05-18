@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
   ReactFlowProvider,
+  applyEdgeChanges,
+  applyNodeChanges,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  type Connection,
+  type Edge,
+  type NodeChange,
+  type EdgeChange,
 } from '@xyflow/react';
-
+import GenericCustomNode from './GenericCustomNode';
 import '@xyflow/react/dist/style.css';
 
 
-import { type CanvasConfig, type CustomEdgeType, type FlowJson } from '../type';
+import { type CanvasConfig, type FlowJson } from '../type';
 import { ParseBackground } from './BackGround';
 import createCustomEdgeType from './Edges';
 
@@ -18,32 +27,57 @@ export interface BasicFlowProps {
   json: FlowJson;
 }
 
+const nodeTypes = {
+  custom: GenericCustomNode
+};
+
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
-  const { nodes, edges, canvas, customEdge } = json;
-  const edgeName: CustomEdgeType[] = []
-  customEdge.forEach(ele => edgeName.push(ele))
+  const { canvas,customEdge } = json;
 
-  const edgeMaps = Object.fromEntries(edgeName.map(name => [name.typeName,createCustomEdgeType(name)]))
+  const [nodes, setNodes] = useNodesState(json.nodes);
+  const [edges, setEdges] = useEdgesState(json.edges);
 
-  console.log(edgeMaps)
+  const edgeMaps = useMemo(() => {
+    return Object.fromEntries(
+      customEdge.map(edge => [edge.typeName, createCustomEdgeType(edge)])
+    );
+  }, [customEdge]);
+
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [],
+  );
+
+  const onConnect = useCallback(
+    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
 
   return (
-    <>
-      <ReactFlowProvider>
-        <div style={{ width: '100%', height: '600px' }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            edgeTypes={edgeMaps}
-            fitView
-          >
-            <Background {...ParseBackground(canvas as CanvasConfig)}/>
-            {canvas?.controls && <Controls />}
-            {canvas?.minimap && <MiniMap />}
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
-    </>
+    <ReactFlowProvider>
+      <div style={{ width: '100%', height: '600px' }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodesDraggable={true}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeMaps}
+          fitView
+        >
+          <Background {...ParseBackground(canvas as CanvasConfig)} />
+          {canvas?.controls && <Controls />}
+          {canvas?.minimap && <MiniMap />}
+        </ReactFlow>
+      </div>
+    </ReactFlowProvider>
   );
 };
 
