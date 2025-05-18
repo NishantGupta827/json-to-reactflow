@@ -1,6 +1,11 @@
+import { BackgroundVariant } from "@xyflow/react";
+
 export const flowJson = {
   canvas: {
-    background: '#ffffff',
+    color: '#000000', //changes the color of dots
+    bgcolor: '#ffffff',
+    variant: BackgroundVariant.Cross,
+    size:1,
     controls: true,
     minimap: true
   },

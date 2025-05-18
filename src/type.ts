@@ -1,7 +1,10 @@
-import { type Node, type Edge } from '@xyflow/react';
+import { type Node, type Edge, BackgroundVariant, type BackgroundProps } from '@xyflow/react';
 
 export interface CanvasConfig {
-  background?: string;
+  bgcolor?: string;
+  color?:string;
+  variant?:BackgroundVariant
+  size?:number
   controls?: boolean;
   minimap?: boolean;
   snapToGrid?: boolean;
