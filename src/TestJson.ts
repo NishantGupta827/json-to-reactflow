@@ -70,7 +70,10 @@ export const flowJson = {
     {
       id: 'e1',
       source: 'start',
+      type:"testing",
       sourceHandle: 'start',
+      reconnectable: true,
+      label:'edges',
       target: 'condition',
       targetHandle: 'in2'
     },
@@ -80,6 +83,13 @@ export const flowJson = {
       sourceHandle: 'out1',
       target: 'slack',
       targetHandle: 'in3'
+    }
+  ],
+  customEdge:[
+    {
+      typeName : "testing",
+      path : "smooth-step",
+      label : "test"
     }
   ]
 };

@@ -1,4 +1,5 @@
 import { type Node, type Edge, BackgroundVariant } from '@xyflow/react';
+import type { CSSProperties } from 'react';
 
 export interface CanvasConfig {
   bgcolor?: string;
@@ -11,8 +12,15 @@ export interface CanvasConfig {
   gridSize?: number;
 }
 
+export interface CustomEdgeType{
+  typeName?: string
+  path?: string
+  labelStyle?: CSSProperties
+}
+
 export interface FlowJson {
   nodes: Node[];
   edges: Edge[];
+  customEdge: CustomEdgeType[];
   canvas?: CanvasConfig;
 }
