@@ -5,13 +5,17 @@ import {
   Controls,
   MiniMap,
   ReactFlowProvider,
+  applyEdgeChanges,
+  applyNodeChanges,
   useNodesState,
   useEdgesState,
   addEdge,
   type Connection,
   type Edge,
+  type NodeChange,
+  type EdgeChange,
 } from '@xyflow/react';
-
+import GenericCustomNode from './GenericCustomNode';
 import '@xyflow/react/dist/style.css';
 
 import { type CanvasConfig, type FlowJson } from '../type';
@@ -21,11 +25,24 @@ export interface BasicFlowProps {
   json: FlowJson;
 }
 
+const nodeTypes = {
+  custom: GenericCustomNode
+};
+
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const { canvas } = json;
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(json.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(json.edges);
+  const [nodes, setNodes] = useNodesState(json.nodes);
+  const [edges, setEdges] = useEdgesState(json.edges);
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [],
+  );
 
   const onConnect = useCallback(
     (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -42,6 +59,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           nodesDraggable={true}
+          nodeTypes={nodeTypes}
           fitView
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />

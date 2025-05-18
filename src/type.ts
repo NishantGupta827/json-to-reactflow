@@ -1,4 +1,4 @@
-import { type Node, type Edge, BackgroundVariant, type BackgroundProps } from '@xyflow/react';
+import { type Node, type Edge, BackgroundVariant } from '@xyflow/react';
 
 export interface CanvasConfig {
   bgcolor?: string;
