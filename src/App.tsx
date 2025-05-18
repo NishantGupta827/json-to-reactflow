@@ -1,8 +1,10 @@
-import BasicFlow from './components/BasicFlow';
-import { flowJson } from './TestJson';
+import BasicFlow, { type BasicFlowProps } from "./components/BasicFlow";
+import { flowJson } from "./TestJson";
 
-function App() {
-  return <BasicFlow json={flowJson} />;
-}
+const props:BasicFlowProps = {json:flowJson}
 
-export default App;
+export const App = () => {return (
+    <>
+        {BasicFlow(props)}
+    </>
+)}
