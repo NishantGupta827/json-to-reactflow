@@ -14,6 +14,7 @@ import {
   type Edge,
   type NodeChange,
   type EdgeChange,
+  reconnectEdge,
 } from '@xyflow/react';
 import GenericCustomNode from './GenericCustomNode';
 import '@xyflow/react/dist/style.css';
@@ -58,6 +59,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     [setEdges]
   );
 
+  const onReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) =>
+      setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
+    [],
+  );
+
+
   return (
     <ReactFlowProvider>
       <div style={{ width: '100%', height: '600px' }}>
@@ -70,6 +78,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           nodesDraggable={true}
           nodeTypes={nodeTypes}
           edgeTypes={edgeMaps}
+          onReconnect={onReconnect}
           fitView
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />

@@ -66,8 +66,6 @@ const createCustomEdgeType = (args: CustomEdgeType): React.FC<EdgeProps> => {
             path = `M ${props.sourceX} ${sourceY} L ${sourceX} ${centerY} L ${props.targetX} ${centerY} L ${props.targetX} ${props.targetY}`;
             labelx = (sourceX + props.targetX) / 2;
             labely = centerY;
-
-
     }
 
     return (
