@@ -9,3 +9,46 @@ body {
   height: 100vh;
 }
 
+:root {
+  --color-primary: #ff0073;
+  --color-background: #fefefe;
+  --color-hover-bg: #f6f6f6;
+  --color-disabled: #76797e;
+}
+
+.xy-theme__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+  box-shadow: var(--xy-node-boxshadow-default);
+  z-index: 100;
+}
+ 
+.xy-theme__button:hover {
+  background-color: var(--xy-controls-button-background-color-hover-default);
+}
+ 
+.xy-theme__button:active {
+  background-color: var(--color-hover-bg);
+}
+ 
+.xy-theme__button:disabled {
+  color: var(--color-disabled);
+  opacity: 0.8;
+  cursor: not-allowed;
+  border: 1px solid var(--color-disabled);
+}
+ 
+.xy-theme__button > span {
+  margin-right: 0.2rem;
+}
+

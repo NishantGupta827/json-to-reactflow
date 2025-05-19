@@ -1,6 +1,7 @@
 import { BackgroundVariant } from "@xyflow/react";
 
 export const flowJson = {
+  export: true,
   canvas: {
     color: '#000000', // color of background dots
     bgcolor: '#ffffff',
@@ -88,7 +89,7 @@ export const flowJson = {
   customEdge:[
     {
       typeName : "testing",
-      path : "smooth-step",
+      path : "bezier",
       label : "test"
     }
   ]

@@ -19,6 +19,7 @@ export interface CustomEdgeType{
 }
 
 export interface FlowJson {
+  export?: boolean;
   nodes: Node[];
   edges: Edge[];
   customEdge: CustomEdgeType[];

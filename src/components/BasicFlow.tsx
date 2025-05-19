@@ -18,7 +18,7 @@ import {
 } from '@xyflow/react';
 import GenericCustomNode from './GenericCustomNode';
 import '@xyflow/react/dist/style.css';
-
+import DownloadButton from './DownloadButton';
 
 import { type CanvasConfig, type FlowJson } from '../type';
 import { ParseBackground } from './BackGround';
@@ -82,6 +82,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           fitView
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
+          {json.export && <DownloadButton />}
           {canvas?.controls && <Controls />}
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
