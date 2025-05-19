@@ -1,10 +1,10 @@
-import { type Node, type Edge, BackgroundVariant } from '@xyflow/react';
+import { type Node, type Edge } from '@xyflow/react';
 import type { CSSProperties } from 'react';
 
 export interface CanvasConfig {
   bgcolor?: string;
   color?:string;
-  variant?:BackgroundVariant
+  variant?: 'dots' | 'lines' | 'cross';
   size?:number
   controls?: boolean;
   minimap?: boolean;
@@ -16,6 +16,7 @@ export interface CustomEdgeType{
   typeName?: string
   path?: string
   labelStyle?: CSSProperties
+  label?: string;
 }
 
 export interface FlowJson {

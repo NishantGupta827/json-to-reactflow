@@ -1,11 +1,11 @@
-import { BackgroundVariant } from "@xyflow/react";
+import type { FlowJson } from "./type";
 
-export const flowJson = {
+export const flowJson: FlowJson = {
   export: true,
   canvas: {
     color: '#000000', // color of background dots
     bgcolor: '#ffffff',
-    variant: BackgroundVariant.Cross,
+    variant: 'cross',
     size: 1,
     controls: true,
     minimap: true

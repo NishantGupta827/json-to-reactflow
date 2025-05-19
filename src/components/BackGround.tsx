@@ -1,15 +1,17 @@
-import { type BackgroundProps } from '@xyflow/react';
-import { type CanvasConfig} from '../type';
+import { type BackgroundProps, BackgroundVariant } from '@xyflow/react';
+import { type CanvasConfig } from '../type';
 
-export interface BasicBackgroundProps {
-  json: CanvasConfig;
-}
+export function ParseBackground(json: CanvasConfig): BackgroundProps {
+  const variantMap: Record<string, BackgroundVariant> = {
+    dots: BackgroundVariant.Dots,
+    lines: BackgroundVariant.Lines,
+    cross: BackgroundVariant.Cross,
+  };
 
-export function ParseBackground(json: CanvasConfig):BackgroundProps{
-    return {
-        color: json.color,
-        bgColor: json.bgcolor,
-        variant: json.variant,
-        size: json.size,
-    }
+  return {
+    color: json.color,
+    bgColor: json.bgcolor,
+    variant: variantMap[json.variant!] ?? BackgroundVariant.Dots, // fallback to 'dots'
+    size: json.size,
+  };
 }
