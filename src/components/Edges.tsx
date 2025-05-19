@@ -52,25 +52,33 @@ const createCustomEdgeType = (args: CustomEdgeType): React.FC<EdgeProps> => {
         case EdgePathType.Straight:
             [path,labelx,labely] = getStraightPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY});
             break;
+
         case EdgePathType.SmoothStep:
-            [path,labelx,labely] = getSmoothStepPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY});
+            [path,labelx,labely] = getSmoothStepPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY, sourcePosition: sourcePosition,targetPosition:targetPosition});
             break
         case EdgePathType.Bezier:
-            [path,labelx,labely] = getBezierPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY});
+            [path,labelx,labely] = getBezierPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY, sourcePosition:sourcePosition, targetPosition:targetPosition});
             break
         case EdgePathType.SimpleBezier:
-            [path,labelx,labely] = getSimpleBezierPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY});
+            [path,labelx,labely] = getSimpleBezierPath({sourceX: sourceX,sourceY : sourceY,targetX:  props.targetX,targetY: props.targetY, sourcePosition:sourcePosition,targetPosition:targetPosition});
             break
         case EdgePathType.StepEdge:
-            const centerY = (props.targetY - sourceY) / 2 + sourceY;
-            path = `M ${props.sourceX} ${sourceY} L ${sourceX} ${centerY} L ${props.targetX} ${centerY} L ${props.targetX} ${props.targetY}`;
-            labelx = (sourceX + props.targetX) / 2;
-            labely = centerY;
+            if (sourcePosition === 'left' || sourcePosition === 'right') {
+                const centerX = (props.targetX - sourceX) / 2 + sourceX;
+                path = `M ${sourceX} ${sourceY} L ${centerX} ${sourceY} L ${centerX} ${props.targetY} L ${props.targetX} ${props.targetY}`;
+                labelx = centerX;
+                labely = (sourceY + props.targetY) / 2;
+            } else {
+                const centerY = (props.targetY - sourceY) / 2 + sourceY;
+                path = `M ${sourceX} ${sourceY} L ${sourceX} ${centerY} L ${props.targetX} ${centerY} L ${props.targetX} ${props.targetY}`;
+                labelx = (sourceX + props.targetX) / 2;
+                labely = centerY;
+            }
     }
 
     return (
       <>
-        <BaseEdge {...safeProps} path={path}/>
+        <BaseEdge {...safeProps} path={path} style={{zIndex: 10,position: 'relative'}} />
         <EdgeLabelRenderer>
             <>{Textbox({labelx,labely,labelStyle,label})}</>
         </EdgeLabelRenderer>

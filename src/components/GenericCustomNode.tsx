@@ -57,6 +57,7 @@ const GenericCustomNode: React.FC<NodeProps> = ({ data }) => {
   }, []);
 
   const baseStyle: React.CSSProperties = {
+    position: 'relative',
     backgroundColor: bgColor,
     color: textColor,
     border: `${borderWidth}px solid ${borderColor}`,
