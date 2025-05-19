@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
@@ -15,43 +15,44 @@ import {
   type NodeChange,
   type EdgeChange,
   reconnectEdge,
-} from '@xyflow/react';
-import GenericCustomNode from './GenericCustomNode';
-import '@xyflow/react/dist/style.css';
-import DownloadButton from './DownloadButton';
+} from "@xyflow/react";
+import GenericCustomNode from "./GenericCustomNode";
+import "@xyflow/react/dist/style.css";
+import DownloadButton from "./DownloadButton";
 
-import { type CanvasConfig, type FlowJson } from '../type';
-import { ParseBackground } from './BackGround';
-import createCustomEdgeType from './Edges';
+import { type CanvasConfig, type FlowJson } from "../type";
+import { ParseBackground } from "./BackGround";
+import createCustomEdgeType from "./Edges";
 
 export interface BasicFlowProps {
   json: FlowJson;
 }
 
 const nodeTypes = {
-  custom: GenericCustomNode
+  custom: GenericCustomNode,
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
-  const { canvas,customEdge } = json;
+  const { canvas, customEdge } = json;
 
   const [nodes, setNodes] = useNodesState(json.nodes);
   const [edges, setEdges] = useEdgesState(json.edges);
 
   const edgeMaps = useMemo(() => {
     return Object.fromEntries(
-      customEdge.map(edge => [edge.typeName, createCustomEdgeType(edge)])
+      customEdge.map((edge) => [edge.typeName, createCustomEdgeType(edge)])
     );
   }, [customEdge]);
 
-
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [],
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [],
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
   );
 
   const onConnect = useCallback(
@@ -62,13 +63,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const onReconnect = useCallback(
     (oldEdge: Edge, newConnection: Connection) =>
       setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
-    [],
+    []
   );
-
 
   return (
     <ReactFlowProvider>
-      <div style={{ width: '100%', height: '600px' }}>
+      <div style={{ width: "100%", height: "600px" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -82,8 +82,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           fitView
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
-          {json.export && <DownloadButton />}
-          {canvas?.controls && <Controls />}
+          {canvas?.controls && (
+            <Controls>{json.export && <DownloadButton />}</Controls>
+          )}
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
       </div>
