@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { Handle, Position, type NodeProps, useReactFlow } from '@xyflow/react';
 
 const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
   top: Position.Top,
@@ -40,7 +40,8 @@ export type CustomNodeData = {
   editable?: boolean;
 };
 
-const GenericCustomNode: React.FC<NodeProps> = ({ data }) => {
+const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
+  const { setNodes } = useReactFlow();
   const {
     label = '',
     bgColor = '#ffffff',
@@ -52,9 +53,26 @@ const GenericCustomNode: React.FC<NodeProps> = ({ data }) => {
     editable = false,
   } = data as CustomNodeData;
 
-  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Updated label:', e.target.value);
-  }, []);
+  const onChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newLabel = e.target.value;
+
+      setNodes((prevNodes) =>
+        prevNodes.map((node) =>
+          node.id === id
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  label: newLabel,
+                },
+              }
+            : node
+        )
+      );
+    },
+    [id, setNodes]
+  );
 
   const baseStyle: React.CSSProperties = {
     position: 'relative',

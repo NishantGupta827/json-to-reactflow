@@ -66,6 +66,26 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     []
   );
 
+  const getCurrentFlowJSON = () => {
+    return {
+      export: json.export,
+      canvas: canvas,
+      customEdge: customEdge,
+      nodes: nodes.map(({ id, position, data, type }) => ({
+        id,
+        position,
+        data,
+        type,
+      })),
+      edges: edges.map(({ id, source, target, label }) => ({
+        id,
+        source,
+        target,
+        label,
+      })),
+    };
+  };
+
   return (
     <ReactFlowProvider>
       <div style={{ width: "100%", height: "600px" }}>
@@ -88,6 +108,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
       </div>
+      <button onClick={() => console.log(getCurrentFlowJSON())} style={{ zIndex: '1000' }}>
+        Export Flow JSON
+      </button>
     </ReactFlowProvider>
   );
 };
