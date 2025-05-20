@@ -1,10 +1,10 @@
-import BasicFlow, { type BasicFlowProps } from "./components/BasicFlow";
+import BasicFlow, { flowWrapper, type BasicFlowProps } from "./components/BasicFlow";
 import { flowJson } from "./TestJson";
 
 const props:BasicFlowProps = {json:flowJson}
 
 export const App = () => {return (
     <>
-        {BasicFlow(props)}
+    {flowWrapper(props)}
     </>
 )}

@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef} from "react";
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
-  ReactFlowProvider,
   applyEdgeChanges,
   applyNodeChanges,
   useNodesState,
@@ -12,18 +11,23 @@ import {
   addEdge,
   type Connection,
   type Edge,
+  type Node,
   type NodeChange,
   type EdgeChange,
   reconnectEdge,
   ControlButton,
+  ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
-import GenericCustomNode from "./GenericCustomNode";
+import GenericCustomNode, { type CustomNodeData } from "./GenericCustomNode";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./DownloadButton";
 
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
 import createCustomEdgeType from "./Edges";
+import { DnDProvider, useDnD } from "./DnD";
+import Sidebar from "./SideBar";
 
 export interface BasicFlowProps {
   json: FlowJson;
@@ -33,17 +37,14 @@ const nodeTypes = {
   custom: GenericCustomNode,
 };
 
+let id = 0;
+const getId = () => `dndnode_${id++}`;
+
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const { canvas, customEdge } = json;
 
   const [nodes, setNodes] = useNodesState(json.nodes);
-  const [edges, setEdges] = useEdgesState(json.edges);
-
-  const edgeMaps = useMemo(() => {
-    return Object.fromEntries(
-      customEdge.map((edge) => [edge.typeName, createCustomEdgeType(edge)])
-    );
-  }, [customEdge]);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -56,25 +57,56 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     []
   );
 
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+  const reactFlowWrapper = useRef(null);
+  const { screenToFlowPosition } = useReactFlow();
+  const [type,setType] = useDnD();
+ 
+  const onConnect = useCallback((params: Connection) => setEdges((eds) => addEdge(params, eds)), []);
+ 
+  const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+ 
+  const onDrop = useCallback(
+    (event:React.DragEvent<HTMLElement>) => {
+      event.preventDefault();
+
+    const raw = event.dataTransfer.getData('application/reactflow');
+    if (!raw) return;
+
+    try {
+      const { type, data } = JSON.parse(raw) as {
+        type: string;
+        data: CustomNodeData;
+      };
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      const newNode: Node = {
+        id: `node_${+new Date()}`,
+        type,
+        position,
+        data, // <- your custom data is injected here
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    } catch (err) {
+      console.error('Failed to parse node data from drag event', err);
+    }
+  },
+  [screenToFlowPosition, setNodes]
   );
-
-  const onReconnect = useCallback(
-    (oldEdge: Edge, newConnection: Connection) =>
-      setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
-    []
-  );
-
-  // const styledEdges = useMemo(() => {
-  //   return edges.map(edge => ({
-  //     ...edge,
-  //     className: 'custom-edge',
-  //   }));
-  // }, [edges]);
-
-
+ 
+  const onDragStart = (event: React.DragEvent<HTMLElement>) => {
+    setType?.("custom");
+    event.dataTransfer.setData('text/plain', "custom");
+    event.dataTransfer.effectAllowed = 'move';
+  };
+ 
   const getCurrentFlowJSON = () => {
     return {
       export: json.export,
@@ -96,19 +128,23 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   };
 
   return (
-    <ReactFlowProvider>
-      <div style={{ width: "100%", height: "100vh" }}>
+    <div style={{ width: "100%", height: "100vh", display:"flex"}}>
+        <div style={{ width: '250px', borderRight: '1px solid #ccc', padding: '1rem' }}>
+          <Sidebar/>
+        </div>
+        <div style={{ flex: 1}} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodesDraggable={true}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeMaps}
-          onReconnect={onReconnect}
+          onDrop={onDrop}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
           fitView
+          style={{ backgroundColor: '#F7F9FB' }}
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
@@ -119,8 +155,19 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
       </div>
-    </ReactFlowProvider>
+    </div>
   );
 };
 
 export default BasicFlow;
+
+export const flowWrapper: React.FC<BasicFlowProps> = ({json}) => 
+  {
+    return(
+      <ReactFlowProvider>
+        <DnDProvider>
+          <BasicFlow json={json} />
+        </DnDProvider>
+      </ReactFlowProvider>
+    )
+  }
