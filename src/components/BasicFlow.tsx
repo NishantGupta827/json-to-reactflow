@@ -15,6 +15,7 @@ import {
   type NodeChange,
   type EdgeChange,
   reconnectEdge,
+  ControlButton,
 } from "@xyflow/react";
 import GenericCustomNode from "./GenericCustomNode";
 import "@xyflow/react/dist/style.css";
@@ -66,6 +67,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     []
   );
 
+  // const styledEdges = useMemo(() => {
+  //   return edges.map(edge => ({
+  //     ...edge,
+  //     className: 'custom-edge',
+  //   }));
+  // }, [edges]);
+
+
   const getCurrentFlowJSON = () => {
     return {
       export: json.export,
@@ -88,7 +97,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ width: "100%", height: "600px" }}>
+      <div style={{ width: "100%", height: "100vh" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -103,14 +112,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
-            <Controls>{json.export && <DownloadButton />}</Controls>
+            <Controls>{json.export && <DownloadButton />}<ControlButton onClick={() => console.log(getCurrentFlowJSON())} style={{ zIndex: '1000' }}>
+              js
+            </ControlButton></Controls>
           )}
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
       </div>
-      <button onClick={() => console.log(getCurrentFlowJSON())} style={{ zIndex: '1000' }}>
-        Export Flow JSON
-      </button>
     </ReactFlowProvider>
   );
 };
