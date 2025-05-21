@@ -25,7 +25,7 @@ import DownloadButton from "./DownloadButton";
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
 import { DnDProvider, useDnD } from "./DnD";
-import Sidebar from "./SideBar";
+import Sidebar, { type SideBarInputJSON } from "./SideBar";
 
 export interface BasicFlowProps {
   json: FlowJson;
@@ -35,13 +35,28 @@ const nodeTypes = {
   custom: GenericCustomNode,
 };
 
-let id = 0;
-
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const { canvas, customEdge } = json;
 
   const [nodes, setNodes] = useNodesState(json.nodes);
   const [edges, setEdges] = useEdgesState<Edge>([]);
+
+  const sidebarTestJson: SideBarInputJSON = {
+    Data: [
+      {
+        name: "Editable",
+        shape: "rounded",
+        bgColor: "#fff3e0",
+        editable: true,
+      },
+      {
+        name: "Not Editable",
+        shape: "rounded",
+        bgColor: "#e0f7fa",
+        editable: false,
+      },
+    ],
+  };
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -93,8 +108,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           data,
         };
 
-        id += 1;
-
         setNodes((nds) => nds.concat(newNode));
       } catch (err) {
         console.error("Failed to parse node data from drag event", err);
@@ -138,7 +151,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           padding: "1rem",
         }}
       >
-        <Sidebar />
+        <Sidebar Data={sidebarTestJson.Data} />
       </div>
       <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow

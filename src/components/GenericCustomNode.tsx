@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import { Handle, Position, type NodeProps, useReactFlow } from '@xyflow/react';
+import React, { useCallback } from "react";
+import { Handle, Position, type NodeProps, useReactFlow } from "@xyflow/react";
 
-const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
+const positionMap: Record<"top" | "bottom" | "left" | "right", Position> = {
   top: Position.Top,
   bottom: Position.Bottom,
   left: Position.Left,
@@ -10,21 +10,21 @@ const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
 
 const shapeStyles: Record<string, React.CSSProperties> = {
   rectangle: {},
-  circle: { borderRadius: '50%' },
-  rounded: { borderRadius: '12px' },
+  circle: { borderRadius: "50%" },
+  rounded: { borderRadius: "12px" },
   diamond: {
-    transform: 'rotate(45deg)',
-    width: '80px',
-    height: '80px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    transform: "rotate(45deg)",
+    width: "80px",
+    height: "80px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 };
 
 type HandleConfig = {
   id: string;
-  type: 'source' | 'target';
+  type: "source" | "target";
   position: keyof typeof positionMap;
   style?: React.CSSProperties;
 };
@@ -43,12 +43,12 @@ export type CustomNodeData = {
 const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
   const { setNodes } = useReactFlow();
   const {
-    label = '',
-    bgColor = '#ffffff',
-    textColor = '#000000',
-    borderColor = '#000000',
+    label = "",
+    bgColor = "#ffffff",
+    textColor = "#000000",
+    borderColor = "#000000",
     borderWidth = 1,
-    shape = 'rectangle',
+    shape = "rectangle",
     handles = [],
     editable = false,
   } = data as CustomNodeData;
@@ -75,19 +75,19 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
   );
 
   const baseStyle: React.CSSProperties = {
-    position: 'relative',
+    position: "relative",
     backgroundColor: bgColor,
     color: textColor,
     border: `${borderWidth}px solid ${borderColor}`,
     padding: 10,
-    textAlign: 'center',
+    textAlign: "center",
     width: 100,
     height: 60,
     ...shapeStyles[shape],
   };
 
   const labelWrapperStyle: React.CSSProperties = {
-    transform: shape === 'diamond' ? 'rotate(-45deg)' : undefined,
+    transform: shape === "diamond" ? "rotate(-45deg)" : undefined,
   };
 
   return (
@@ -100,11 +100,11 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
             onChange={onChange}
             className="nodrag"
             style={{
-              width: '90%',
-              textAlign: 'center',
-              background: 'transparent',
+              width: "90%",
+              textAlign: "center",
+              background: "transparent",
               color: textColor,
-              border: 'none',
+              border: "none",
             }}
           />
         ) : (
@@ -118,7 +118,7 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
           id={handle.id}
           type={handle.type}
           position={positionMap[handle.position]}
-          style={handle.style ?? { background: '#555' }}
+          style={handle.style ?? { background: "#555" }}
         />
       ))}
     </div>

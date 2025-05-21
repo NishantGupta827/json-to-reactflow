@@ -1,7 +1,11 @@
 import React from "react";
-import { GenericSideBarComponent } from "./GenericSidebar";
+import { GenericSideBarComponent, type SideBarProps } from "./GenericSidebar";
 
-const Sidebar: React.FC = () => {
+export type SideBarInputJSON = {
+  Data: SideBarProps[];
+};
+
+const Sidebar: React.FC<SideBarInputJSON> = (json) => {
   return (
     <aside
       style={{
@@ -23,9 +27,9 @@ const Sidebar: React.FC = () => {
       >
         Tools
       </div>
-      <>{GenericSideBarComponent({ shape: "circle", name: "Start" })}</>
-      <>{GenericSideBarComponent({ shape: "diamond", name: "Check" })}</>
-      <>{GenericSideBarComponent({ shape: "rounded", name: "Notify" })}</>
+      {json.Data.map((object, i) => (
+        <GenericSideBarComponent {...object} key={i} />
+      ))}
     </aside>
   );
 };
