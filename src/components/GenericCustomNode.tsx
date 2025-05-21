@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Handle, Position, type NodeProps, useReactFlow } from '@xyflow/react';
+import { Handle, Position, useConnection, useReactFlow, type NodeProps } from '@xyflow/react';
+import { useCallback } from 'react';
 
 const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
   top: Position.Top,
@@ -14,11 +14,6 @@ const shapeStyles: Record<string, React.CSSProperties> = {
   rounded: { borderRadius: '12px' },
   diamond: {
     transform: 'rotate(45deg)',
-    width: '80px',
-    height: '80px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 };
 
@@ -40,8 +35,10 @@ export type CustomNodeData = {
   editable?: boolean;
 };
 
-const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
+export default function CustomNode({ id, data }: NodeProps) {
   const { setNodes } = useReactFlow();
+  const connection = useConnection();
+
   const {
     label = '',
     bgColor = '#ffffff',
@@ -56,23 +53,30 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newLabel = e.target.value;
-
       setNodes((prevNodes) =>
         prevNodes.map((node) =>
           node.id === id
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  label: newLabel,
-                },
-              }
+            ? { ...node, data: { ...node.data, label: newLabel } }
             : node
         )
       );
     },
     [id, setNodes]
   );
+
+  const isTarget = connection.inProgress && connection.fromNode.id !== id;
+
+  const labelWrapperStyle: React.CSSProperties = {
+    width: '100%',
+    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  };
+
+  const isDiamond = shape === 'diamond';
+
+  const size = 70;
 
   const baseStyle: React.CSSProperties = {
     position: 'relative',
@@ -81,17 +85,36 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
     border: `${borderWidth}px solid ${borderColor}`,
     padding: 10,
     textAlign: 'center',
-    width: 100,
-    height: 60,
+    width: isDiamond ? size : '110px',
+    height: isDiamond ? size : '70px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    fontWeight: 'bold',
     ...shapeStyles[shape],
-  };
-
-  const labelWrapperStyle: React.CSSProperties = {
-    transform: shape === 'diamond' ? 'rotate(-45deg)' : undefined,
   };
 
   return (
     <div style={baseStyle}>
+      {/* Handles */}
+      {!connection.inProgress && (
+        <Handle
+          className="customHandle"
+          position={Position.Right}
+          type="source"
+        />
+      )}
+      {(!connection.inProgress || isTarget) && (
+        <Handle
+          className="customHandle"
+          position={Position.Left}
+          type="target"
+          isConnectableStart={false}
+        />
+      )}
+
+
+      {/* Label */}
       <div style={labelWrapperStyle}>
         {editable ? (
           <input
@@ -105,24 +128,13 @@ const GenericCustomNode: React.FC<NodeProps> = ({ id, data }) => {
               background: 'transparent',
               color: textColor,
               border: 'none',
+              outline: 'none',
             }}
           />
         ) : (
-          label
+          <div style={{ width: '100%', textAlign: 'center' }}>{label}</div>
         )}
       </div>
-
-      {handles.map((handle: HandleConfig) => (
-        <Handle
-          key={handle.id}
-          id={handle.id}
-          type={handle.type}
-          position={positionMap[handle.position]}
-          style={handle.style ?? { background: '#555' }}
-        />
-      ))}
     </div>
   );
-};
-
-export default GenericCustomNode;
+}

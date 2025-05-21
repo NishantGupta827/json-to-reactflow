@@ -10,6 +10,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  MarkerType,
   type Connection,
   type Edge,
   type NodeChange,
@@ -18,6 +19,8 @@ import {
   ControlButton,
 } from "@xyflow/react";
 import GenericCustomNode from "./GenericCustomNode";
+import CustomConnectionLine from "./CustomConnectionLine";
+import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./DownloadButton";
 
@@ -29,8 +32,26 @@ export interface BasicFlowProps {
   json: FlowJson;
 }
 
+const connectionLineStyle = {
+  stroke: '#b1b1b7',
+};
+
+const initialEdges = [];
+
 const nodeTypes = {
   custom: GenericCustomNode,
+};
+
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
+const defaultEdgeOptions = {
+  type: 'floating',
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: '#b1b1b7',
+  },
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
@@ -39,11 +60,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const [nodes, setNodes] = useNodesState(json.nodes);
   const [edges, setEdges] = useEdgesState(json.edges);
 
-  const edgeMaps = useMemo(() => {
-    return Object.fromEntries(
-      customEdge.map((edge) => [edge.typeName, createCustomEdgeType(edge)])
-    );
-  }, [customEdge]);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -61,11 +77,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     [setEdges]
   );
 
-  const onReconnect = useCallback(
-    (oldEdge: Edge, newConnection: Connection) =>
-      setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
-    []
-  );
+  // const onReconnect = useCallback(
+  //   (oldEdge: Edge, newConnection: Connection) =>
+  //     setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
+  //   []
+  // );
 
   // const styledEdges = useMemo(() => {
   //   return edges.map(edge => ({
@@ -104,11 +120,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          nodesDraggable={true}
-          nodeTypes={nodeTypes}
-          edgeTypes={edgeMaps}
-          onReconnect={onReconnect}
           fitView
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          defaultEdgeOptions={defaultEdgeOptions}
+          connectionLineComponent={CustomConnectionLine}
+          connectionLineStyle={connectionLineStyle}
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
