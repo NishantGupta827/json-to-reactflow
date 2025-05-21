@@ -1,7 +1,13 @@
-import { Handle, Position, useConnection, useReactFlow, type NodeProps } from '@xyflow/react';
-import { useCallback } from 'react';
+import {
+  Handle,
+  Position,
+  useConnection,
+  useReactFlow,
+  type NodeProps,
+} from "@xyflow/react";
+import { useCallback } from "react";
 
-const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
+const positionMap: Record<"top" | "bottom" | "left" | "right", Position> = {
   top: Position.Top,
   bottom: Position.Bottom,
   left: Position.Left,
@@ -10,16 +16,16 @@ const positionMap: Record<'top' | 'bottom' | 'left' | 'right', Position> = {
 
 const shapeStyles: Record<string, React.CSSProperties> = {
   rectangle: {},
-  circle: { borderRadius: '50%' },
-  rounded: { borderRadius: '12px' },
+  circle: { borderRadius: "50%" },
+  rounded: { borderRadius: "12px" },
   diamond: {
-    transform: 'rotate(45deg)',
+    transform: "rotate(45deg)",
   },
 };
 
 type HandleConfig = {
   id: string;
-  type: 'source' | 'target';
+  type: "source" | "target";
   position: keyof typeof positionMap;
   style?: React.CSSProperties;
 };
@@ -40,12 +46,12 @@ export default function CustomNode({ id, data }: NodeProps) {
   const connection = useConnection();
 
   const {
-    label = '',
-    bgColor = '#ffffff',
-    textColor = '#000000',
-    borderColor = '#000000',
+    label = "",
+    bgColor = "#ffffff",
+    textColor = "#000000",
+    borderColor = "#000000",
     borderWidth = 1,
-    shape = 'rectangle',
+    shape = "rectangle",
     handles = [],
     editable = false,
   } = data as CustomNodeData;
@@ -67,30 +73,30 @@ export default function CustomNode({ id, data }: NodeProps) {
   const isTarget = connection.inProgress && connection.fromNode.id !== id;
 
   const labelWrapperStyle: React.CSSProperties = {
-    width: '100%',
-    textAlign: 'center',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   };
 
-  const isDiamond = shape === 'diamond';
+  const isDiamond = shape === "diamond";
 
   const size = 70;
 
   const baseStyle: React.CSSProperties = {
-    position: 'relative',
+    position: "relative",
     backgroundColor: bgColor,
     color: textColor,
     border: `${borderWidth}px solid ${borderColor}`,
     padding: 10,
-    textAlign: 'center',
-    width: isDiamond ? size : '110px',
-    height: isDiamond ? size : '70px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontWeight: 'bold',
+    textAlign: "center",
+    width: isDiamond ? size : "110px",
+    height: isDiamond ? size : "70px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontWeight: "bold",
     ...shapeStyles[shape],
   };
 
@@ -113,7 +119,6 @@ export default function CustomNode({ id, data }: NodeProps) {
         />
       )}
 
-
       {/* Label */}
       <div style={labelWrapperStyle}>
         {editable ? (
@@ -123,16 +128,16 @@ export default function CustomNode({ id, data }: NodeProps) {
             onChange={onChange}
             className="nodrag"
             style={{
-              width: '90%',
-              textAlign: 'center',
-              background: 'transparent',
+              width: "90%",
+              textAlign: "center",
+              background: "transparent",
               color: textColor,
-              border: 'none',
-              outline: 'none',
+              border: "none",
+              outline: "none",
             }}
           />
         ) : (
-          <div style={{ width: '100%', textAlign: 'center' }}>{label}</div>
+          <div style={{ width: "100%", textAlign: "center" }}>{label}</div>
         )}
       </div>
     </div>

@@ -1,5 +1,4 @@
 import {
-  Panel,
   useReactFlow,
   getNodesBounds,
   getViewportForBounds,

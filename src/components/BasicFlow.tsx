@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useRef } from "react";
 import {
   ReactFlow,
   Background,
   Controls,
   MiniMap,
-  ReactFlowProvider,
   applyEdgeChanges,
   applyNodeChanges,
   useNodesState,
@@ -13,27 +12,31 @@ import {
   MarkerType,
   type Connection,
   type Edge,
+  type Node,
   type NodeChange,
   type EdgeChange,
-  reconnectEdge,
   ControlButton,
+  ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
-import GenericCustomNode from "./GenericCustomNode";
+import GenericCustomNode, { type CustomNodeData } from "./GenericCustomNode";
 import CustomConnectionLine from "./CustomConnectionLine";
 import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
-import DownloadButton from "./DownloadButton";
+import DownloadButton from "./controls/DownloadButton";
 
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
-import createCustomEdgeType from "./Edges";
+import { DnDProvider, useDnD } from "./DnD";
+import Sidebar, { type SideBarInputJSON } from "./SideBar";
+import { Export, Import } from "./controls/ImportExport";
 
 export interface BasicFlowProps {
   json: FlowJson;
 }
 
 const connectionLineStyle = {
-  stroke: '#b1b1b7',
+  stroke: "#b1b1b7",
 };
 
 const initialEdges = [];
@@ -47,10 +50,10 @@ const edgeTypes = {
 };
 
 const defaultEdgeOptions = {
-  type: 'floating',
+  type: "floating",
   markerEnd: {
     type: MarkerType.ArrowClosed,
-    color: '#b1b1b7',
+    color: "#b1b1b7",
   },
 };
 
@@ -58,8 +61,24 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   const { canvas, customEdge } = json;
 
   const [nodes, setNodes] = useNodesState(json.nodes);
-  const [edges, setEdges] = useEdgesState(json.edges);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
 
+  const sidebarTestJson: SideBarInputJSON = {
+    Data: [
+      {
+        name: "Editable",
+        shape: "rounded",
+        bgColor: "#fff3e0",
+        editable: true,
+      },
+      {
+        name: "Not Editable",
+        shape: "rounded",
+        bgColor: "#e0f7fa",
+        editable: false,
+      },
+    ],
+  };
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -72,9 +91,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     []
   );
 
+  const reactFlowWrapper = useRef(null);
+  const { screenToFlowPosition } = useReactFlow();
+  const [_, setType] = useDnD();
+
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    []
   );
 
   // const onReconnect = useCallback(
@@ -83,13 +106,49 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   //   []
   // );
 
-  // const styledEdges = useMemo(() => {
-  //   return edges.map(edge => ({
-  //     ...edge,
-  //     className: 'custom-edge',
-  //   }));
-  // }, [edges]);
+  const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
 
+  const onDrop = useCallback(
+    (event: React.DragEvent<HTMLElement>) => {
+      event.preventDefault();
+
+      const raw = event.dataTransfer.getData("application/reactflow");
+      if (!raw) return;
+
+      try {
+        const { type, data } = JSON.parse(raw) as {
+          type: string;
+          data: CustomNodeData;
+        };
+
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        const newNode: Node = {
+          id: `node_${+new Date()}`,
+          type,
+          position,
+          data,
+        };
+
+        setNodes((nds) => nds.concat(newNode));
+      } catch (err) {
+        console.error("Failed to parse node data from drag event", err);
+      }
+    },
+    [screenToFlowPosition, setNodes]
+  );
+
+  const onDragStart = (event: React.DragEvent<HTMLElement>) => {
+    setType?.("custom");
+    event.dataTransfer.setData("text/plain", "custom");
+    event.dataTransfer.effectAllowed = "move";
+  };
 
   const getCurrentFlowJSON = () => {
     return {
@@ -112,15 +171,28 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
   };
 
   return (
-    <ReactFlowProvider>
-      <div style={{ width: "100%", height: "100vh" }}>
+    <div style={{ width: "100%", height: "100vh", display: "flex" }}>
+      <div
+        style={{
+          width: "250px",
+          borderRight: "1px solid #ccc",
+          padding: "1rem",
+        }}
+      >
+        <Sidebar Data={sidebarTestJson.Data} />
+      </div>
+      <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onDrop={onDrop}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
           fitView
+          style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           defaultEdgeOptions={defaultEdgeOptions}
@@ -129,15 +201,33 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
-            <Controls>{json.export && <DownloadButton />}<ControlButton onClick={() => console.log(getCurrentFlowJSON())} style={{ zIndex: '1000' }}>
-              js
-            </ControlButton></Controls>
+            <Controls>
+              {json.export && <DownloadButton />}
+              <ControlButton
+                onClick={() => console.log(getCurrentFlowJSON())}
+                style={{ zIndex: "1000" }}
+              >
+                js
+              </ControlButton>
+              <Import />
+              <Export />
+            </Controls>
           )}
           {canvas?.minimap && <MiniMap />}
         </ReactFlow>
       </div>
-    </ReactFlowProvider>
+    </div>
   );
 };
 
 export default BasicFlow;
+
+export const flowWrapper: React.FC<BasicFlowProps> = ({ json }) => {
+  return (
+    <ReactFlowProvider>
+      <DnDProvider>
+        <BasicFlow json={json} />
+      </DnDProvider>
+    </ReactFlowProvider>
+  );
+};
