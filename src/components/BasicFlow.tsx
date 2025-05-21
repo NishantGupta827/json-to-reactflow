@@ -9,6 +9,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
+  MarkerType,
   type Connection,
   type Edge,
   type Node,
@@ -19,6 +20,8 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import GenericCustomNode, { type CustomNodeData } from "./GenericCustomNode";
+import CustomConnectionLine from "./CustomConnectionLine";
+import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./DownloadButton";
 
@@ -31,8 +34,26 @@ export interface BasicFlowProps {
   json: FlowJson;
 }
 
+const connectionLineStyle = {
+  stroke: "#b1b1b7",
+};
+
+const initialEdges = [];
+
 const nodeTypes = {
   custom: GenericCustomNode,
+};
+
+const edgeTypes = {
+  floating: FloatingEdge,
+};
+
+const defaultEdgeOptions = {
+  type: "floating",
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    color: "#b1b1b7",
+  },
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
@@ -77,6 +98,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     []
   );
+
+  // const onReconnect = useCallback(
+  //   (oldEdge: Edge, newConnection: Connection) =>
+  //     setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
+  //   []
+  // );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
@@ -157,7 +184,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
         <ReactFlow
           nodes={nodes}
           edges={edges}
-          nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
@@ -166,6 +192,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          defaultEdgeOptions={defaultEdgeOptions}
+          connectionLineComponent={CustomConnectionLine}
+          connectionLineStyle={connectionLineStyle}
         >
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
