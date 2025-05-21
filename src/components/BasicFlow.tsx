@@ -23,12 +23,13 @@ import GenericCustomNode, { type CustomNodeData } from "./GenericCustomNode";
 import CustomConnectionLine from "./CustomConnectionLine";
 import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
-import DownloadButton from "./DownloadButton";
+import DownloadButton from "./controls/DownloadButton";
 
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
 import { DnDProvider, useDnD } from "./DnD";
 import Sidebar, { type SideBarInputJSON } from "./SideBar";
+import { Export, Import } from "./controls/ImportExport";
 
 export interface BasicFlowProps {
   json: FlowJson;
@@ -208,6 +209,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
               >
                 js
               </ControlButton>
+              <Import />
+              <Export />
             </Controls>
           )}
           {canvas?.minimap && <MiniMap />}
