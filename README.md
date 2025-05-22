@@ -19,18 +19,18 @@ npm install json-to-reactflow
 
 ```tsx
 import { JsonToReactFlow, type BasicFlowProps } from 'json-to-reactflow';
-import '@xyflow/react/dist/style.css';
 
-const json: BasicFlowProps = {
-  nodes: [/* ... */],
-  edges: [/* ... */],
-  customEdge: [/* optional custom edge data */],
+import { flowJson, sidebarJson } from './your-json-file';
+
+const props: BasicFlowProps = {
+  flowJson: flowJson,
+  sidebarJson: sidebarJson,
 };
 
 function App() {
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
-      <JsonToReactFlow json={json} />
+      <JsonToReactflow {...props} />
     </div>
   );
 }
@@ -42,9 +42,35 @@ function App() {
 
 ### `BasicFlowProps`
 
-| Prop   | Type       | Description                                                  |
-| ------ | ---------- | ------------------------------------------------------------ |
-| `json` | `FlowJson` | The JSON object containing nodes, edges, and optional config |
+| Prop          | Type               | Description                                                                |
+| ------------- | ------------------ | -------------------------------------------------------------------------- |
+| `flowJson`    | `FlowJson`         | Required. The main JSON object containing nodes, edges, canvas, etc.       |
+| `sidebarJson` | `SideBarInputJSON` | Optional. JSON configuration for the sidebar and available node templates. |
+
+---
+
+## 🧱 Sidebar Configuration
+
+### `SideBarInputJSON`
+
+Used to populate the draggable node templates in the sidebar.
+
+```ts
+export type SideBarInputJSON = {
+  Data: SideBarProps[];
+};
+```
+
+### `SideBarProps`
+
+| Property      | Type      | Description                                                           |
+| ------------- | --------- | --------------------------------------------------------------------- |
+| `name`        | `string`  | Label of the node in the sidebar                                      |
+| `shape`       | `string`  | Visual shape of the node (e.g., `'circle'`, `'diamond'`, `'rounded'`) |
+| `bgColor`     | `string`  | *(Optional)* Background color for the node                            |
+| `textColor`   | `string`  | *(Optional)* Font color used for node label                           |
+| `borderColor` | `string`  | *(Optional)* Border color of the node                                 |
+| `editable`    | `boolean` | *(Optional)* If true, node can be edited in canvas                    |
 
 ---
 
@@ -53,8 +79,8 @@ function App() {
 ```ts
 interface FlowJson {
   export?: boolean;
-  nodes: Node[];
-  edges: Edge[];
+  nodes: Node[]; // React flow type
+  edges: Edge[]; // React flow type
   customEdge: CustomEdgeType[];
   canvas?: CanvasConfig;
 }
