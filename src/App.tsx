@@ -1,6 +1,9 @@
 import { flowWrapper, type BasicFlowProps } from "./components/BasicFlow";
-import './index.css';
+import { flowJson, sidebarJson } from "./TestJson";
+import "./index.css";
 
-export const App = (props: BasicFlowProps) => {
+const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: sidebarJson };
+
+export const App = () => {
   return <>{flowWrapper(props)}</>;
 };

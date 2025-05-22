@@ -32,7 +32,7 @@ type HandleConfig = {
 
 export type CustomNodeData = {
   label?: string;
-  labelType?: 'text' | 'dropdown';  // Removed 'radio'
+  labelType?: "text" | "dropdown"; // Removed 'radio'
   labelOptions?: string[];
   selectedOption?: string;
   shape?: keyof typeof shapeStyles;
@@ -49,15 +49,15 @@ export default function CustomNode({ id, data }: NodeProps) {
   const connection = useConnection();
 
   const {
-    label = '',
-    labelType = 'text',
+    label = "",
+    labelType = "text",
     labelOptions = [],
-    selectedOption = '',
-    bgColor = '#ffffff',
-    textColor = '#000000',
-    borderColor = '#D3D3D3',
+    selectedOption = "",
+    bgColor = "#ffffff",
+    textColor = "#000000",
+    borderColor = "#D3D3D3",
     borderWidth = 0.5,
-    shape = 'rectangle',
+    shape = "rectangle",
     editable = false,
   } = data as CustomNodeData;
 
@@ -66,7 +66,9 @@ export default function CustomNode({ id, data }: NodeProps) {
       const newLabel = e.target.value;
       setNodes((prevNodes) =>
         prevNodes.map((node) =>
-          node.id === id ? { ...node, data: { ...node.data, label: newLabel } } : node
+          node.id === id
+            ? { ...node, data: { ...node.data, label: newLabel } }
+            : node
         )
       );
     },
@@ -76,13 +78,13 @@ export default function CustomNode({ id, data }: NodeProps) {
   const isTarget = connection.inProgress && connection.fromNode.id !== id;
 
   const labelWrapperStyle: React.CSSProperties = {
-    width: '100%',
-    textAlign: 'center',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1000,
-    ...(shape === 'diamond' ? { transform: 'rotate(-45deg)' } : {}),
+    ...(shape === "diamond" ? { transform: "rotate(-45deg)" } : {}),
   };
 
   const isDiamond = shape === "diamond";
@@ -95,14 +97,14 @@ export default function CustomNode({ id, data }: NodeProps) {
     color: textColor,
     border: `${borderWidth}px solid ${borderColor}`,
     padding: 10,
-    textAlign: 'center',
-    width: isDiamond ? size : '110px',
-    height: isDiamond ? size : '70px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontWeight: 'bold',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    textAlign: "center",
+    width: isDiamond ? size : "110px",
+    height: isDiamond ? size : "70px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontWeight: "bold",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     ...shapeStyles[shape],
   };
 
@@ -125,7 +127,11 @@ export default function CustomNode({ id, data }: NodeProps) {
     <div style={baseStyle}>
       {/* Handles */}
       {!connection.inProgress && (
-        <Handle className="customHandle" position={Position.Right} type="source" />
+        <Handle
+          className="customHandle"
+          position={Position.Right}
+          type="source"
+        />
       )}
       {(!connection.inProgress || isTarget) && (
         <Handle
@@ -139,16 +145,16 @@ export default function CustomNode({ id, data }: NodeProps) {
       {/* Label */}
       <div style={labelWrapperStyle}>
         {editable ? (
-          labelType === 'dropdown' && labelOptions.length > 0 ? (
+          labelType === "dropdown" && labelOptions.length > 0 ? (
             <select
               value={selectedOption}
               onChange={onChange}
               className="nodrag"
               style={{
-                background: 'transparent',
+                background: "transparent",
                 color: textColor,
-                border: 'none',
-                outline: 'none',
+                border: "none",
+                outline: "none",
               }}
             >
               {labelOptions.map((opt) => (
@@ -164,17 +170,25 @@ export default function CustomNode({ id, data }: NodeProps) {
               onChange={onChange}
               className="nodrag"
               style={{
-                width: '90%',
-                textAlign: 'center',
-                background: 'transparent',
+                textAlign: "center",
+                background: "transparent",
                 color: textColor,
-                border: 'none',
-                outline: 'none',
+                border: "none",
+                outline: "none",
               }}
             />
           )
         ) : (
-          <div style={{ width: '100%', textAlign: 'center', fontWeight: 'lighter', fontSize: 14 }}>{label}</div>
+          <div
+            style={{
+              width: "100%",
+              textAlign: "center",
+              fontWeight: "lighter",
+              fontSize: 14,
+            }}
+          >
+            {label}
+          </div>
         )}
       </div>
       <span className="drag-handle" style={dragHandleStyle} />
