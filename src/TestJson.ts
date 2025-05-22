@@ -1,3 +1,4 @@
+import { SideBarInputJSON } from "./components/SideBar";
 import type { FlowJson } from "./type";
 
 export const flowJson: FlowJson = {
@@ -90,3 +91,25 @@ export const flowJson: FlowJson = {
     }
   ]
 };
+
+export const sidebarJson : SideBarInputJSON = {
+    Data: [
+      {
+        name: "Editable",
+        shape: "rounded",
+        // bgColor: "#fff3e0",
+        editable: true,
+      },
+      {
+        name: "Not Editable",
+        shape: "rounded",
+        // bgColor: "#e0f7fa",
+        editable: false,
+      },
+      {
+        name: "conditional",
+        shape: "diamond",
+        editable: true
+      }
+    ],
+  };

@@ -30,11 +30,12 @@ import NodeDetailsPanel from "./generic/GenericNodePanel";
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
 import { DnDProvider, useDnD } from "./DnD";
-import Sidebar, { type SideBarInputJSON } from "./SideBar";
+import Sidebar, { type SideBarInputJSON as SideBarJSON } from "./SideBar";
 import { Export, Import } from "./controls/ImportExport";
 
 export interface BasicFlowProps {
-  json: FlowJson;
+  flowJson: FlowJson;
+  sidebarJson: SideBarJSON;
 }
 
 const connectionLineStyle = {
@@ -57,10 +58,9 @@ const defaultEdgeOptions = {
   },
 };
 
-const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
-  const { canvas, customEdge, edges: rawEdges } = json;
+const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
+  const { canvas, customEdge, edges: rawEdges } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-
 
   const handleNodeDoubleClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
@@ -75,33 +75,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
 
   const normalizedEdges = rawEdges.map((edge) => ({
     ...edge,
-    type: 'floating',
+    type: "floating",
   })) as Edge[];
 
-  const [nodes, setNodes] = useNodesState(json.nodes);
+  const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
-  const sidebarTestJson: SideBarInputJSON = {
-    Data: [
-      {
-        name: "Editable",
-        shape: "rounded",
-        // bgColor: "#fff3e0",
-        editable: true,
-      },
-      {
-        name: "Not Editable",
-        shape: "rounded",
-        // bgColor: "#e0f7fa",
-        editable: false,
-      },
-      {
-        name: "conditional",
-        shape: "diamond",
-        editable: true
-      }
-    ],
-  };
+  const sidebarTestJson: SideBarJSON = sidebarJson;
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -176,7 +156,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
 
   const getCurrentFlowJSON = () => {
     return {
-      export: json.export,
+      export: flowJson.export,
       canvas: canvas,
       customEdge: customEdge,
       nodes: nodes.map(({ id, position, data, type }) => ({
@@ -227,7 +207,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           <Background {...ParseBackground(canvas as CanvasConfig)} />
           {canvas?.controls && (
             <Controls>
-              {json.export && <DownloadButton />}
+              {flowJson.export && <DownloadButton />}
               <ControlButton
                 onClick={() => console.log(getCurrentFlowJSON())}
                 style={{ zIndex: "1000" }}
@@ -254,11 +234,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
 
 export default BasicFlow;
 
-export const flowWrapper: React.FC<BasicFlowProps> = ({ json }) => {
+export const flowWrapper: React.FC<BasicFlowProps> = ({
+  sidebarJson,
+  flowJson,
+}) => {
   return (
     <ReactFlowProvider>
       <DnDProvider>
-        <BasicFlow json={json} />
+        <BasicFlow sidebarJson={sidebarJson} flowJson={flowJson} />
       </DnDProvider>
     </ReactFlowProvider>
   );
