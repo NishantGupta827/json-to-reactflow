@@ -17,7 +17,8 @@
   },
   "files": [
     "/dist",
-    "dist/assets"
+    "dist/assets",
+    "!dist/**/*.map"
   ],
   "publishConfig": {
     "access": "public"
