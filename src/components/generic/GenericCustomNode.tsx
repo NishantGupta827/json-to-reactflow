@@ -100,6 +100,21 @@ export default function CustomNode({ id, data }: NodeProps) {
     ...shapeStyles[shape],
   };
 
+  const dragHandleStyle: React.CSSProperties = {
+    position: "absolute",
+    top: -10,
+    left: isDiamond ? -10 : "50%",
+    transform: isDiamond ? "" : "translateX(-50%)",
+    width: 40,
+    height: 40,
+    backgroundColor: "transparent",
+    //border: "0.5px solid #000",
+    borderRadius: "75%",
+    cursor: "grab",
+    zIndex: 10,
+    pointerEvents: "auto",
+  };
+
   return (
     <div style={baseStyle}>
       {/* Handles */}
@@ -140,6 +155,7 @@ export default function CustomNode({ id, data }: NodeProps) {
           <div style={{ width: "100%", textAlign: "center" }}>{label}</div>
         )}
       </div>
+      <span className="drag-handle" style={dragHandleStyle} />
     </div>
   );
 }

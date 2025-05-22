@@ -35,6 +35,7 @@ export function Export() {
       <img
         src="./images/export.png"
         alt="download icon"
+        title="Export"
         onClick={onClick}
         width="16px"
         height="16px"
@@ -80,6 +81,7 @@ export function Import() {
       <img
         src="./images/import.png"
         alt="download icon"
+        title="Import"
         onClick={handleIconClick}
         width="16px"
         height="16px"

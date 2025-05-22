@@ -1,5 +1,5 @@
 import React from "react";
-import { useDnD } from "./DnD";
+import { useDnD } from "../DnD";
 import type { CustomNodeData } from "./GenericCustomNode";
 
 export type SideBarProps = {

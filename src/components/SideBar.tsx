@@ -1,5 +1,8 @@
 import React from "react";
-import { GenericSideBarComponent, type SideBarProps } from "./GenericSidebar";
+import {
+  GenericSideBarComponent,
+  type SideBarProps,
+} from "./generic/GenericSidebar";
 
 export type SideBarInputJSON = {
   Data: SideBarProps[];
