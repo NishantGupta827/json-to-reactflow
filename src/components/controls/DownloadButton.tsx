@@ -5,6 +5,7 @@ import {
   ControlButton,
 } from "@xyflow/react";
 import { toPng } from "html-to-image";
+import DownloadIcon from './../../assets/download.png'
 
 function downloadImage(dataUrl: string) {
   const a = document.createElement("a");
@@ -51,7 +52,7 @@ function DownloadButton() {
   return (
     <ControlButton>
       <img
-        src="./images/download.png"
+        src={DownloadIcon}
         alt="download icon"
         onClick={onClick}
         width="16px"

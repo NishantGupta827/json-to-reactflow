@@ -221,7 +221,7 @@ export function getEdgeParams(
   let targetIntersection = getNodeIntersection(targetNode, sourceNode);
 
   const sourcePos = getEdgePosition(sourceNode, sourceIntersection);
-  const targetPos = getEdgePosition(targetNode, targetIntersection);
+  // const targetPos = getEdgePosition(targetNode, targetIntersection);
 
   if (targetNode.data.shape === 'diamond') {
     const sourceCenter = {

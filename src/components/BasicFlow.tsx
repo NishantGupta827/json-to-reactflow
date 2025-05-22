@@ -10,7 +10,6 @@ import {
   useEdgesState,
   addEdge,
   MarkerType,
-  Panel,
   type Connection,
   type Edge,
   type Node,
@@ -117,7 +116,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
 
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
-  const [_, setType] = useDnD();
+  const [_] = useDnD();
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -169,11 +168,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
     [screenToFlowPosition, setNodes]
   );
 
-  const onDragStart = (event: React.DragEvent<HTMLElement>) => {
-    setType?.("custom");
-    event.dataTransfer.setData("text/plain", "custom");
-    event.dataTransfer.effectAllowed = "move";
-  };
+  // const onDragStart = (event: React.DragEvent<HTMLElement>) => {
+  //   setType?.("custom");
+  //   event.dataTransfer.setData("text/plain", "custom");
+  //   event.dataTransfer.effectAllowed = "move";
+  // };
 
   const getCurrentFlowJSON = () => {
     return {
@@ -215,7 +214,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onConnect={onConnect}
           onDrop={onDrop}
           //onDragStart={onDragStart}
-          onNodeDoubleClick={(event, node) => {setSelectedNode(node); console.log(node)}}
+          onNodeDoubleClick={handleNodeDoubleClick}
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}

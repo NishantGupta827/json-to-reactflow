@@ -5,6 +5,8 @@ import {
   type Node,
 } from "@xyflow/react";
 import { useRef } from "react";
+import ImportIcon from './../../assets/import.png'
+import ExportIcon from './../../assets/export.png'
 
 function downloadJSON(dataUrl: string) {
   const a = document.createElement("a");
@@ -33,7 +35,7 @@ export function Export() {
   return (
     <ControlButton>
       <img
-        src="./images/export.png"
+        src={ImportIcon}
         alt="download icon"
         title="Export"
         onClick={onClick}
@@ -79,7 +81,7 @@ export function Import() {
   return (
     <ControlButton>
       <img
-        src="./images/import.png"
+        src={ExportIcon}
         alt="download icon"
         title="Import"
         onClick={handleIconClick}
