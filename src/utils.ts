@@ -239,9 +239,16 @@ export function getEdgeParams(
       height: targetNode.measured.height,
     };
 
-    targetIntersection = pullBackFromTarget(targetIntersection, targetCenter, sourceCenter, targetSize);
+    targetIntersection = pullBackFromTarget(
+      targetIntersection,
+      targetCenter,
+      sourceCenter,
+      targetSize
+    );
   }
 
+  // ✅ Recalculate targetPos after the update
+  const updatedTargetPos = getEdgePosition(targetNode, targetIntersection);
 
   return {
     sx: sourceIntersection.x,
@@ -249,7 +256,7 @@ export function getEdgeParams(
     tx: targetIntersection.x,
     ty: targetIntersection.y,
     sourcePos,
-    targetPos,
+    targetPos: updatedTargetPos,
   };
 }
 

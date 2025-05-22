@@ -281,3 +281,8 @@ div.customHandle {
   margin-bottom: 3px;
   display: inline-block;
 }
+
+.edge-label-renderer__custom-edge {
+  position: absolute;
+  font-size: 12px;
+}

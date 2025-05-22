@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -10,6 +10,7 @@ import {
   useEdgesState,
   addEdge,
   MarkerType,
+  Panel,
   type Connection,
   type Edge,
   type Node,
@@ -26,7 +27,7 @@ import CustomConnectionLine from "./CustomConnectionLine";
 import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
-
+import NodeDetailsPanel from "./generic/GenericNodePanel";
 import { type CanvasConfig, type FlowJson } from "../type";
 import { ParseBackground } from "./BackGround";
 import { DnDProvider, useDnD } from "./DnD";
@@ -40,8 +41,6 @@ export interface BasicFlowProps {
 const connectionLineStyle = {
   stroke: "#b1b1b7",
 };
-
-const initialEdges = [];
 
 const nodeTypes = {
   custom: GenericCustomNode,
@@ -60,25 +59,48 @@ const defaultEdgeOptions = {
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
-  const { canvas, customEdge } = json;
+  const { canvas, customEdge, edges: rawEdges } = json;
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+
+
+  const handleNodeDoubleClick = useCallback((_: any, node: Node) => {
+    setSelectedNode(node);
+  }, []);
+
+  const handleUpdateNode = useCallback((updatedNode: Node) => {
+    setNodes((nds) =>
+      nds.map((n) => (n.id === updatedNode.id ? { ...n, ...updatedNode } : n))
+    );
+    setSelectedNode(updatedNode);
+  }, []);
+
+  const normalizedEdges = rawEdges.map((edge) => ({
+    ...edge,
+    type: 'floating',
+  })) as Edge[];
 
   const [nodes, setNodes] = useNodesState(json.nodes);
-  const [edges, setEdges] = useEdgesState<Edge>([]);
+  const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const sidebarTestJson: SideBarInputJSON = {
     Data: [
       {
         name: "Editable",
         shape: "rounded",
-        bgColor: "#fff3e0",
+        // bgColor: "#fff3e0",
         editable: true,
       },
       {
         name: "Not Editable",
         shape: "rounded",
-        bgColor: "#e0f7fa",
+        // bgColor: "#e0f7fa",
         editable: false,
       },
+      {
+        name: "conditional",
+        shape: "diamond",
+        editable: true
+      }
     ],
   };
 
@@ -193,6 +215,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onConnect={onConnect}
           onDrop={onDrop}
           //onDragStart={onDragStart}
+          onNodeDoubleClick={(event, node) => {setSelectedNode(node); console.log(node)}}
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
@@ -217,6 +240,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
             </Controls>
           )}
           {canvas?.minimap && <MiniMap />}
+          {selectedNode && (
+            <NodeDetailsPanel
+              node={selectedNode}
+              onClose={() => setSelectedNode(null)}
+              onUpdateNode={handleUpdateNode}
+            />
+          )}
         </ReactFlow>
       </div>
     </div>

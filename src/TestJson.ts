@@ -18,11 +18,10 @@ export const flowJson: FlowJson = {
       position: { x: 50, y: 100 },
       data: {
         label: 'Start',
+        labelType: "dropdown",
+        labelOptions: ['option1', 'option 2', 'option 3'],
+        selectedOption: 'option 2',
         shape: 'circle',
-        bgColor: '#e0f7fa',
-        textColor: '#006064',
-        borderColor: '#006064',
-        borderWidth: 2,
         editable: true,
         handles: [
           { type: 'source', position: 'top', id: 'start' },
@@ -37,11 +36,7 @@ export const flowJson: FlowJson = {
       data: {
         label: 'Check',
         shape: 'diamond',
-        bgColor: '#fff3e0',
-        textColor: '#e65100',
-        borderColor: '#e65100',
-        borderWidth: 2,
-        editable: true,
+        editable: false,
         handles: [
           { type: 'source', position: 'top', id: 'out1' },
           { type: 'target', position: 'bottom', id: 'in2' }
@@ -56,10 +51,6 @@ export const flowJson: FlowJson = {
       data: {
         label: 'Notify Slack',
         shape: 'rounded',
-        bgColor: '#fce4ec',
-        textColor: '#880e4f',
-        borderColor: '#880e4f',
-        borderWidth: 2,
         editable: true,
         handles: [
           { type: 'target', position: 'left', id: 'in3' },
@@ -73,19 +64,22 @@ export const flowJson: FlowJson = {
     {
       id: 'e1',
       source: 'start',
-      type:"testing",
-      sourceHandle: 'start',
-      reconnectable: true,
-      label:'edges',
       target: 'condition',
-      targetHandle: 'in2'
+      animated: true,
+      label: 'test'
+    },
+    {
+      id: 'e3',
+      source: 'start',
+      target: 'slack',
+      animated: true,
+      label: 'Continue'
     },
     {
       id: 'e2',
       source: 'condition',
-      sourceHandle: 'out1',
       target: 'slack',
-      targetHandle: 'in3'
+      // animated: true
     }
   ],
   customEdge:[
