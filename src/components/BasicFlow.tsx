@@ -19,7 +19,9 @@ import {
   ReactFlowProvider,
   useReactFlow,
 } from "@xyflow/react";
-import GenericCustomNode, { type CustomNodeData } from "./GenericCustomNode";
+import GenericCustomNode, {
+  type CustomNodeData,
+} from "./generic/GenericCustomNode";
 import CustomConnectionLine from "./CustomConnectionLine";
 import FloatingEdge from "./FloatingEdge";
 import "@xyflow/react/dist/style.css";
@@ -133,6 +135,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           id: `node_${+new Date()}`,
           type,
           position,
+          dragHandle: ".drag-handle",
           data,
         };
 
@@ -189,7 +192,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ json }) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
-          onDragStart={onDragStart}
+          //onDragStart={onDragStart}
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}

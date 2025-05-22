@@ -14,6 +14,7 @@ export const flowJson: FlowJson = {
     {
       id: 'start',
       type: 'custom',
+      dragHandle: '.drag-handle',
       position: { x: 50, y: 100 },
       data: {
         label: 'Start',
@@ -51,6 +52,7 @@ export const flowJson: FlowJson = {
       id: 'slack',
       type: 'custom',
       position: { x: 450, y: 100 },
+      dragHandle: '.drag-handle',
       data: {
         label: 'Notify Slack',
         shape: 'rounded',
