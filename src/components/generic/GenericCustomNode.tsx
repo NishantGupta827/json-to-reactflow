@@ -5,7 +5,15 @@ import {
   useReactFlow,
   type NodeProps,
 } from "@xyflow/react";
-import { useCallback } from "react";
+import { useCallback, useRef, useLayoutEffect } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const positionMap: Record<"top" | "bottom" | "left" | "right", Position> = {
   top: Position.Top,
@@ -30,11 +38,16 @@ type HandleConfig = {
   style?: React.CSSProperties;
 };
 
+type InputField = {
+  type: "text" | "dropdown";
+  key: string; // unique identifier for the input
+  label?: string;
+  value: string;
+  options?: string[]; // only for dropdown
+};
+
 export type CustomNodeData = {
   label?: string;
-  labelType?: "text" | "dropdown"; // Removed 'radio'
-  labelOptions?: string[];
-  selectedOption?: string;
   shape?: keyof typeof shapeStyles;
   bgColor?: string;
   textColor?: string;
@@ -42,17 +55,17 @@ export type CustomNodeData = {
   borderWidth?: number;
   handles?: HandleConfig[];
   editable?: boolean;
+  inputs?: InputField[];
 };
 
 export default function CustomNode({ id, data }: NodeProps) {
   const { setNodes } = useReactFlow();
   const connection = useConnection();
+  const nodeRef = useRef<HTMLDivElement>(null);
 
   const {
     label = "",
-    labelType = "text",
-    labelOptions = [],
-    selectedOption = "",
+    inputs = [],
     bgColor = "#ffffff",
     textColor = "#000000",
     borderColor = "#D3D3D3",
@@ -61,35 +74,75 @@ export default function CustomNode({ id, data }: NodeProps) {
     editable = false,
   } = data as CustomNodeData;
 
-  const onChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const newLabel = e.target.value;
-      setNodes((prevNodes) =>
-        prevNodes.map((node) =>
-          node.id === id
-            ? { ...node, data: { ...node.data, label: newLabel } }
-            : node
-        )
+
+  const onInputChange = useCallback(
+    (value: string, key: string) => {
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
+
+          const data = node.data as CustomNodeData;
+
+          const updatedInputs = (data.inputs || []).map((input) =>
+            input.key === key ? { ...input, value } : input
+          );
+
+          return {
+            ...node,
+            data: {
+              ...data,
+              inputs: updatedInputs,
+            },
+          };
+        })
       );
     },
     [id, setNodes]
   );
 
+  const onLabelChange = useCallback(
+  (value: string) => {
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id !== id) return node;
+
+        const data = node.data as CustomNodeData;
+
+        return {
+          ...node,
+          data: {
+            ...data,
+            label: value,
+          },
+        };
+      })
+    );
+  },
+  [id, setNodes]
+);
+
+
   const isTarget = connection.inProgress && connection.fromNode.id !== id;
-
-  const labelWrapperStyle: React.CSSProperties = {
-    width: "100%",
-    textAlign: "center",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-    ...(shape === "diamond" ? { transform: "rotate(-45deg)" } : {}),
-  };
-
   const isDiamond = shape === "diamond";
-
   const size = 70;
+
+  useLayoutEffect(() => {
+    if (!isDiamond || !nodeRef.current) return;
+
+    const node = nodeRef.current;
+    const resizeObserver = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width !== height) {
+        const newSize = Math.max(width, height);
+        node.style.width = `${newSize}px`;
+        node.style.height = `${newSize}px`;
+      }
+    });
+
+    resizeObserver.observe(node);
+
+    return () => resizeObserver.disconnect();
+  }, [isDiamond]);
 
   const baseStyle: React.CSSProperties = {
     position: "relative",
@@ -98,14 +151,28 @@ export default function CustomNode({ id, data }: NodeProps) {
     border: `${borderWidth}px solid ${borderColor}`,
     padding: 10,
     textAlign: "center",
-    width: isDiamond ? size : "110px",
-    height: isDiamond ? size : "70px",
+    minWidth: isDiamond ? size : "110px",
+    minHeight: isDiamond ? size : "70px",
+    width: "auto",
+    height: "auto",
     display: "flex",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    fontWeight: "bold",
+    // fontWeight: "bold",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
     ...shapeStyles[shape],
+  };
+
+  const labelWrapperStyle: React.CSSProperties = {
+    width: "100%",
+    textAlign: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: inputs.length > 0 ? "13px" : "",
+    gap: 6,
+    ...(isDiamond ? { transform: "rotate(-45deg)" } : {}),
   };
 
   const dragHandleStyle: React.CSSProperties = {
@@ -116,7 +183,6 @@ export default function CustomNode({ id, data }: NodeProps) {
     width: 40,
     height: 40,
     backgroundColor: "transparent",
-    //border: "0.5px solid #000",
     borderRadius: "75%",
     cursor: "grab",
     zIndex: 10,
@@ -124,7 +190,7 @@ export default function CustomNode({ id, data }: NodeProps) {
   };
 
   return (
-    <div style={baseStyle}>
+    <div style={baseStyle} ref={nodeRef}>
       {/* Handles */}
       {!connection.inProgress && (
         <Handle
@@ -142,55 +208,55 @@ export default function CustomNode({ id, data }: NodeProps) {
         />
       )}
 
-      {/* Label */}
+      {/* Inputs or fallback label */}
       <div style={labelWrapperStyle}>
-        {editable ? (
-          labelType === "dropdown" && labelOptions.length > 0 ? (
-            <select
-              value={selectedOption}
-              onChange={onChange}
-              className="nodrag"
-              style={{
-                background: "transparent",
-                color: textColor,
-                border: "none",
-                outline: "none",
-              }}
-            >
-              {labelOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
+        {inputs.length > 0 ? (
+          editable ? (
+            inputs.map((input) =>
+              input.type === "dropdown" ? (
+                <Select
+                  key={input.key}
+                  value={input.value}
+                  onValueChange={(val) => onInputChange(val, input.key)}
+                >
+                  <SelectTrigger className="w-[100px] text-xs z-[1000]">
+                    <SelectValue placeholder="Select option" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {input.options?.map((opt) => (
+                      <SelectItem key={opt} value={opt} className="text-xs">
+                        {opt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  key={input.key}
+                  value={input.value}
+                  onChange={(e) => onInputChange(e.target.value, input.key)}
+                  className="font-[305] h-8 w-[100px] z-[1000]"
+                />
+              )
+            )
           ) : (
-            <input
-              type="text"
-              value={label}
-              onChange={onChange}
-              className="nodrag"
-              style={{
-                textAlign: "center",
-                background: "transparent",
-                color: textColor,
-                border: "none",
-                outline: "none",
-              }}
-            />
+            inputs.map((input) => (
+              <div key={input.key} className="text-xs text-center">
+                {input.value}
+              </div>
+            ))
           )
+        ) : editable ? (
+          <Input
+            value={label}
+            onChange={(e) => onLabelChange(e.target.value)}
+            className="w-[100px] text-xs h-8 text-center z-[1000]"
+          />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              fontWeight: "lighter",
-              fontSize: 14,
-            }}
-          >
-            {label}
-          </div>
+          <div className="text-sm font-light text-center">{label}</div>
         )}
       </div>
+
       <span className="drag-handle" style={dragHandleStyle} />
     </div>
   );

@@ -214,15 +214,3 @@ You can enhance behavior by modifying:
 ## 📄 License
 
 MIT
-
-```
-
----
-
-Let me know if you'd like:
-- JSON schema auto-validation section
-- A CodeSandbox template link
-- A visual diagram in the README
-
-I'm happy to help package it for full open-source visibility!
-```
