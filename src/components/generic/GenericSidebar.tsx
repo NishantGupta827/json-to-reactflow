@@ -145,40 +145,6 @@ export const GenericSideBarComponent: React.FC<SideBarProps> = (data) => {
       "application/reactflow",
       JSON.stringify({ type: nodeType, data: customData })
     );
-
-    const original = event.currentTarget;
-    const clone = original.cloneNode(true) as HTMLElement;
-
-    // STEP 2: Style the clone to be off-screen but visible
-    clone.style.position = "fixed";
-    clone.style.top = "-10000px";
-    clone.style.left = "-10000px";
-    clone.style.pointerEvents = "none"; // prevent interaction
-    clone.style.zIndex = "9999"; // stay on top if needed
-    clone.style.background = "transparent";
-    document.body.appendChild(clone);
-
-    // STEP 3: Wait for clone to render (force style/layout update)
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-
-    // STEP 4: Render with html2canvas
-    const canvas = await html2canvas(clone, {
-      backgroundColor: null,
-      scale: window.devicePixelRatio,
-      useCORS: true,
-    });
-
-    const cropped = cropCanvas(canvas);
-
-    // STEP 5: Set canvas as drag image
-    event.dataTransfer.setDragImage(
-      cropped,
-      cropped.width / 2,
-      cropped.height / 2
-    );
-
-    // Clean up clone
-    document.body.removeChild(clone);
   };
 
   const nodeData = convertJSONToNode(data);

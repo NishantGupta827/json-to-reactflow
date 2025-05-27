@@ -35,13 +35,6 @@ export const flowJson: FlowJson = {
             value: "option 2",
             options: ["option 1", "option 2", "option 3"],
           },
-          // {
-          //   type: 'dropdown',
-          //   key: 'select1',
-          //   label: 'Choice',
-          //   value: 'option 2',
-          //   options: ['option 1', 'option 2', 'option 3'],
-          // }
         ],
         handles: [
           { type: "source", position: "top", id: "start" },
@@ -71,13 +64,6 @@ export const flowJson: FlowJson = {
             value: "option 2",
             options: ["option 1", "option 2", "option 3"],
           },
-          // {
-          //   type: 'dropdown',
-          //   key: 'select1',
-          //   label: 'Choice',
-          //   value: 'option 2',
-          //   options: ['option 1', 'option 2', 'option 3'],
-          // }
         ],
         handles: [
           { type: "source", position: "top", id: "out1" },
