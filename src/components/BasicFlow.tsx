@@ -18,6 +18,7 @@ import {
   ControlButton,
   ReactFlowProvider,
   useReactFlow,
+  Panel,
 } from "@xyflow/react";
 import GenericCustomNode, {
   type CustomNodeData,
@@ -32,6 +33,7 @@ import { ParseBackground } from "./BackGround";
 import { DnDProvider, useDnD } from "./DnD";
 import Sidebar, { type SideBarInputJSON as SideBarJSON } from "./SideBar";
 import { Export, Import } from "./controls/ImportExport";
+import { getLayoutedElements } from "@/layoutUtils";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -174,6 +176,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     };
   };
 
+  const onLayout = useCallback(
+    (direction: "TB" | "LR" = "TB") => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+    },
+    [nodes, edges, setNodes, setEdges]
+  );
+
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex" }}>
       <div
@@ -216,6 +228,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
               </ControlButton>
               <Import />
               <Export />
+              {/* <ControlButton onClick={() => onLayout("TB")}>
+                Layout (Vertical)
+              </ControlButton>
+              <ControlButton onClick={() => onLayout("LR")}>
+                Layout (Horizontal)
+              </ControlButton> */}
             </Controls>
           )}
           {canvas?.minimap && <MiniMap />}
@@ -226,6 +244,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
               onUpdateNode={handleUpdateNode}
             />
           )}
+          <Panel position="top-right">
+            <button className="xy-theme__button" onClick={() => onLayout("TB")}>
+              vertical layout
+            </button>
+            <button className="xy-theme__button" onClick={() => onLayout("LR")}>
+              horizontal layout
+            </button>
+          </Panel>
         </ReactFlow>
       </div>
     </div>
