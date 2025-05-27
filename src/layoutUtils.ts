@@ -1,18 +1,18 @@
 import dagre from '@dagrejs/dagre';
-import { Node, Edge, Position } from '@xyflow/react';
+import { Node as FlowNode, Edge, Position } from '@xyflow/react';
 
 // const nodeWidth = 172;
 // const nodeHeight = 36;
 
 export function getLayoutedElements(
-  nodes: Node[],
+  nodes: FlowNode[],
   edges: Edge[],
   direction: 'TB' | 'LR' = 'TB'
-): { nodes: Node[]; edges: Edge[] } {
+): { nodes: FlowNode[]; edges: Edge[] } {
   const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   const isHorizontal = direction === 'LR';
 
-  dagreGraph.setGraph({ rankdir: direction });
+  dagreGraph.setGraph({ rankdir: direction});
 
   let max_width = 0;
   let max_height = 0;
@@ -28,21 +28,25 @@ export function getLayoutedElements(
     }
   });
 
+
+  dagreGraph.setGraph({ rankdir:direction,nodesep: !isHorizontal?3*max_height:100, ranksep:!isHorizontal?100:max_width})
+
   edges.forEach((edge) => {
     dagreGraph.setEdge(edge.source, edge.target);
   });
 
-  dagre.layout(dagreGraph);
+  dagre.layout(dagreGraph)
 
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
+    console.log(nodeWithPosition)
     return {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,
       sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
       position: {
-        x: nodeWithPosition.x - max_width / 2,
-        y: nodeWithPosition.y - max_height / 2,
+        x: nodeWithPosition.x,
+        y: nodeWithPosition.y,
       },
     };
   });

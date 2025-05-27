@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -19,6 +19,7 @@ import {
   ReactFlowProvider,
   useReactFlow,
   Panel,
+  useNodesInitialized,
 } from "@xyflow/react";
 import GenericCustomNode, {
   type CustomNodeData,
@@ -34,6 +35,8 @@ import { DnDProvider, useDnD } from "./DnD";
 import Sidebar, { type SideBarInputJSON as SideBarJSON } from "./SideBar";
 import { Export, Import } from "./controls/ImportExport";
 import { getLayoutedElements } from "@/layoutUtils";
+import { layout } from "@dagrejs/dagre";
+import { on } from "events";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -63,6 +66,7 @@ const defaultEdgeOptions = {
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { canvas, customEdge, edges: rawEdges } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const { fitView } = useReactFlow();
 
   const handleNodeDoubleClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
@@ -83,13 +87,22 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
+  const nodesInitialized = useNodesInitialized();
+  console.log(nodesInitialized);
+  const [initial, setInitial] = useState(true);
+
+  useEffect(() => {
+    if (nodesInitialized && initial) {
+      onLayout("TB");
+      setInitial(false);
+    }
+  }, [nodesInitialized, initial]);
+
   const sidebarTestJson: SideBarJSON = sidebarJson;
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nds) => applyNodeChanges(changes, nds)),
-    []
-  );
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setNodes((nds) => applyNodeChanges(changes, nds));
+  }, []);
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) =>
       setEdges((eds) => applyEdgeChanges(changes, eds)),
@@ -104,12 +117,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     []
   );
-
-  // const onReconnect = useCallback(
-  //   (oldEdge: Edge, newConnection: Connection) =>
-  //     setEdges((els) => reconnectEdge(oldEdge, newConnection, els)),
-  //   []
-  // );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
@@ -130,8 +137,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         };
 
         const position = screenToFlowPosition({
-          x: event.clientX,
-          y: event.clientY,
+          x: event.clientX - 50,
+          y: event.clientY - 50,
         });
 
         const newNode: Node = {
@@ -149,12 +156,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     },
     [screenToFlowPosition, setNodes]
   );
-
-  // const onDragStart = (event: React.DragEvent<HTMLElement>) => {
-  //   setType?.("custom");
-  //   event.dataTransfer.setData("text/plain", "custom");
-  //   event.dataTransfer.effectAllowed = "move";
-  // };
 
   const getCurrentFlowJSON = () => {
     return {
@@ -182,6 +183,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         getLayoutedElements(nodes, edges, direction);
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 500 });
+      }, 0);
     },
     [nodes, edges, setNodes, setEdges]
   );
