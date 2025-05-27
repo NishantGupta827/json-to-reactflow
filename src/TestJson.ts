@@ -49,6 +49,8 @@ export const flowJson: FlowJson = {
       data: {
         label: "Check",
         shape: "rectangle",
+        incoming: 2,
+        outgoing: 2,
         editable: true,
         inputs: [
           {

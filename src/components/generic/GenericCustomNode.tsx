@@ -2,6 +2,7 @@ import {
   Handle,
   Position,
   useConnection,
+  useNodeConnections,
   useReactFlow,
   type NodeProps,
 } from "@xyflow/react";
@@ -56,6 +57,8 @@ export type CustomNodeData = {
   handles?: HandleConfig[];
   editable?: boolean;
   inputs?: InputField[];
+  incoming?: number;
+  outgoing?: number;
 };
 
 export default function CustomNode({ id, data }: NodeProps) {
@@ -72,8 +75,9 @@ export default function CustomNode({ id, data }: NodeProps) {
     borderWidth = 0.5,
     shape = "rectangle",
     editable = false,
+    incoming = Infinity,
+    outgoing = Infinity,
   } = data as CustomNodeData;
-
 
   const onInputChange = useCallback(
     (value: string, key: string) => {
@@ -101,26 +105,25 @@ export default function CustomNode({ id, data }: NodeProps) {
   );
 
   const onLabelChange = useCallback(
-  (value: string) => {
-    setNodes((nodes) =>
-      nodes.map((node) => {
-        if (node.id !== id) return node;
+    (value: string) => {
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
 
-        const data = node.data as CustomNodeData;
+          const data = node.data as CustomNodeData;
 
-        return {
-          ...node,
-          data: {
-            ...data,
-            label: value,
-          },
-        };
-      })
-    );
-  },
-  [id, setNodes]
-);
-
+          return {
+            ...node,
+            data: {
+              ...data,
+              label: value,
+            },
+          };
+        })
+      );
+    },
+    [id, setNodes]
+  );
 
   const isTarget = connection.inProgress && connection.fromNode.id !== id;
   const isDiamond = shape === "diamond";
@@ -189,6 +192,14 @@ export default function CustomNode({ id, data }: NodeProps) {
     pointerEvents: "auto",
   };
 
+  const source_conn = useNodeConnections({
+    handleType: "source",
+  });
+
+  const target_conn = useNodeConnections({
+    handleType: "target",
+  });
+
   return (
     <div style={baseStyle} ref={nodeRef}>
       {/* Handles */}
@@ -197,6 +208,7 @@ export default function CustomNode({ id, data }: NodeProps) {
           className="customHandle"
           position={Position.Right}
           type="source"
+          isConnectable={source_conn.length < outgoing}
         />
       )}
       {(!connection.inProgress || isTarget) && (
@@ -205,6 +217,7 @@ export default function CustomNode({ id, data }: NodeProps) {
           position={Position.Left}
           type="target"
           isConnectableStart={false}
+          isConnectable={target_conn.length < incoming}
         />
       )}
 

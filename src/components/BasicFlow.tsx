@@ -35,8 +35,6 @@ import { DnDProvider, useDnD } from "./DnD";
 import Sidebar, { type SideBarInputJSON as SideBarJSON } from "./SideBar";
 import { Export, Import } from "./controls/ImportExport";
 import { getLayoutedElements } from "@/layoutUtils";
-import { layout } from "@dagrejs/dagre";
-import { on } from "events";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
