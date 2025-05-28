@@ -15,51 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const positionMap: Record<"top" | "bottom" | "left" | "right", Position> = {
-  top: Position.Top,
-  bottom: Position.Bottom,
-  left: Position.Left,
-  right: Position.Right,
-};
-
-const shapeStyles: Record<string, React.CSSProperties> = {
-  rectangle: {},
-  circle: { borderRadius: "50%" },
-  rounded: { borderRadius: "12px" },
-  diamond: {
-    transform: "rotate(45deg)",
-  },
-};
-
-type HandleConfig = {
-  id: string;
-  type: "source" | "target";
-  position: keyof typeof positionMap;
-  style?: React.CSSProperties;
-};
-
-type InputField = {
-  type: "text" | "dropdown";
-  key: string; // unique identifier for the input
-  label?: string;
-  value: string;
-  options?: string[]; // only for dropdown
-};
-
-export type CustomNodeData = {
-  label?: string;
-  shape?: keyof typeof shapeStyles;
-  bgColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  handles?: HandleConfig[];
-  editable?: boolean;
-  inputs?: InputField[];
-  incoming?: number;
-  outgoing?: number;
-};
+import { CustomNodeData, InputField, shapeStyles } from "@/types/nodes";
 
 export default function CustomNode({ id, data }: NodeProps) {
   const { setNodes } = useReactFlow();
@@ -225,7 +181,7 @@ export default function CustomNode({ id, data }: NodeProps) {
       <div style={labelWrapperStyle}>
         {inputs.length > 0 ? (
           editable ? (
-            inputs.map((input) =>
+            inputs.map((input: InputField) =>
               input.type === "dropdown" ? (
                 <Select
                   key={input.key}
@@ -253,7 +209,7 @@ export default function CustomNode({ id, data }: NodeProps) {
               )
             )
           ) : (
-            inputs.map((input) => (
+            inputs.map((input: InputField) => (
               <div key={input.key} className="text-xs text-center">
                 {input.value}
               </div>

@@ -21,20 +21,21 @@ import {
   Panel,
   useNodesInitialized,
 } from "@xyflow/react";
-import GenericCustomNode, {
-  type CustomNodeData,
-} from "./generic/GenericCustomNode";
-import CustomConnectionLine from "./CustomConnectionLine";
-import FloatingEdge from "./FloatingEdge";
+import GenericCustomNode from "./node/GenericCustomNode";
+import CustomConnectionLine from "./easyConnect/CustomConnectionLine";
+import FloatingEdge from "./easyConnect/FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
-import NodeDetailsPanel from "./generic/GenericNodePanel";
-import { type CanvasConfig, type FlowJson } from "../type";
-import { ParseBackground } from "./BackGround";
-import { DnDProvider, useDnD } from "./DnD";
-import Sidebar, { type SideBarInputJSON as SideBarJSON } from "./SideBar";
+import NodeDetailsPanel from "./node/GenericNodePanel";
+import { ParseBackground } from "./background/BackGround";
+import { DnDProvider, useDnD } from "./sidebar/DnD";
+import Sidebar, {
+  type SideBarInputJSON as SideBarJSON,
+} from "./sidebar/SideBar";
 import { Export, Import } from "./controls/ImportExport";
-import { getLayoutedElements } from "@/layoutUtils";
+import { BackgroundConfig, FlowJson } from "@/types/flowJson";
+import { CustomNodeData } from "@/types/nodes";
+import { getLayoutedElements } from "@/utils/layoutUtil";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -62,7 +63,7 @@ const defaultEdgeOptions = {
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { canvas, customEdge, edges: rawEdges } = flowJson;
+  const { control, minimap, background, edges: rawEdges } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
@@ -158,8 +159,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const getCurrentFlowJSON = () => {
     return {
       export: flowJson.export,
-      canvas: canvas,
-      customEdge: customEdge,
+      background: background,
       nodes: nodes.map(({ id, position, data, type }) => ({
         id,
         position,
@@ -218,8 +218,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           connectionLineComponent={CustomConnectionLine}
           connectionLineStyle={connectionLineStyle}
         >
-          <Background {...ParseBackground(canvas as CanvasConfig)} />
-          {canvas?.controls && (
+          <Background {...ParseBackground(background as BackgroundConfig)} />
+          {control && (
             <Controls>
               {flowJson.export && <DownloadButton />}
               <ControlButton
@@ -230,15 +230,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
               </ControlButton>
               <Import />
               <Export />
-              {/* <ControlButton onClick={() => onLayout("TB")}>
-                Layout (Vertical)
-              </ControlButton>
-              <ControlButton onClick={() => onLayout("LR")}>
-                Layout (Horizontal)
-              </ControlButton> */}
             </Controls>
           )}
-          {canvas?.minimap && <MiniMap />}
+          {minimap && <MiniMap />}
           {selectedNode && (
             <NodeDetailsPanel
               node={selectedNode}

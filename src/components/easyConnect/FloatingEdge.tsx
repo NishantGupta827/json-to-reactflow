@@ -4,8 +4,8 @@ import {
   getStraightPath,
   useInternalNode,
   type EdgeProps,
-} from '@xyflow/react';
-import { getEdgeParams } from '../utils';
+} from "@xyflow/react";
+import { getEdgeParams } from "../../utils/easyConnect";
 
 function FloatingEdge({
   id,
@@ -41,12 +41,12 @@ function FloatingEdge({
         <EdgeLabelRenderer>
           <div
             style={{
-              position: 'absolute',
+              position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              background: 'white',
+              background: "white",
               fontSize: 12,
-              pointerEvents: 'all',
-              whiteSpace: 'nowrap',
+              pointerEvents: "all",
+              whiteSpace: "nowrap",
             }}
             className="nodrag nopan"
           >
