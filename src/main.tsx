@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
-import { flowJson, sidebarJson } from "./TestJson.ts";
+import { flowJson } from "./testJson/FlowJson.ts";
+import { sidebarJson } from "./testJson/SideBarJson.ts";
 
 const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: sidebarJson };
 

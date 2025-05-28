@@ -1,9 +1,6 @@
 import React from "react";
-import { GenericSideBarComponent, type SideBarProps } from "./GenericSidebar";
-
-export type SideBarInputJSON = {
-  Data: SideBarProps[];
-};
+import { GenericSideBarComponent } from "./GenericSidebar";
+import { SideBarInputJSON } from "@/types/sidebar";
 
 const Sidebar: React.FC<SideBarInputJSON> = (json) => {
   return (
@@ -27,9 +24,10 @@ const Sidebar: React.FC<SideBarInputJSON> = (json) => {
       >
         Tools
       </div>
-      {json.Data.map((object, i) => (
-        <GenericSideBarComponent {...object} key={i} />
-      ))}
+      {json.Data.map((object, i) => {
+        console.log(object);
+        return <GenericSideBarComponent {...object} key={i} />;
+      })}
     </aside>
   );
 };
