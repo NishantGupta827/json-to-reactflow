@@ -62,7 +62,13 @@ const defaultEdgeOptions = {
 };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { control, minimap, background, edges: rawEdges } = flowJson;
+  const {
+    control,
+    minimap,
+    background,
+    edges: rawEdges,
+    nodes: rawNodes,
+  } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
@@ -82,7 +88,20 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     type: "floating",
   })) as Edge[];
 
-  const [nodes, setNodes] = useNodesState(flowJson.nodes);
+  const normalizedNodes: Node[] = rawNodes.map(
+    (node) =>
+      ({
+        id: node.id,
+        data: { ...node },
+        type: "custom",
+        position: {
+          x: 0,
+          y: 0,
+        },
+      } as Node)
+  );
+
+  const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const nodesInitialized = useNodesInitialized();

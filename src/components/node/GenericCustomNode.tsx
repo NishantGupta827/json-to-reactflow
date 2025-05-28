@@ -109,7 +109,7 @@ export default function CustomNode({ id, data }: NodeProps) {
       )}
 
       {/* Styled Node */}
-      <StyledNode id={id} data={data} sidebar={false} />
+      <StyledNode id={id} data={data as CustomNodeData} sidebar={false} />
       <span className="drag-handle" style={dragHandleStyle} />
     </div>
   );
