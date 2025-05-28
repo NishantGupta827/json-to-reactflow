@@ -1,7 +1,6 @@
 import React from "react";
-import { useDnD } from "../DnD";
-import type { CustomNodeData } from "./GenericCustomNode";
-import html2canvas from "html2canvas";
+import { useDnD } from "./DnD";
+import { CustomNodeData } from "@/types/nodes";
 
 export type SideBarProps = {
   name: string;
@@ -76,57 +75,6 @@ function convertJSONToNode(data: SideBarProps): CustomNodeData {
   result.editable =
     data.editable != undefined ? data.editable : result.editable;
   return result;
-}
-
-function cropCanvas(canvas: HTMLCanvasElement): HTMLCanvasElement {
-  const ctx = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-  const imageData = ctx?.getImageData(0, 0, width, height);
-  if (!imageData) return canvas;
-
-  let top = null,
-    bottom = null,
-    left = null,
-    right = null;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const alpha = imageData.data[(y * width + x) * 4 + 3];
-      if (alpha !== 0) {
-        if (top === null) top = y;
-        bottom = y;
-        if (left === null || x < left) left = x;
-        if (right === null || x > right) right = x;
-      }
-    }
-  }
-
-  if (top === null || bottom === null || left === null || right === null) {
-    // canvas is fully transparent
-    return canvas;
-  }
-
-  const croppedWidth = right - left + 1;
-  const croppedHeight = bottom - top + 1;
-
-  const croppedCanvas = document.createElement("canvas");
-  croppedCanvas.width = croppedWidth;
-  croppedCanvas.height = croppedHeight;
-
-  const croppedCtx = croppedCanvas.getContext("2d");
-  if (!croppedCtx) return canvas;
-
-  const imgData: ImageData = ctx?.getImageData(
-    left,
-    top,
-    croppedWidth,
-    croppedHeight
-  ) as ImageData;
-
-  croppedCtx.putImageData(imgData, 0, 0);
-
-  return croppedCanvas;
 }
 
 export const GenericSideBarComponent: React.FC<SideBarProps> = (data) => {

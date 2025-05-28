@@ -1,16 +1,16 @@
-import { SideBarInputJSON } from "./components/SideBar";
-import type { FlowJson } from "./type";
+import { SideBarInputJSON } from "./components/sidebar/SideBar";
+import { FlowJson } from "./types/flowJson";
 
 export const flowJson: FlowJson = {
   export: true,
-  canvas: {
-    color: "#000000", // color of background dots
-    bgcolor: "#ffffff",
-    variant: "cross",
-    size: 1,
-    controls: true,
-    minimap: true,
-  },
+  control: true,
+  minimap: true,
+  background: {
+     color: "#000000",
+     bgcolor: "#ffffff",
+     variant: "cross",
+     size: 1,
+   },
   nodes: [
     {
       id: "start",
@@ -49,6 +49,8 @@ export const flowJson: FlowJson = {
       data: {
         label: "Check",
         shape: "rectangle",
+        incoming: 2,
+        outgoing: 2,
         editable: true,
         inputs: [
           {
@@ -110,13 +112,6 @@ export const flowJson: FlowJson = {
       label: "test2",
 
       animated: true
-    },
-  ],
-  customEdge: [
-    {
-      typeName: "testing",
-      path: "bezier",
-      label: "test",
     },
   ],
 };

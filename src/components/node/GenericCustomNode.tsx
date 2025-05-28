@@ -2,6 +2,7 @@ import {
   Handle,
   Position,
   useConnection,
+  useNodeConnections,
   useReactFlow,
   type NodeProps,
 } from "@xyflow/react";
@@ -14,49 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const positionMap: Record<"top" | "bottom" | "left" | "right", Position> = {
-  top: Position.Top,
-  bottom: Position.Bottom,
-  left: Position.Left,
-  right: Position.Right,
-};
-
-const shapeStyles: Record<string, React.CSSProperties> = {
-  rectangle: {},
-  circle: { borderRadius: "50%" },
-  rounded: { borderRadius: "12px" },
-  diamond: {
-    transform: "rotate(45deg)",
-  },
-};
-
-type HandleConfig = {
-  id: string;
-  type: "source" | "target";
-  position: keyof typeof positionMap;
-  style?: React.CSSProperties;
-};
-
-type InputField = {
-  type: "text" | "dropdown";
-  key: string; // unique identifier for the input
-  label?: string;
-  value: string;
-  options?: string[]; // only for dropdown
-};
-
-export type CustomNodeData = {
-  label?: string;
-  shape?: keyof typeof shapeStyles;
-  bgColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  handles?: HandleConfig[];
-  editable?: boolean;
-  inputs?: InputField[];
-};
+import { CustomNodeData, InputField, shapeStyles } from "@/types/nodes";
 
 export default function CustomNode({ id, data }: NodeProps) {
   const { setNodes } = useReactFlow();
@@ -72,8 +31,9 @@ export default function CustomNode({ id, data }: NodeProps) {
     borderWidth = 0.5,
     shape = "rectangle",
     editable = false,
+    incoming = Infinity,
+    outgoing = Infinity,
   } = data as CustomNodeData;
-
 
   const onInputChange = useCallback(
     (value: string, key: string) => {
@@ -101,26 +61,25 @@ export default function CustomNode({ id, data }: NodeProps) {
   );
 
   const onLabelChange = useCallback(
-  (value: string) => {
-    setNodes((nodes) =>
-      nodes.map((node) => {
-        if (node.id !== id) return node;
+    (value: string) => {
+      setNodes((nodes) =>
+        nodes.map((node) => {
+          if (node.id !== id) return node;
 
-        const data = node.data as CustomNodeData;
+          const data = node.data as CustomNodeData;
 
-        return {
-          ...node,
-          data: {
-            ...data,
-            label: value,
-          },
-        };
-      })
-    );
-  },
-  [id, setNodes]
-);
-
+          return {
+            ...node,
+            data: {
+              ...data,
+              label: value,
+            },
+          };
+        })
+      );
+    },
+    [id, setNodes]
+  );
 
   const isTarget = connection.inProgress && connection.fromNode.id !== id;
   const isDiamond = shape === "diamond";
@@ -189,6 +148,14 @@ export default function CustomNode({ id, data }: NodeProps) {
     pointerEvents: "auto",
   };
 
+  const source_conn = useNodeConnections({
+    handleType: "source",
+  });
+
+  const target_conn = useNodeConnections({
+    handleType: "target",
+  });
+
   return (
     <div style={baseStyle} ref={nodeRef}>
       {/* Handles */}
@@ -197,6 +164,7 @@ export default function CustomNode({ id, data }: NodeProps) {
           className="customHandle"
           position={Position.Right}
           type="source"
+          isConnectable={source_conn.length < outgoing}
         />
       )}
       {(!connection.inProgress || isTarget) && (
@@ -205,6 +173,7 @@ export default function CustomNode({ id, data }: NodeProps) {
           position={Position.Left}
           type="target"
           isConnectableStart={false}
+          isConnectable={target_conn.length < incoming}
         />
       )}
 
@@ -212,7 +181,7 @@ export default function CustomNode({ id, data }: NodeProps) {
       <div style={labelWrapperStyle}>
         {inputs.length > 0 ? (
           editable ? (
-            inputs.map((input) =>
+            inputs.map((input: InputField) =>
               input.type === "dropdown" ? (
                 <Select
                   key={input.key}
@@ -240,7 +209,7 @@ export default function CustomNode({ id, data }: NodeProps) {
               )
             )
           ) : (
-            inputs.map((input) => (
+            inputs.map((input: InputField) => (
               <div key={input.key} className="text-xs text-center">
                 {input.value}
               </div>
