@@ -29,17 +29,16 @@ import DownloadButton from "./controls/DownloadButton";
 import NodeDetailsPanel from "./node/GenericNodePanel";
 import { ParseBackground } from "./background/BackGround";
 import { DnDProvider, useDnD } from "./sidebar/DnD";
-import Sidebar, {
-  type SideBarInputJSON as SideBarJSON,
-} from "./sidebar/SideBar";
+import Sidebar from "./sidebar/SideBar";
 import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { CustomNodeData } from "@/types/nodes";
 import { getLayoutedElements } from "@/utils/layoutUtil";
+import { SideBarInputJSON } from "@/types/sidebar";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
-  sidebarJson: SideBarJSON;
+  sidebarJson: SideBarInputJSON;
 }
 
 const connectionLineStyle = {
@@ -97,7 +96,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     }
   }, [nodesInitialized, initial]);
 
-  const sidebarTestJson: SideBarJSON = sidebarJson;
+  const sidebarTestJson: SideBarInputJSON = sidebarJson;
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));

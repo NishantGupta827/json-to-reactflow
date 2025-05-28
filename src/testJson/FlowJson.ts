@@ -1,16 +1,15 @@
-import { SideBarInputJSON } from "./components/sidebar/SideBar";
-import { FlowJson } from "./types/flowJson";
+import { FlowJson } from "../types/flowJson";
 
 export const flowJson: FlowJson = {
   export: true,
   control: true,
   minimap: true,
   background: {
-     color: "#000000",
-     bgcolor: "#ffffff",
-     variant: "cross",
-     size: 1,
-   },
+    color: "#000000",
+    bgcolor: "#ffffff",
+    variant: "cross",
+    size: 1,
+  },
   nodes: [
     {
       id: "start",
@@ -111,29 +110,7 @@ export const flowJson: FlowJson = {
       target: "slack",
       label: "test2",
 
-      animated: true
-    },
-  ],
-};
-
-export const sidebarJson: SideBarInputJSON = {
-  Data: [
-    {
-      name: "Editable",
-      shape: "rounded",
-      // bgColor: "#fff3e0",
-      editable: true,
-    },
-    {
-      name: "Not Editable",
-      shape: "rounded",
-      // bgColor: "#e0f7fa",
-      editable: false,
-    },
-    {
-      name: "conditional",
-      shape: "diamond",
-      editable: true,
+      animated: true,
     },
   ],
 };
