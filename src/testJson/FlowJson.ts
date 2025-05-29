@@ -1,4 +1,5 @@
 import { FlowJson } from "../types/flowJson";
+import { nodeJson } from "./revisedNodeJson";
 
 export const flowJson: FlowJson = {
   export: true,
@@ -10,107 +11,30 @@ export const flowJson: FlowJson = {
     variant: "cross",
     size: 1,
   },
-  nodes: [
-    {
-      id: "start",
-      type: "custom",
-      dragHandle: ".drag-handle",
-      position: { x: 50, y: 100 },
-      data: {
-        label: "Start",
-        shape: "circle",
-        editable: true,
-        inputs: [
-          {
-            type: "text",
-            key: "input1",
-            label: "Name",
-            value: "Alice",
-          },
-          {
-            type: "dropdown",
-            key: "select1",
-            label: "Choice",
-            value: "option 2",
-            options: ["option 1", "option 2", "option 3"],
-          },
-        ],
-        handles: [
-          { type: "source", position: "top", id: "start" },
-          { type: "target", position: "bottom", id: "in1" },
-        ],
-      },
-    },
-    {
-      id: "condition",
-      type: "custom",
-      position: { x: 250, y: 100 },
-      data: {
-        label: "Check",
-        shape: "rectangle",
-        incoming: 2,
-        outgoing: 2,
-        editable: true,
-        inputs: [
-          {
-            type: "text",
-            key: "input1",
-            label: "Name",
-            value: "Alice",
-          },
-          {
-            type: "dropdown",
-            key: "select1",
-            label: "Choice",
-            value: "option 2",
-            options: ["option 1", "option 2", "option 3"],
-          },
-        ],
-        handles: [
-          { type: "source", position: "top", id: "out1" },
-          { type: "target", position: "bottom", id: "in2" },
-        ],
-      },
-    },
-    {
-      id: "slack",
-      type: "custom",
-      position: { x: 450, y: 100 },
-      dragHandle: ".drag-handle",
-      data: {
-        label: "Notify Slack",
-        shape: "rounded",
-        editable: true,
-        handles: [
-          { type: "target", position: "left", id: "in3" },
-          { type: "source", position: "right", id: "ui8", style: { top: 10 } },
-          { type: "target", position: "right", id: "ui7", style: { top: 30 } },
-        ],
-      },
-    },
-  ],
+  nodes: nodeJson,
   edges: [
     {
       id: "e1",
-      source: "start",
-      target: "condition",
+      source: "node_2", // TextInputNode
+      target: "node_1", // OpenAIChatNode
+      targetHandle: "input-prompt", // matches id={`input-${name}`}
       animated: true,
-      label: "test",
-    },
-    {
-      id: "e3",
-      source: "start",
-      target: "slack",
-      animated: true,
-      label: "Continue",
+      label: "Prompt input",
     },
     {
       id: "e2",
-      source: "condition",
-      target: "slack",
-      label: "test2",
-
+      source: "node_3", // SwitchNode
+      target: "node_1", // OpenAIChatNode
+      targetHandle: "input-temperature",
       animated: true,
+      label: "Set Temperature",
+    },
+    {
+      id: "e3",
+      source: "node_1", // OpenAIChatNode
+      target: "node_4", // ConditionalRouterNode
+      animated: true,
+      label: "Response → Router",
     },
   ],
 };

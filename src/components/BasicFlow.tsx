@@ -35,6 +35,7 @@ import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { CustomNodeData } from "@/types/nodes";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import { SideBarInputJSON } from "@/types/sidebar";
+import RevisedCustomNode from "./node/GenericRevisedNode";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -46,23 +47,23 @@ const connectionLineStyle = {
 };
 
 const nodeTypes = {
-  custom: GenericCustomNode,
+  custom: RevisedCustomNode,
 };
 
 const edgeTypes = {
   floating: FloatingEdge,
 };
 
-const defaultEdgeOptions = {
-  type: "floating",
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    color: "#b1b1b7",
-  },
-};
+// const defaultEdgeOptions = {
+//   type: "floating",
+//   markerEnd: {
+//     type: MarkerType.ArrowClosed,
+//     color: "#b1b1b7",
+//   },
+// };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { control, minimap, background, edges: rawEdges } = flowJson;
+  const { control, minimap, background, edges: normalizedEdges } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
@@ -77,10 +78,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     setSelectedNode(updatedNode);
   }, []);
 
-  const normalizedEdges = rawEdges.map((edge) => ({
-    ...edge,
-    type: "floating",
-  })) as Edge[];
 
   const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
@@ -91,7 +88,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   useEffect(() => {
     if (nodesInitialized && initial) {
-      onLayout("TB");
+      onLayout("LR");
       setInitial(false);
     }
   }, [nodesInitialized, initial]);
@@ -212,10 +209,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          defaultEdgeOptions={defaultEdgeOptions}
-          connectionLineComponent={CustomConnectionLine}
-          connectionLineStyle={connectionLineStyle}
+          // edgeTypes={edgeTypes}
+          // defaultEdgeOptions={defaultEdgeOptions}
+          // connectionLineComponent={CustomConnectionLine}
+          // connectionLineStyle={connectionLineStyle}
         >
           <Background {...ParseBackground(background as BackgroundConfig)} />
           {control && (

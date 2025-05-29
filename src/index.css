@@ -87,9 +87,8 @@ div.customHandle {
   /* Built-in Variables see https://reactflow.dev/learn/customization/theming */
   --xy-node-border-default: 1px solid #ededed;
 
-  --xy-node-boxshadow-default:
-    0px 3.54px 4.55px 0px #00000005, 0px 3.54px 4.55px 0px #0000000d,
-    0px 0.51px 1.01px 0px #0000001a;
+  --xy-node-boxshadow-default: 0px 3.54px 4.55px 0px #00000005,
+    0px 3.54px 4.55px 0px #0000000d, 0px 0.51px 1.01px 0px #0000001a;
 
   --xy-node-border-radius-default: 8px;
 
@@ -100,8 +99,7 @@ div.customHandle {
 }
 
 .react-flow.dark {
-  --xy-node-boxshadow-default:
-    0px 3.54px 4.55px 0px rgba(255, 255, 255, 0.05),
+  --xy-node-boxshadow-default: 0px 3.54px 4.55px 0px rgba(255, 255, 255, 0.05),
     /* light shadow */ 0px 3.54px 4.55px 0px rgba(255, 255, 255, 0.13),
     /* medium shadow */ 0px 0.51px 1.01px 0px rgba(255, 255, 255, 0.2); /* smallest shadow */
   --xy-theme-color-focus: #535353;
@@ -214,9 +212,7 @@ div.customHandle {
   border: 1px solid var(--color-primary);
   background-color: var(--color-background);
   color: var(--color-primary);
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   box-shadow: var(--xy-node-boxshadow-default);
   z-index: 100;
 }
@@ -251,9 +247,7 @@ div.customHandle {
   border: 1px solid var(--color-primary);
   border-radius: 7px;
   background-color: var(--color-background);
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   font-size: 1rem;
   color: inherit;
 }
@@ -273,9 +267,7 @@ div.customHandle {
   border-radius: 7px;
   border: 2px solid var(--color-primary);
   background-color: var(--color-background);
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   display: inline-block;
   vertical-align: middle;
@@ -298,9 +290,7 @@ div.customHandle {
   border: 1px solid var(--color-primary);
   border-radius: 50px;
   background-color: var(--color-background);
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   font-size: 1rem;
   color: inherit;
   margin-right: 0.5rem;
@@ -403,4 +393,14 @@ div.customHandle {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.dropdown-style {
+  background-color: white;
+  padding: 6px;
+  transition: background-color 0.2s ease;
+}
+.dropdown-style:hover {
+  background-color: #f5f5f5; /* light gray */
+  cursor: pointer;
 }
