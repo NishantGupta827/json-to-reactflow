@@ -1,4 +1,4 @@
-import { Edge } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
 import { CustomNodeData } from "./nodes";
 
 export interface BackgroundConfig {
@@ -15,7 +15,7 @@ export interface FlowJson {
   export?: boolean;
   control?: boolean;
   minimap?: boolean;
-  nodes: CustomNodeData[];
+  nodes: Node[];
   edges: Edge[];
   background?: BackgroundConfig;
 }

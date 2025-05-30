@@ -105,6 +105,7 @@ function SideBarDropdown({ label, icon, children }: DropdownProps) {
 }
 
 export const SideBarComponent: React.FC<SideBarComponentProps> = ({ data }) => {
+  console.log(data);
   return (
     <div className="sidebar p-4">
       {data.folders.map((folder, folderIdx) => {
@@ -134,7 +135,7 @@ function SideBarItem({ data }: SideBarItemProps) {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData(
       "application/reactflow",
-      JSON.stringify({ type: "", data: data.data })
+      JSON.stringify({ type: "custom", data: data.data })
     );
   };
 

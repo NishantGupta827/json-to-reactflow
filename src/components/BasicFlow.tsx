@@ -9,9 +9,7 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  MarkerType,
   type Connection,
-  type Edge,
   type Node,
   type NodeChange,
   type EdgeChange,
@@ -21,8 +19,6 @@ import {
   Panel,
   useNodesInitialized,
 } from "@xyflow/react";
-import GenericCustomNode from "./node/GenericCustomNode";
-import CustomConnectionLine from "./easyConnect/CustomConnectionLine";
 import FloatingEdge from "./easyConnect/FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -34,11 +30,13 @@ import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { CustomNodeData } from "@/types/nodes";
 import { getLayoutedElements } from "@/utils/layoutUtil";
-import { SideBarInputJSON } from "@/types/sidebar";
+import RevisedCustomNode from "./node/GenericRevisedNode";
+import { TestJsonType } from "./sidebar/testingSideBarJson";
+import { ArrowRightFromLine } from "lucide-react";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
-  sidebarJson: SideBarInputJSON;
+  sidebarJson: TestJsonType;
 }
 
 const connectionLineStyle = {
@@ -46,29 +44,23 @@ const connectionLineStyle = {
 };
 
 const nodeTypes = {
-  custom: GenericCustomNode,
+  custom: RevisedCustomNode,
 };
 
 const edgeTypes = {
   floating: FloatingEdge,
 };
 
-const defaultEdgeOptions = {
-  type: "floating",
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    color: "#b1b1b7",
-  },
-};
+// const defaultEdgeOptions = {
+//   type: "floating",
+//   markerEnd: {
+//     type: MarkerType.ArrowClosed,
+//     color: "#b1b1b7",
+//   },
+// };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const {
-    control,
-    minimap,
-    background,
-    edges: rawEdges,
-    nodes: rawNodes,
-  } = flowJson;
+  const { control, minimap, background, edges: normalizedEdges } = flowJson;
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
@@ -83,25 +75,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     setSelectedNode(updatedNode);
   }, []);
 
-  const normalizedEdges = rawEdges.map((edge) => ({
-    ...edge,
-    type: "floating",
-  })) as Edge[];
-
-  const normalizedNodes: Node[] = rawNodes.map(
-    (node) =>
-      ({
-        id: node.id,
-        data: { ...node },
-        type: "custom",
-        position: {
-          x: 0,
-          y: 0,
-        },
-      } as Node)
-  );
-
-  const [nodes, setNodes] = useNodesState(normalizedNodes);
+  const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const nodesInitialized = useNodesInitialized();
@@ -110,12 +84,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   useEffect(() => {
     if (nodesInitialized && initial) {
-      onLayout("TB");
+      onLayout("LR");
       setInitial(false);
     }
   }, [nodesInitialized, initial]);
 
-  const sidebarTestJson: SideBarInputJSON = sidebarJson;
+  //const sidebarTestJson: SideBarInputJSON = sidebarJson;
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -206,16 +180,26 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     [nodes, edges, setNodes, setEdges]
   );
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const toggleCollapse = () => setIsSidebarCollapsed(false);
+
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex" }}>
       <div
         style={{
-          width: "250px",
-          borderRight: "1px solid #ccc",
-          padding: "1rem",
+          width: isSidebarCollapsed ? "0px" : "250px",
+          transition: "width 0.3s ease",
+          overflow: "hidden",
+          borderRight: isSidebarCollapsed ? "none" : "1px solid #ccc",
         }}
       >
-        <Sidebar Data={sidebarTestJson.Data} />
+        <Sidebar
+          json={{
+            folders: sidebarJson.folders,
+          }}
+          onCollapseChange={(collapsed) => setIsSidebarCollapsed(collapsed)}
+        />
       </div>
       <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow
@@ -231,11 +215,27 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
-          defaultEdgeOptions={defaultEdgeOptions}
-          connectionLineComponent={CustomConnectionLine}
-          connectionLineStyle={connectionLineStyle}
+          // edgeTypes={edgeTypes}
+          // defaultEdgeOptions={defaultEdgeOptions}
+          // connectionLineComponent={CustomConnectionLine}
+          // connectionLineStyle={connectionLineStyle}
         >
+          {isSidebarCollapsed && (
+            <Panel position="top-left">
+              <div
+                className="xy-theme__button flex"
+                style={{
+                  width: "175px",
+                  transition: "width 0.3s ease",
+                  overflow: "hidden",
+                  backgroundColor: "rgb(249, 249, 249)",
+                }}
+              >
+                <ArrowRightFromLine onClick={() => toggleCollapse()} />
+                <span style={{ margin: "auto" }}>Components</span>
+              </div>
+            </Panel>
+          )}
           <Background {...ParseBackground(background as BackgroundConfig)} />
           {control && (
             <Controls>

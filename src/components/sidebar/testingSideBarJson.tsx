@@ -42,8 +42,27 @@ export const testJson: TestJsonType = {
           label: "Text Input",
           icon: "text",
           data: {
-            title: "Input B",
-            description: "Description B",
+            name: "TextInputNode",
+            display_name: "Text Input",
+            display_icon: "Input",
+            description: "A simple text input node.",
+            inputs: [
+              {
+                name: "textInput",
+                label: "Enter text",
+                type: "text",
+                placeholder: "Type something...",
+                required: true,
+                handlePresent: true,
+              },
+            ],
+            outputs: [
+              {
+                name: "textOutput",
+                type: "text",
+                description: "User-entered text",
+              },
+            ],
           },
         },
       ],

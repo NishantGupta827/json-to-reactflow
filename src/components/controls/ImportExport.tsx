@@ -5,8 +5,8 @@ import {
   type Node,
 } from "@xyflow/react";
 import { useRef } from "react";
-import ImportIcon from './../../assets/import.png'
-import ExportIcon from './../../assets/export.png'
+import ImportIcon from "./../../assets/import.png";
+import ExportIcon from "./../../assets/export.png";
 
 function downloadJSON(dataUrl: string) {
   const a = document.createElement("a");
@@ -69,7 +69,6 @@ export function Import() {
       )) as ImportExport;
       addNodes(parsedData.Node);
       addEdges(parsedData.Edge);
-      console.log(parsedData);
     }
   };
 
