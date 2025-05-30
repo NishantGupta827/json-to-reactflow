@@ -3,10 +3,13 @@ import { Item, TestJsonType } from "./testingSideBarJson";
 import { useDnD } from "./DnD";
 import "@contentstack/venus-components/build/main.css";
 import {
+  Bot,
   ChevronRight,
   Download,
+  GitBranch,
   GripVertical,
   MessageCircle,
+  Route,
   Text,
   Upload,
 } from "lucide-react";
@@ -35,6 +38,9 @@ const icons: Icons = {
   chat: <MessageCircle />,
   dragIcon: <GripVertical />,
   text: <Text />,
+  agent: <Bot />,
+  routing: <Route />,
+  conditional: <GitBranch />,
 };
 
 type ButtonProps = {
