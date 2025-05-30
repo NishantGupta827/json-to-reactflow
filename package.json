@@ -1,7 +1,7 @@
 {
   "name": "json-to-reactflow",
   "private": false,
-  "version": "1.0.3",
+  "version": "2.0.0",
   "type": "module",
   "description": "Library to convert any json into a customisable diagram using react-flow",
   "main": "dist/index.umd.js",
