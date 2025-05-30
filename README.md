@@ -123,6 +123,8 @@ type OutputField = {
 ---
 
 ## 🧪 Example Data
+For a more extensive example JSON, please visit [FlowJson.ts on GitHub](https://github.com/NishantGupta827/json-to-reactflow-npm-package/blob/main/src/testJson/FlowJson.ts).
+
 
 ### Sidebar Example
 
