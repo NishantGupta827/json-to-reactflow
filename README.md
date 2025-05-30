@@ -1,9 +1,12 @@
-# json-to-reactflow
+# `json-to-reactflow`
 
-Convert deeply nested JSON into a customizable, interactive diagram using [React Flow](https://reactflow.dev/).
+![json-to-reactflow](./assets/package.png)
 
-![npm](https://img.shields.io/npm/v/json-to-reactflow)  
-📦 Lightweight | ⚙️ Customizable | ⚡ Powered by React Flow
+Turn structured JSON into an editable, interactive visual flow powered by [React Flow](https://reactflow.dev/).
+Now supports deeply nested inputs/outputs, folders, dynamic forms, and visual routing.
+
+![npm](https://img.shields.io/npm/v/json-to-reactflow)
+📦 Modular | ✨ Real-time Editing | 🧠 AI-Compatible | 🧩 Plug-and-play
 
 ---
 
@@ -15,22 +18,16 @@ npm install json-to-reactflow
 
 ---
 
-## 🧩 Usage
+## ⚡ Quick Start
 
 ```tsx
-import { JsonToReactFlow, type BasicFlowProps } from "json-to-reactflow";
-
-import { flowJson, sidebarJson } from "./your-json-file";
-
-const props: BasicFlowProps = {
-  flowJson: flowJson,
-  sidebarJson: sidebarJson,
-};
+import { JsonToReactFlow } from "json-to-reactflow";
+import { flowJson, sidebarJson } from "./your-json-data";
 
 function App() {
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <JsonToReactflow {...props} />
+      <JsonToReactFlow flowJson={flowJson} sidebarJson={sidebarJson} />
     </div>
   );
 }
@@ -40,160 +37,220 @@ function App() {
 
 ## 📘 Props
 
-### `BasicFlowProps`
+### `JsonToReactFlow` Props
 
-| Prop          | Type               | Description                                                                |
-| ------------- | ------------------ | -------------------------------------------------------------------------- |
-| `flowJson`    | `FlowJson`         | Required. The main JSON object containing nodes, edges, canvas, etc.       |
-| `sidebarJson` | `SideBarInputJSON` | Optional. JSON configuration for the sidebar and available node templates. |
-
----
-
-## 🧱 Sidebar Configuration
-
-### `SideBarInputJSON`
-
-Used to populate the draggable node templates in the sidebar.
-
-```ts
-export type SideBarInputJSON = {
-  Data: SideBarProps[];
-};
-```
-
-### `SideBarProps`
-
-| Property      | Type      | Description                                                           |
-| ------------- | --------- | --------------------------------------------------------------------- |
-| `name`        | `string`  | Label of the node in the sidebar                                      |
-| `shape`       | `string`  | Visual shape of the node (e.g., `'circle'`, `'diamond'`, `'rounded'`) |
-| `bgColor`     | `string`  | _(Optional)_ Background color for the node                            |
-| `textColor`   | `string`  | _(Optional)_ Font color used for node label                           |
-| `borderColor` | `string`  | _(Optional)_ Border color of the node                                 |
-| `editable`    | `boolean` | _(Optional)_ If true, node can be edited in canvas                    |
+| Prop          | Type              | Required | Description                                              |
+| ------------- | ----------------- | -------- | -------------------------------------------------------- |
+| `flowJson`    | `FlowJson`        | ✅       | JSON describing canvas, nodes, edges, and background     |
+| `sidebarJson` | `SideBarJsonType` | ❌       | Optional. Sidebar with folders, templates, and previews. |
 
 ---
 
-### `FlowJson` structure
+## 🧠 Flow JSON Structure
 
 ```ts
-interface FlowJson {
+export interface FlowJson {
   export?: boolean;
-  nodes: Node[]; // React flow type
-  edges: Edge[]; // React flow type
-  customEdge: CustomEdgeType[];
-  canvas?: CanvasConfig;
+  control?: boolean;
+  minimap?: boolean;
+  background?: {
+    color?: string;
+    bgcolor?: string;
+    variant?: "dots" | "lines" | "cross";
+    size?: number;
+  };
+  nodes: Node[];
+  edges: Edge[];
 }
 ```
 
 ---
 
-## 🧪 Sample JSON
+## 🧱 Sidebar JSON
+
+### `SideBarJsonType`
 
 ```ts
-export const flowJson: FlowJson = {
-  export: true,
-  canvas: {
-    color: "#000000",
-    bgcolor: "#ffffff",
-    variant: "cross",
-    size: 1,
-    controls: true,
-    minimap: true,
-  },
-  nodes: [
+type SideBarJsonType = {
+  folders: Folder[];
+};
+
+type Folder = {
+  folderName: string;
+  icon: string;
+  item: Item[];
+};
+
+type Item = {
+  label: string;
+  icon: string;
+  data: NodeData;
+};
+```
+
+### `NodeData` Interface
+
+```ts
+type NodeData = {
+  name?: string;
+  display_name?: string;
+  display_icon?: string;
+  description?: string;
+  inputs?: InputField[];
+  outputs?: Output[];
+  [key: string]: any;
+};
+
+type InputField = {
+  name: string;
+  label?: string;
+  placeholder?: string;
+  type: "text" | "dropdown" | "checkbox" | "switch";
+  options?: string[];
+  defaultValue?: any;
+  handlePresent?: boolean;
+  value: string | boolean;
+  required?: boolean;
+};
+
+type OutputField = {
+  name: string;
+  type: string;
+  description?: string;
+};
+```
+
+---
+
+## 🧪 Example Data
+
+### Sidebar Example
+
+```ts
+export const sidebarJson: TestJsonType = {
+  folders: [
     {
-      id: "start",
-      type: "custom",
-      dragHandle: ".drag-handle",
-      position: { x: 50, y: 100 },
-      data: {
-        label: "Start",
-        labelType: "dropdown",
-        labelOptions: ["option1", "option 2", "option 3"],
-        selectedOption: "option 2",
-        shape: "circle",
-        editable: true,
-        handles: [
-          { type: "source", position: "top", id: "start" },
-          { type: "target", position: "bottom", id: "in1" },
-        ],
-      },
-    },
-    {
-      id: "condition",
-      type: "custom",
-      position: { x: 250, y: 100 },
-      data: {
-        label: "Check",
-        shape: "diamond",
-        editable: false,
-        handles: [
-          { type: "source", position: "top", id: "out1" },
-          { type: "target", position: "bottom", id: "in2" },
-        ],
-      },
-    },
-    {
-      id: "slack",
-      type: "custom",
-      position: { x: 450, y: 100 },
-      dragHandle: ".drag-handle",
-      data: {
-        label: "Notify Slack",
-        shape: "rounded",
-        editable: true,
-        handles: [
-          { type: "target", position: "left", id: "in3" },
-          { type: "source", position: "right", id: "ui8", style: { top: 10 } },
-          { type: "target", position: "right", id: "ui7", style: { top: 30 } },
-        ],
-      },
-    },
-  ],
-  edges: [
-    {
-      id: "e1",
-      source: "start",
-      target: "condition",
-      animated: true,
-      label: "test",
-    },
-    {
-      id: "e3",
-      source: "start",
-      target: "slack",
-      animated: true,
-      label: "Continue",
-    },
-    {
-      id: "e2",
-      source: "condition",
-      target: "slack",
+      folderName: "Inputs",
+      icon: "input",
+      item: [
+        {
+          label: "Text Input",
+          icon: "text",
+          data: {
+            name: "TextInputNode",
+            display_name: "Text Input",
+            description: "A simple text input node.",
+            inputs: [
+              {
+                name: "textInput",
+                label: "Enter text",
+                type: "text",
+                placeholder: "Type something...",
+                required: true,
+                handlePresent: true,
+                value: "",
+              },
+            ],
+            outputs: [
+              {
+                name: "textOutput",
+                type: "text",
+                description: "User-entered text",
+              },
+            ],
+          },
+        },
+      ],
     },
   ],
 };
 ```
 
-### Sidebar JSON Example
+### Flow JSON Example
 
 ```ts
-export const sidebarJson: SideBarInputJSON = {
-  Data: [
+export const flowJson: FlowJson = {
+  export: true,
+  control: true,
+  minimap: true,
+  background: {
+    color: "#000000",
+    bgcolor: "#ffffff",
+    variant: "cross",
+    size: 1,
+  },
+  nodes: [
     {
-      name: "Editable",
-      shape: "rounded",
-      editable: true,
+      id: "node_1",
+      type: "custom",
+      position: { x: 100, y: 150 },
+      data: {
+        name: "OpenAIChatNode",
+        display_name: "OpenAI Chat",
+        description: "Send prompt to OpenAI and get results",
+        inputs: [
+          {
+            name: "prompt",
+            label: "Enter Prompt",
+            type: "text",
+            placeholder: "Enter your prompt...",
+            required: true,
+            handlePresent: true,
+            value: "",
+          },
+          {
+            name: "system_message",
+            type: "text",
+            label: "System Message",
+            placeholder: "Type something...",
+            required: true,
+            handlePresent: true,
+            value: "",
+          },
+          {
+            name: "model",
+            type: "dropdown",
+            label: "Enter OpenAI model",
+            options: ["gpt-3.5-turbo", "gpt-4"],
+            placeholder: "Select model",
+            required: true,
+            handlePresent: false,
+            value: "",
+          },
+          {
+            name: "key",
+            type: "text",
+            label: "OpenAI API Key",
+            placeholder: "",
+            required: true,
+            handlePresent: true,
+            value: "",
+          },
+        ],
+        outputs: [
+          {
+            name: "Response Text",
+            type: "text",
+            description: "The raw response from the model",
+          },
+          {
+            name: "Full JSON Response",
+            type: "data",
+            description: "The complete JSON response object",
+          },
+        ],
+      },
     },
+    // Other nodes (node_2)...
+  ],
+  edges: [
     {
-      name: "Not Editable",
-      shape: "rounded",
-      editable: false,
-    },
-    {
-      name: "conditional",
-      shape: "diamond",
-      editable: true,
+      id: "e1",
+      source: "node_2",
+      target: "node_1",
+      targetHandle: "input-prompt",
+      animated: true,
+      label: "Prompt input",
     },
   ],
 };
@@ -201,16 +258,45 @@ export const sidebarJson: SideBarInputJSON = {
 
 ---
 
-## 🛠 Customization
+## 🛠 Features
 
-You can enhance behavior by modifying:
+- ✅ Supports nested `inputs` and `outputs`
+- 🧰 Drag-and-drop templating via sidebar folders
+- ⚡ Real-time node editing using JSON Editor
+- 🎨 Custom icons(from lucide-react) and colors
+- 🔌 Connect nodes with dynamic handle IDs
+- 🧩 Extendable with new node types and logic
 
-- `labelType` for custom node labels (text, dropdown, radio)
-- `canvas` for background and grid styling
-- Add your own sidebars, panels, or features with minimal changes
+---
+
+Here is the updated `License` section with the full MIT license text you provided:
 
 ---
 
 ## 📄 License
 
-MIT
+```
+MIT License
+
+Copyright (c) 2024 json-to-reactflow
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---

@@ -4,10 +4,9 @@ import '@fontsource/inter/400.css'
 import './index.css'
 import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
-import { flowJson } from "./testJson/FlowJson.ts";
-import { testJson } from "./components/sidebar/testingSideBarJson.tsx";
+import { flowJson, SideBarJson } from "./testJson/FlowJson.ts";
 
-const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: testJson };
+const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: SideBarJson };
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

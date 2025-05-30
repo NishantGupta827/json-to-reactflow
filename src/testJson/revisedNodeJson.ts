@@ -22,12 +22,11 @@ export const nodeJson: Node[] = [
           value: "",
         },
         {
-          name: "temperature",
+          name: "system_message",
           type: "text",
-          label: "Temperature",
-          placeholder: "e.g. 0.7",
-          required: false,
-          default: "0.7",
+          label: "System Message",
+          placeholder: "Type something...",
+          required: true,
           handlePresent: true,
           value: "",
         },
@@ -41,15 +40,24 @@ export const nodeJson: Node[] = [
           handlePresent: false,
           value: "",
         },
+        {
+          name: "key",
+          type: "text",
+          label: "OpenAI API Key",
+          placeholder: "",
+          required: true,
+          handlePresent: true,
+          value: "",
+        },
       ],
       outputs: [
         {
-          name: "responseText",
+          name: "Response Text",
           type: "text",
           description: "The raw response from the model",
         },
         {
-          name: "fullResponse",
+          name: "Full JSON Response",
           type: "data",
           description: "The complete JSON response object",
         },
@@ -62,14 +70,14 @@ export const nodeJson: Node[] = [
     type: "custom",
     position: { x: 150, y: 150 },
     data: {
-      name: "TextInputNode",
-      display_name: "Text Input",
-      display_icon: "Input",
-      description: "A simple text input node.",
+      name: "ChatInputNode",
+      display_name: "Chat Input",
+      display_icon: "MessageSquareMore",
+      description: "Create chat inputs for the workflow",
       inputs: [
         {
           name: "textInput",
-          label: "Enter text",
+          label: "Text",
           type: "text",
           placeholder: "Type something...",
           required: true,
@@ -79,67 +87,28 @@ export const nodeJson: Node[] = [
       ],
       outputs: [
         {
-          name: "textOutput",
+          name: "Message",
           type: "text",
           description: "User-entered text",
         },
       ],
     },
   },
-
-  // {
-  //   id: "node_3",
-  //   type: "custom",
-  //   position: { x: 250, y: 150 }, // another 150px right
-  //   data: {
-  //     name: "SwitchNode",
-  //     display_name: "Switch",
-  //     display_icon: "ToggleRight",
-  //     description: "A toggleable switch to enable/disable features.",
-  //     inputs: [
-  //       {
-  //         name: "enabled",
-  //         label: "Enable feature?",
-  //         type: "switch",
-  //         default: false,
-  //         required: false,
-  //         handlePresent: true,
-  //       },
-  //     ],
-  //     outputs: [
-  //       {
-  //         name: "switchState",
-  //         type: "boolean",
-  //         description: "True if enabled",
-  //       },
-  //     ],
-  //   },
-  // },
-
   {
-    id: "node_4",
+    id: "node_3",
     type: "custom",
-    position: { x: 250, y: 150 }, // next one
+    position: { x: 250, y: 150 },
     data: {
-      name: "ConditionalRouterNode",
-      display_name: "Conditional Router",
-      display_icon: "GitBranch",
-      description:
-        "Routes data to different outputs based on conditions or flags.",
+      name: "PromptNode",
+      display_name: "Prompt",
+      display_icon: "SquareTerminal",
+      description: "Create a prompt template with dynamic variables",
       inputs: [
         {
-          name: "inputData",
-          label: "Incoming data",
+          name: "template",
+          label: "Templae",
           type: "text",
-          required: true,
-          handlePresent: true,
-          value: "",
-        },
-        {
-          name: "condition",
-          label: "Routing Condition",
-          type: "text",
-          placeholder: "e.g., type === 'greeting'",
+          placeholder: "Type your prompt here...",
           required: true,
           handlePresent: true,
           value: "",
@@ -147,16 +116,42 @@ export const nodeJson: Node[] = [
       ],
       outputs: [
         {
-          name: "trueBranch",
-          type: "data",
-          description: "Output if condition is true",
-        },
-        {
-          name: "falseBranch",
-          type: "data",
-          description: "Output if condition is false",
+          name: "Prompt Message",
+          type: "text",
+          description: "LLM focused prompt",
         },
       ],
     },
   },
+
+  {
+    id: "node_4",
+    type: "custom",
+    position: { x: 350, y: 150 }, // next one
+    data: {
+      name: "ChatOutputNode",
+      display_name: "Chat Output",
+      display_icon: "MessageSquareMore",
+      description:
+        "Display the final response from the LLM.",
+      inputs: [
+        {
+          name: "outputData",
+          label: "Incoming Text",
+          type: "text",
+          required: true,
+          handlePresent: true,
+          value: "",
+        },
+      ],
+      outputs: [
+        {
+          name: "Message",
+          type: "text",
+          description: "Final response from LLM as Text.",
+        },
+      ],
+    },
+  },
+
 ];

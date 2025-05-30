@@ -5,4 +5,4 @@ import './index.css'
 export { App as JsonToReactflow  } from './App'
 export type { BasicFlowProps } from './components/BasicFlow';
 export type { FlowJson } from "./types/flowJson"
-export { type TestJsonType } from '@/components/sidebar/testingSideBarJson'
+export type { TestJsonType as SideBarJsonType } from '@/components/sidebar/testingSideBarJson'
