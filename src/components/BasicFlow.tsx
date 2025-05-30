@@ -79,7 +79,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const nodesInitialized = useNodesInitialized();
-  console.log(nodesInitialized);
   const [initial, setInitial] = useState(true);
 
   useEffect(() => {

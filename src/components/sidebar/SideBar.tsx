@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TestJsonType } from "./testingSideBarJson";
-import { ArrowLeftFromLine, ArrowRightFromLine } from "lucide-react";
+import { ArrowLeftFromLine } from "lucide-react";
 import { SideBarComponent } from "./langFlowSideBar";
 
 type SidebarProps = {
