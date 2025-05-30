@@ -22,6 +22,7 @@ export interface InputField {
   options?: string[];
   defaultValue?: any;
   handlePresent?: boolean;
+  value: string | boolean;
 }
 
 interface NodeInputsRendererProps {

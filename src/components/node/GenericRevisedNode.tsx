@@ -39,12 +39,38 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
   );
   const [editOpen, setEditOpen] = useState(false);
 
+  useEffect(() => {
+    const initialValues: Record<string, any> = {};
+    (inputs as InputField[]).forEach((input: InputField) => {
+      initialValues[input.name] = input.value ?? "";
+    });
+    setInputValues(initialValues);
+  }, [inputs]);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
   };
 
   const handleChange = (name: string, value: any) => {
     setInputValues((prev) => ({ ...prev, [name]: value }));
+
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id !== id) return node;
+
+        const updatedInputs = (node.data.inputs as InputField[]).map((input: InputField) =>
+          input.name === name ? { ...input, value } : input
+        );
+
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            inputs: updatedInputs,
+          },
+        };
+      })
+    );
   };
 
   const handleDownload = () => {
