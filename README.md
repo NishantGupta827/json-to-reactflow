@@ -59,8 +59,8 @@ export interface FlowJson {
     variant?: "dots" | "lines" | "cross";
     size?: number;
   };
-  nodes: Node[];
-  edges: Edge[];
+  nodes: Node[]; // visit https://reactflow.dev/api-reference/types/node for more info
+  edges: Edge[]; // visit https://reactflow.dev/api-reference/types/edge for more info
 }
 ```
 
