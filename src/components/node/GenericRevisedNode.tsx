@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Heading, Paragraph, Button } from "@contentstack/venus-components";
 import { Play } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
+import { NodeEditDialog } from "./NodeEditDialog";
 
 interface Output {
   name: string;
@@ -36,6 +37,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
   const [outputHandlePositions, setOutputHandlePositions] = useState<number[]>(
     []
   );
+  const [editOpen, setEditOpen] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
@@ -171,7 +173,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
               buttonType="secondary"
               icon="Edit"
               size="small"
-              onClick={() => console.log("Edit mode toggle")}
+              onClick={() => setEditOpen(true)}
             >
               Edit
             </Button>
@@ -341,6 +343,18 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
           ))}
         </Card>
       </NodeStatusIndicator>
+      <NodeEditDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        data={data}
+        onSave={(updatedData) => {
+          setNodes((nodes) =>
+            nodes.map((node) =>
+              node.id === id ? { ...node, data: updatedData } : node
+            )
+          );
+        }}
+      />
     </>
   );
 }

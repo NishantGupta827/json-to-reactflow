@@ -192,9 +192,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         }}
       >
         <Sidebar
-          json={{
-            folders: sidebarJson.folders,
-          }}
+          json={sidebarJson}
           onCollapseChange={(collapsed) => setIsSidebarCollapsed(collapsed)}
         />
       </div>
