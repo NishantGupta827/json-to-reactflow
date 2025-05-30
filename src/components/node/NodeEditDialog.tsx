@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@contentstack/venus-components";
-import { JsonEditor } from "json-edit-react";
+import { Button, Textarea } from "@contentstack/venus-components";
 
 interface NodeEditDialogProps {
   open: boolean;
@@ -22,18 +21,19 @@ export function NodeEditDialog({
   data,
   onSave,
 }: NodeEditDialogProps) {
-  const [jsonData, setJsonData] = useState<Record<string, unknown>>({});
+  const [jsonString, setJsonString] = useState("");
 
   useEffect(() => {
-    setJsonData(data);
+    setJsonString(JSON.stringify(data, null, 2));
   }, [data]);
 
   const handleSave = () => {
     try {
-      onSave(jsonData);
+      const parsed = JSON.parse(jsonString);
+      onSave(parsed);
       onClose();
     } catch (err) {
-      alert("Failed to save JSON. Please fix the structure.");
+      alert("Invalid JSON. Please correct and try again.");
     }
   };
 
@@ -50,26 +50,20 @@ export function NodeEditDialog({
           <DialogTitle>Edit Node JSON</DialogTitle>
         </DialogHeader>
 
-        <div
+        <Textarea
+          name="jsonEditor"
+          labelText=""
+          rows={20}
+          placeholder="Edit JSON here..."
+          value={jsonString}
+          onChange={(e: { target: { value: SetStateAction<string>; }; }) => setJsonString(e.target.value)}
+          resize="vertical"
           style={{
-            maxHeight: "400px",
-            overflowY: "auto",
             backgroundColor: "#f9fafb",
-            padding: "12px",
-            borderRadius: "6px",
-            border: "1px solid #e5e7eb",
+            fontFamily: "monospace",
+            fontSize: "13px",
           }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <JsonEditor
-            data={jsonData}
-            setData={(data: unknown) => {
-              // TODO: runtime validation here before setting state
-              setJsonData(data as Record<string, unknown>);
-            }}
-          />
-        </div>
+        />
 
         <DialogFooter
           style={{
