@@ -35,7 +35,6 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
   inputs,
   values,
   onChange,
-  nodeId,
 }) => {
   const inputRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [positions, setPositions] = useState<number[]>([]);
@@ -86,6 +85,12 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                     onChange(name, e.target.value)
                   }
                   version="v2"
+                  onMouseDown={(e: { stopPropagation: () => any }) =>
+                    e.stopPropagation()
+                  }
+                  onClick={(e: { stopPropagation: () => any }) =>
+                    e.stopPropagation()
+                  }
                 />
               </div>
             )}
@@ -99,7 +104,11 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                   value={value}
                   onValueChange={(val) => onChange(name, val)}
                 >
-                  <SelectTrigger className="w-full rounded-[4px] bg-white">
+                  <SelectTrigger
+                    className="w-full rounded-[4px] bg-white"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <SelectValue
                       placeholder={placeholder || "Select an option"}
                     />
@@ -110,6 +119,8 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                         key={option}
                         value={option}
                         className="dropdown-style"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {option}
                       </SelectItem>
@@ -127,12 +138,18 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                 onChange={(e: { target: { checked: boolean } }) =>
                   onChange(name, e.target.checked)
                 }
+                onMouseDown={(e: { stopPropagation: () => any }) =>
+                  e.stopPropagation()
+                }
+                onClick={(e: { stopPropagation: () => any }) =>
+                  e.stopPropagation()
+                }
               />
             )}
 
             {type === "switch" && (
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">{label}</label>
+              <div className="flex items-center justify-between" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                {/* <label className="text-sm font-medium">{label}</label> */}
                 <ToggleSwitch
                   checked={!!value}
                   onChange={() => onChange(name, !value)}

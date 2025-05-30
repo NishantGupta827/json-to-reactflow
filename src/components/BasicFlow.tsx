@@ -19,10 +19,8 @@ import {
   Panel,
   useNodesInitialized,
 } from "@xyflow/react";
-import FloatingEdge from "./easyConnect/FloatingEdge";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
-import NodeDetailsPanel from "./node/GenericNodePanel";
 import { ParseBackground } from "./background/BackGround";
 import { DnDProvider, useDnD } from "./sidebar/DnD";
 import Sidebar from "./sidebar/SideBar";
@@ -39,17 +37,17 @@ export interface BasicFlowProps {
   sidebarJson: TestJsonType;
 }
 
-const connectionLineStyle = {
-  stroke: "#b1b1b7",
-};
+// const connectionLineStyle = {
+//   stroke: "#b1b1b7",
+// };
 
 const nodeTypes = {
   custom: RevisedCustomNode,
 };
 
-const edgeTypes = {
-  floating: FloatingEdge,
-};
+// const edgeTypes = {
+//   floating: FloatingEdge,
+// };
 
 // const defaultEdgeOptions = {
 //   type: "floating",
@@ -61,19 +59,19 @@ const edgeTypes = {
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { control, minimap, background, edges: normalizedEdges } = flowJson;
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
 
-  const handleNodeDoubleClick = useCallback((_: any, node: Node) => {
+  const handleNodeClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
   }, []);
 
-  const handleUpdateNode = useCallback((updatedNode: Node) => {
-    setNodes((nds) =>
-      nds.map((n) => (n.id === updatedNode.id ? { ...n, ...updatedNode } : n))
-    );
-    setSelectedNode(updatedNode);
-  }, []);
+  // const handleUpdateNode = useCallback((updatedNode: Node) => {
+  //   setNodes((nds) =>
+  //     nds.map((n) => (n.id === updatedNode.id ? { ...n, ...updatedNode } : n))
+  //   );
+  //   setSelectedNode(updatedNode);
+  // }, []);
 
   const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
@@ -209,7 +207,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           onConnect={onConnect}
           onDrop={onDrop}
           //onDragStart={onDragStart}
-          onNodeDoubleClick={handleNodeDoubleClick}
+          // onNodeDoubleClick={handleNodeDoubleClick}
+          onNodeClick={handleNodeClick}
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
@@ -250,21 +249,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             </Controls>
           )}
           {minimap && <MiniMap />}
-          {selectedNode && (
+          {/* {selectedNode && (
             <NodeDetailsPanel
               node={selectedNode}
               onClose={() => setSelectedNode(null)}
               onUpdateNode={handleUpdateNode}
             />
-          )}
-          <Panel position="top-right">
-            <button className="xy-theme__button" onClick={() => onLayout("TB")}>
-              vertical layout
-            </button>
-            <button className="xy-theme__button" onClick={() => onLayout("LR")}>
-              horizontal layout
-            </button>
-          </Panel>
+          )} */}
         </ReactFlow>
       </div>
     </div>
@@ -279,7 +270,7 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
 }) => {
   return (
     <ReactFlowProvider>
-      <DnDProvider>
+      <DnDProvider >
         <BasicFlow sidebarJson={sidebarJson} flowJson={flowJson} />
       </DnDProvider>
     </ReactFlowProvider>
