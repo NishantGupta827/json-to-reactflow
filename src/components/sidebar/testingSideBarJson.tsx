@@ -34,8 +34,8 @@ export const testJson: TestJsonType = {
           data: {
             title: "Input A",
             description: "Description A",
-            inputs: {},
-            outputs: {},
+            inputs: [],
+            outputs: [],
           },
         },
         {

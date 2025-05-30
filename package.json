@@ -32,6 +32,7 @@
   "dependencies": {
     "@contentstack/venus-components": "^3.0.0",
     "@dagrejs/dagre": "^1.1.4",
+    "@fontsource/inter": "^5.2.5",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.7",
     "@tailwindcss/vite": "^4.1.8",

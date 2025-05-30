@@ -1,5 +1,6 @@
 import "@xyflow/react/dist/style.css";
-import './index.css';
+import '@fontsource/inter/400.css'
+import './index.css'
 
 export { App as JsonToReactflow  } from './App'
 export type { BasicFlowProps } from './components/BasicFlow';

@@ -404,3 +404,7 @@ div.customHandle {
   background-color: #f5f5f5; /* light gray */
   cursor: pointer;
 }
+
+body {
+  font-family: 'Inter', sans-serif;
+}

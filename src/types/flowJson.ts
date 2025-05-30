@@ -1,5 +1,4 @@
 import { Edge, Node } from "@xyflow/react";
-import { CustomNodeData } from "./nodes";
 
 export interface BackgroundConfig {
   bgcolor?: string;

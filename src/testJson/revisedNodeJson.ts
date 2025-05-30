@@ -83,39 +83,39 @@ export const nodeJson: Node[] = [
     },
   },
 
-  {
-    id: "node_3",
-    type: "custom",
-    position: { x: 250, y: 150 }, // another 150px right
-    data: {
-      name: "SwitchNode",
-      display_name: "Switch",
-      display_icon: "ToggleRight",
-      description: "A toggleable switch to enable/disable features.",
-      inputs: [
-        {
-          name: "enabled",
-          label: "Enable feature?",
-          type: "checkbox",
-          default: false,
-          required: false,
-          handlePresent: true,
-        },
-      ],
-      outputs: [
-        {
-          name: "switchState",
-          type: "boolean",
-          description: "True if enabled",
-        },
-      ],
-    },
-  },
+  // {
+  //   id: "node_3",
+  //   type: "custom",
+  //   position: { x: 250, y: 150 }, // another 150px right
+  //   data: {
+  //     name: "SwitchNode",
+  //     display_name: "Switch",
+  //     display_icon: "ToggleRight",
+  //     description: "A toggleable switch to enable/disable features.",
+  //     inputs: [
+  //       {
+  //         name: "enabled",
+  //         label: "Enable feature?",
+  //         type: "switch",
+  //         default: false,
+  //         required: false,
+  //         handlePresent: true,
+  //       },
+  //     ],
+  //     outputs: [
+  //       {
+  //         name: "switchState",
+  //         type: "boolean",
+  //         description: "True if enabled",
+  //       },
+  //     ],
+  //   },
+  // },
 
   {
     id: "node_4",
     type: "custom",
-    position: { x: 350, y: 150 }, // next one
+    position: { x: 250, y: 150 }, // next one
     data: {
       name: "ConditionalRouterNode",
       display_name: "Conditional Router",
