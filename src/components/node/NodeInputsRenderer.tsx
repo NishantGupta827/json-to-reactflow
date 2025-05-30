@@ -23,6 +23,7 @@ export interface InputField {
   defaultValue?: any;
   handlePresent?: boolean;
   value: string | boolean;
+  required?: boolean;
 }
 
 interface NodeInputsRendererProps {
@@ -59,6 +60,7 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
           type,
           options = [],
           handlePresent,
+          required,
         } = input;
 
         const value = values[name] ?? input.defaultValue;
@@ -75,9 +77,11 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
               <div className="space-y-1">
                 {label && (
                   <div className="text-sm font-medium text-gray-700">
-                    {label}
+                    {label}{" "}
+                    {required && <span className="text-red-500">*</span>}
                   </div>
                 )}
+
                 <TextInput
                   name={name}
                   value={value}
@@ -99,8 +103,12 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
             {type === "dropdown" && (
               <div className="space-y-1">
                 {label && (
-                  <label className="text-sm font-medium">{label}</label>
+                  <label className="text-sm font-medium">
+                    {label}{" "}
+                    {required && <span className="text-red-500">*</span>}
+                  </label>
                 )}
+
                 <Select
                   value={value}
                   onValueChange={(val) => onChange(name, val)}
@@ -134,7 +142,7 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
             {type === "checkbox" && (
               <Checkbox
                 name={name}
-                label={label}
+                label={required ? label + "*" : label}
                 checked={!!value}
                 onChange={(e: { target: { checked: boolean } }) =>
                   onChange(name, e.target.checked)
@@ -149,13 +157,17 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
             )}
 
             {type === "switch" && (
-              <div className="flex items-center justify-between" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+              <div
+                className="flex items-center justify-between"
+                onMouseDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* <label className="text-sm font-medium">{label}</label> */}
                 <ToggleSwitch
                   checked={!!value}
                   onChange={() => onChange(name, !value)}
                   onClick={() => onChange(name, !value)}
-                  label={label}
+                  label={required ? label + "*" : label}
                 />
               </div>
             )}

@@ -60,7 +60,7 @@ export const nodeJson: Node[] = [
   {
     id: "node_2",
     type: "custom",
-    position: { x: 150, y: 150 }, // 150px to the right
+    position: { x: 150, y: 150 },
     data: {
       name: "TextInputNode",
       display_name: "Text Input",

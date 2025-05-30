@@ -26,7 +26,6 @@ import { DnDProvider, useDnD } from "./sidebar/DnD";
 import Sidebar from "./sidebar/SideBar";
 import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
-import { CustomNodeData } from "@/types/nodes";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import RevisedCustomNode from "./node/GenericRevisedNode";
 import { TestJsonType } from "./sidebar/testingSideBarJson";
@@ -121,7 +120,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
       try {
         const { type, data } = JSON.parse(raw) as {
           type: string;
-          data: CustomNodeData;
+          data: Node;
         };
 
         const position = screenToFlowPosition({

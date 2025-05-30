@@ -1,20 +1,5 @@
 import { Position } from "@xyflow/react";
 
-export type CustomNodeData = {
-  id?: string;
-  label?: string;
-  shape?: keyof typeof shapeStyles;
-  bgColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  handles?: HandleConfig[];
-  editable?: boolean;
-  inputs?: InputField[];
-  incoming?: number;
-  outgoing?: number;
-};
-
 export type InputField = {
   type: "text" | "dropdown";
   key: string; // unique identifier for the input
