@@ -1,12 +1,13 @@
-import { Edge,Node } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
+import { CustomNodeData } from "./nodes";
 
 export interface BackgroundConfig {
   bgcolor?: string;
-  color?:string;
-  variant?: 'dots' | 'lines' | 'cross';
-  size?:number
-  gap?:number
-  lineWidth?:number
+  color?: string;
+  variant?: "dots" | "lines" | "cross";
+  size?: number;
+  gap?: number;
+  lineWidth?: number;
   gridSize?: number;
 }
 

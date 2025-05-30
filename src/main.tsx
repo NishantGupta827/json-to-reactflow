@@ -4,9 +4,9 @@ import "./index.css";
 import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { flowJson } from "./testJson/FlowJson.ts";
-import { sidebarJson } from "./testJson/SideBarJson.ts";
+import { testJson } from "./components/sidebar/testingSideBarJson.tsx";
 
-const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: sidebarJson };
+const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: testJson };
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

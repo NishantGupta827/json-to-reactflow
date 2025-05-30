@@ -1,6 +1,7 @@
 import { Position } from "@xyflow/react";
 
 export type CustomNodeData = {
+  id?: string;
   label?: string;
   shape?: keyof typeof shapeStyles;
   bgColor?: string;

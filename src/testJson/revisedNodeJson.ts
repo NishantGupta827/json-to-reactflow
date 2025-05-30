@@ -1,4 +1,6 @@
-export const nodeJson = [
+import { Node } from "@xyflow/react";
+
+export const nodeJson: Node[] = [
   {
     id: "node_1",
     type: "custom",
