@@ -19,6 +19,7 @@ export const nodeJson: Node[] = [
           placeholder: "Enter your prompt...",
           required: true,
           handlePresent: true,
+          value: "",
         },
         {
           name: "temperature",
@@ -28,6 +29,7 @@ export const nodeJson: Node[] = [
           required: false,
           default: "0.7",
           handlePresent: true,
+          value: "",
         },
         {
           name: "model",
@@ -37,6 +39,7 @@ export const nodeJson: Node[] = [
           placeholder: "Select model",
           required: true,
           handlePresent: false,
+          value: "",
         },
       ],
       outputs: [
@@ -70,7 +73,8 @@ export const nodeJson: Node[] = [
           type: "text",
           placeholder: "Type something...",
           required: true,
-          handlePresent: true, // to create a handle for connection
+          handlePresent: true,
+          value: "",
         },
       ],
       outputs: [
@@ -129,6 +133,7 @@ export const nodeJson: Node[] = [
           type: "text",
           required: true,
           handlePresent: true,
+          value: "",
         },
         {
           name: "condition",
@@ -137,6 +142,7 @@ export const nodeJson: Node[] = [
           placeholder: "e.g., type === 'greeting'",
           required: true,
           handlePresent: true,
+          value: "",
         },
       ],
       outputs: [
