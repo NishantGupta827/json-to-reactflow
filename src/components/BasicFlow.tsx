@@ -160,7 +160,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           id: `node_${+new Date()}`,
           type,
           position,
-          dragHandle: ".drag-handle",
           data,
         };
 
