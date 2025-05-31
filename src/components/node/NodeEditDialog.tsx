@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@contentstack/venus-components";
+import { Button } from "../ui/button";
 import { JsonEditor } from "json-edit-react";
 
 interface NodeEditDialogProps {
@@ -78,10 +78,10 @@ export function NodeEditDialog({
             marginTop: "12px",
           }}
         >
-          <Button buttonType="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button buttonType="primary" onClick={handleSave}>
+          <Button onClick={handleSave}>
             Save Changes
           </Button>
         </DialogFooter>

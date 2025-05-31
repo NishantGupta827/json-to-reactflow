@@ -185,6 +185,7 @@ export const flowJson: FlowJson = {
       id: "e3",
       source: "node_1", // OpenAIChatNode
       target: "node_4", // ConditionalRouterNode
+      targetHandle: "input-outputData",
       animated: true,
       label: "Response → Router",
     },

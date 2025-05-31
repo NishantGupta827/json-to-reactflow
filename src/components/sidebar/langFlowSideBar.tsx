@@ -1,7 +1,6 @@
 import React, { JSX, useEffect, useRef, useState } from "react";
 import { Item, TestJsonType } from "./testingSideBarJson";
 import { useDnD } from "./DnD";
-import "@contentstack/venus-components/build/main.css";
 import {
   Bot,
   ChevronRight,
@@ -111,7 +110,6 @@ function SideBarDropdown({ label, icon, children }: DropdownProps) {
 }
 
 export const SideBarComponent: React.FC<SideBarComponentProps> = ({ data }) => {
-  console.log(data);
   return (
     <div className="sidebar p-4">
       {data.folders.map((folder, folderIdx) => {

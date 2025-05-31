@@ -1,18 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  TextInput,
-  Checkbox,
-  ToggleSwitch,
-} from "@contentstack/venus-components";
-import "@contentstack/venus-components/build/main.css";
-import { Handle, Position } from "@xyflow/react";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select"; // Adjust path as needed
+} from "@/components/ui/select";
+import { Handle, Position } from "@xyflow/react";
 
 export interface InputField {
   name: string;
@@ -31,18 +29,20 @@ interface NodeInputsRendererProps {
   values: Record<string, any>;
   onChange: (name: string, value: any) => void;
   nodeId: string;
+  connectedInputs: string[];
 }
 
 const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
   inputs,
   values,
   onChange,
+  connectedInputs,
 }) => {
   const inputRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [positions, setPositions] = useState<number[]>([]);
 
   useEffect(() => {
-    inputRefs.current = []; // clear before refilling
+    inputRefs.current = [];
     const tops = inputs.map((_, idx) => {
       const ref = inputRefs.current[idx];
       return ref?.offsetTop! + (ref?.offsetHeight || 0) / 2;
@@ -63,58 +63,53 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
           required,
         } = input;
 
-        const value = values[name] ?? input.defaultValue;
+        const value = values[name] ?? input.defaultValue ?? "";
+        const isDisabled = connectedInputs?.includes(name);
 
         return (
           <div
             key={name}
-            className="relative venus-component mb-10"
             ref={(el) => {
               inputRefs.current[index] = el;
             }}
+            className="relative space-y-1"
           >
             {type === "text" && (
-              <div className="space-y-1">
+              <div>
                 {label && (
-                  <div className="text-sm font-medium text-gray-700">
+                  <Label className="text-sm">
                     {label}{" "}
                     {required && <span className="text-red-500">*</span>}
-                  </div>
+                  </Label>
                 )}
-
-                <TextInput
+                <Input
                   name={name}
-                  value={value}
-                  placeholder={placeholder}
-                  onChange={(e: { target: { value: string } }) =>
-                    onChange(name, e.target.value)
-                  }
-                  version="v2"
-                  onMouseDown={(e: { stopPropagation: () => any }) =>
-                    e.stopPropagation()
-                  }
-                  onClick={(e: { stopPropagation: () => any }) =>
-                    e.stopPropagation()
-                  }
+                  value={isDisabled ? "Receiving input" : String(value)}
+                  placeholder={isDisabled ? "" : placeholder}
+                  onChange={(e) => onChange(name, e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  disabled={isDisabled}
+                  className="disabled:bg-gray-100"
                 />
               </div>
             )}
 
             {type === "dropdown" && (
-              <div className="space-y-1">
+              <div>
                 {label && (
-                  <label className="text-sm font-medium">
+                  <Label className="text-sm">
                     {label}{" "}
                     {required && <span className="text-red-500">*</span>}
-                  </label>
+                  </Label>
                 )}
-
                 <Select
                   value={value}
                   onValueChange={(val) => onChange(name, val)}
+                  disabled={isDisabled}
                 >
                   <SelectTrigger
-                    className="w-full rounded-[4px] bg-white"
+                    className="w-full"
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -122,12 +117,11 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                       placeholder={placeholder || "Select an option"}
                     />
                   </SelectTrigger>
-                  <SelectContent className="bg-white z-[1000]">
+                  <SelectContent className="bg-white">
                     {options.map((option) => (
                       <SelectItem
                         key={option}
                         value={option}
-                        className="dropdown-style"
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -140,20 +134,19 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
             )}
 
             {type === "checkbox" && (
-              <Checkbox
-                name={name}
-                label={required ? label + "*" : label}
-                checked={!!value}
-                onChange={(e: { target: { checked: boolean } }) =>
-                  onChange(name, e.target.checked)
-                }
-                onMouseDown={(e: { stopPropagation: () => any }) =>
-                  e.stopPropagation()
-                }
-                onClick={(e: { stopPropagation: () => any }) =>
-                  e.stopPropagation()
-                }
-              />
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={name}
+                  checked={!!value}
+                  onCheckedChange={(checked) => onChange(name, checked)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  disabled={isDisabled}
+                />
+                {label && (
+                  <Label htmlFor={name}>{required ? `${label}*` : label}</Label>
+                )}
+              </div>
             )}
 
             {type === "switch" && (
@@ -162,12 +155,14 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                 onMouseDown={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* <label className="text-sm font-medium">{label}</label> */}
-                <ToggleSwitch
+                <Label htmlFor={name} className="text-sm">
+                  {required ? `${label}*` : label}
+                </Label>
+                <Switch
+                  id={name}
                   checked={!!value}
-                  onChange={() => onChange(name, !value)}
-                  onClick={() => onChange(name, !value)}
-                  label={required ? label + "*" : label}
+                  onCheckedChange={(val) => onChange(name, val)}
+                  disabled={isDisabled}
                 />
               </div>
             )}
@@ -180,7 +175,7 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                 style={{
                   position: "absolute",
                   top: positions[index] ?? 100,
-                  left: -10,
+                  left: -25,
                   background: "#3b82f6",
                   width: 10,
                   height: 10,

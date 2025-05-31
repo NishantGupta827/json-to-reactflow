@@ -30,6 +30,7 @@ import { getLayoutedElements } from "@/utils/layoutUtil";
 import RevisedCustomNode from "./node/GenericRevisedNode";
 import { TestJsonType } from "./sidebar/testingSideBarJson";
 import { ArrowRightFromLine } from "lucide-react";
+import useUndoRedo from "@/hooks/useUndoRedo";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -60,6 +61,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { control, minimap, background, edges: normalizedEdges } = flowJson;
   const [, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
+  const { takeSnapshot } = useUndoRedo({
+    maxHistorySize: 100,
+    enableShortcuts: true,
+  });
 
   const handleNodeClick = useCallback((_: any, node: Node) => {
     setSelectedNode(node);
@@ -88,12 +93,21 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   //const sidebarTestJson: SideBarInputJSON = sidebarJson;
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
+    setNodes((nds) => {
+      const updated = applyNodeChanges(changes, nds);
+      takeSnapshot();
+      return updated;
+    });
   }, []);
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds)),
-    []
+    (changes: EdgeChange[]) => {
+      setEdges((eds) => {
+        const updated = applyEdgeChanges(changes, eds);
+        takeSnapshot();
+        return updated;
+      });
+    },
+    [setEdges, takeSnapshot]
   );
 
   const reactFlowWrapper = useRef(null);
@@ -101,9 +115,23 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const [_] = useDnD();
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    []
+    (params: Connection) => {
+      setEdges((eds) => {
+        const updated = addEdge(params, eds);
+        takeSnapshot();
+        return updated;
+      });
+    },
+    [setEdges, takeSnapshot]
   );
+
+  const handleDragStart = useCallback(() => {
+    takeSnapshot(); // take snapshot before move
+  }, []);
+
+  const handleDragStop = useCallback(() => {
+    takeSnapshot(); // optionally snapshot again after move
+  }, []);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
@@ -136,7 +164,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           data,
         };
 
-        setNodes((nds) => nds.concat(newNode));
+        setNodes((nds) => {
+          const updated = nds.concat(newNode);
+          takeSnapshot();
+          return updated;
+        });
       } catch (err) {
         console.error("Failed to parse node data from drag event", err);
       }
@@ -203,6 +235,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onDrop={onDrop}
+          onNodeDragStart={handleDragStart}
+          onNodeDragStop={handleDragStop}
           //onDragStart={onDragStart}
           // onNodeDoubleClick={handleNodeDoubleClick}
           onNodeClick={handleNodeClick}
@@ -267,7 +301,7 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
 }) => {
   return (
     <ReactFlowProvider>
-      <DnDProvider >
+      <DnDProvider>
         <BasicFlow sidebarJson={sidebarJson} flowJson={flowJson} />
       </DnDProvider>
     </ReactFlowProvider>

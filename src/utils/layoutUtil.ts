@@ -19,7 +19,6 @@ export function getLayoutedElements(
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: node.measured?.width, height: node.measured?.height });
-    console.log(node.measured?.width)
     if(node.measured?.width! > max_width){
         max_width = node.measured?.width!
     }
@@ -39,7 +38,6 @@ export function getLayoutedElements(
 
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    console.log(nodeWithPosition)
     return {
       ...node,
       targetPosition: isHorizontal ? Position.Left : Position.Top,

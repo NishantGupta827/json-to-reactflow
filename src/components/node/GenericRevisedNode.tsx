@@ -4,13 +4,13 @@ import {
   Position,
   NodeToolbar,
   useReactFlow,
+  useStore,
 } from "@xyflow/react";
 import NodeInputsRenderer, { type InputField } from "./NodeInputsRenderer";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as LucideIcons from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Heading, Paragraph, Button } from "@contentstack/venus-components";
+import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
 import { NodeEditDialog } from "./NodeEditDialog";
@@ -38,6 +38,14 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     []
   );
   const [editOpen, setEditOpen] = useState(false);
+  const edges = useStore((store) => store.edges);
+
+  const connectedInputs = useMemo(() => {
+    return edges
+      .filter((edge) => edge.target === id)
+      .map((edge) => edge.targetHandle?.replace("input-", ""))
+      .filter(Boolean) as string[];
+  }, [edges, id]);
 
   useEffect(() => {
     const initialValues: Record<string, any> = {};
@@ -58,8 +66,9 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
       nodes.map((node) => {
         if (node.id !== id) return node;
 
-        const updatedInputs = (node.data.inputs as InputField[]).map((input: InputField) =>
-          input.name === name ? { ...input, value } : input
+        const updatedInputs = (node.data.inputs as InputField[]).map(
+          (input: InputField) =>
+            input.name === name ? { ...input, value } : input
         );
 
         return {
@@ -89,14 +98,12 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     (e: React.MouseEvent) => {
       e.stopPropagation();
 
-      // Helper to recursively trigger next nodes
       const triggerNextNode = (sourceId: string) => {
         const nextEdges = getEdges().filter((edge) => edge.source === sourceId);
 
         for (const edge of nextEdges) {
           const targetId = edge.target;
 
-          // Set next node to loading
           setNodes((nodes) =>
             nodes.map((node) =>
               node.id === targetId
@@ -105,7 +112,6 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
             )
           );
 
-          // After 4 seconds, mark it as success and trigger its children
           setTimeout(() => {
             setNodes((nodes) =>
               nodes.map((node) =>
@@ -114,14 +120,11 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
                   : node
               )
             );
-
-            // Recursively trigger next
             triggerNextNode(targetId);
           }, 4000);
         }
       };
 
-      // Step 1: Set current node to "loading"
       setNodes((nodes) =>
         nodes.map((node) =>
           node.id === id
@@ -130,7 +133,6 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
         )
       );
 
-      // Step 2: After 4 seconds, set to "success" and trigger next nodes
       setTimeout(() => {
         setNodes((nodes) =>
           nodes.map((node) =>
@@ -139,8 +141,6 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
               : node
           )
         );
-
-        // Start propagating to connected nodes
         triggerNextNode(id);
       }, 4000);
     },
@@ -166,50 +166,21 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     <>
       {selected && (
         <NodeToolbar position={Position.Top}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              backgroundColor: "#fff",
-              padding: "8px",
-              borderRadius: "12px",
-              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
-            }}
-            className="roboto-font"
-          >
-            <Button
-              buttonType="secondary"
-              icon="Copy"
-              size="small"
-              onClick={handleCopy}
-              // version="v2"
-            >
+          <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow">
+            <Button variant="secondary" size="sm" onClick={handleCopy}>
               Copy
             </Button>
-            <Button
-              buttonType="secondary"
-              icon="Download"
-              size="small"
-              onClick={handleDownload}
-            >
+            <Button variant="secondary" size="sm" onClick={handleDownload}>
               Download
             </Button>
             <Button
-              buttonType="secondary"
-              icon="Edit"
-              size="small"
+              variant="secondary"
+              size="sm"
               onClick={() => setEditOpen(true)}
             >
               Edit
             </Button>
-            <Button
-              buttonType="secondary"
-              icon="Delete"
-              size="small"
-              onClick={handleDelete}
-              className="text-red-600"
-            >
+            <Button variant="destructive" size="sm" onClick={handleDelete}>
               Delete
             </Button>
           </div>
@@ -220,77 +191,31 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
           data.status as "initial" | "loading" | "success" | "error" | undefined
         }
       >
-        <Card
-          style={{
-            position: "relative",
-            width: "320px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            borderRadius: "16px",
-            border: "1px solid #e5e7eb",
-            padding: "10px",
-            backgroundColor: "white",
-          }}
-        >
-          <CardHeader
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between", // Push play icon to the right
-              gap: "8px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <IconComponent
-                style={{ width: 20, height: 20, color: "#2563eb" }}
-              />
-              <Heading tagName="h2" text={display_name as string} />
+        <Card className="relative w-[320px] rounded-2xl border bg-white shadow -py-3 pt-3">
+          <CardHeader className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <IconComponent className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-semibold leading-none tracking-tight">
+                {display_name as string}
+              </h2>
             </div>
 
-            {/* Play icon button */}
-            <button
-              onMouseDown={(e: { stopPropagation: () => any }) =>
-                e.stopPropagation()
-              }
+            <Button
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleClick}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                padding: 4,
-                borderRadius: "6px",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-              }}
               title="Run Node"
+              variant="ghost"
             >
-              <Play style={{ width: 16, height: 16, color: "#6b5ce7" }} />
-            </button>
+              <Play className="w-4 h-4 text-indigo-600" />
+            </Button>
           </CardHeader>
 
-          <CardContent style={{ marginTop: "-16px" }}>
+          <CardContent className="-mt-4">
             {(description as string) && (
-              // <p
-              //   style={{
-              //     marginBottom: "12px",
-              //     fontSize: "12px",
-              //     color: "#6b7280",
-              //   }}
-              // >
-              //   {description as string}
-              // </p>
-              <Paragraph
-                tagName="p"
-                text={description as string}
-                variant="p3"
-                variantStyle="regular"
-              />
+              <p className="text-sm text-muted-foreground mb-3">
+                {description as string}
+              </p>
             )}
-
-            <Separator />
 
             <div
               ref={(el) => {
@@ -300,55 +225,38 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
                   ) as HTMLDivElement[];
                 }
               }}
-              style={{ marginTop: "8px" }}
+              className="m"
             >
               <NodeInputsRenderer
                 inputs={inputs as InputField[]}
                 values={inputValues}
                 onChange={handleChange}
                 nodeId={data.id as string}
+                connectedInputs={connectedInputs as string[]}
               />
             </div>
 
             {(outputs as Output[]).length > 0 && (
               <>
-                <Separator />
-                <div
-                  style={{
-                    // Tailwind's gray-50 equivalent
-                    borderRadius: "8px",
-                    padding: "8px",
-                    marginTop: "8px",
-                  }}
-                >
+                <div className="rounded-md mt-5">
                   {(outputs as Output[]).map((output, index) => (
-                    <div
-                      key={output.name}
-                      ref={(el) => {
-                        outputRefs.current[index] = el;
-                      }}
-                      style={{
-                        backgroundColor: "#f9fafb",
-                        fontSize: "12px",
-                        height: "20px",
-                        marginBottom: "6px",
-                        paddingRight: "4px",
-                        textAlign: "right",
-                        padding: "16px",
-                        display: "flex", // <-- Add
-                        alignItems: "center", // <-- Add (vertical centering)
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      {output.name}
-                    </div>
+                    <>
+                      <div
+                        key={output.name}
+                        ref={(el) => {
+                          outputRefs.current[index] = el;
+                        }}
+                        className="bg-gray-50 text-xs h-5 pr-3 -mx-6 text-right py-4 flex items-center justify-end border-t-1"
+                      >
+                        {output.name}
+                      </div>
+                    </>
                   ))}
                 </div>
               </>
             )}
           </CardContent>
 
-          {/* Output Handles */}
           {(outputs as Output[]).map((output, idx) => (
             <Handle
               key={`output-${output.name}`}
@@ -358,7 +266,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
               style={{
                 position: "absolute",
                 top: outputHandlePositions[idx]
-                  ? outputHandlePositions[idx] - 4
+                  ? outputHandlePositions[idx]
                   : 100,
                 background: "#10b981",
                 width: 10,

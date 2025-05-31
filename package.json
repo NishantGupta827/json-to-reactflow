@@ -1,7 +1,7 @@
 {
   "name": "json-to-reactflow",
   "private": false,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "description": "Library to convert any json into a customisable diagram using react-flow",
   "main": "dist/index.umd.js",
@@ -30,12 +30,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@contentstack/venus-components": "^3.0.0",
     "@dagrejs/dagre": "^1.1.4",
     "@fontsource/inter": "^5.2.5",
+    "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
     "@tailwindcss/vite": "^4.1.8",
     "@xyflow/react": "^12.6.4",
     "class-variance-authority": "^0.7.1",
