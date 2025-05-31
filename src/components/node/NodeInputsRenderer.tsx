@@ -10,7 +10,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Handle, Position } from "@xyflow/react";
+import { Handle, Position, useNodeConnections } from "@xyflow/react";
 
 export interface InputField {
   name: string;
@@ -38,6 +38,12 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
   onChange,
   connectedInputs,
 }) => {
+  const allConnections = useNodeConnections();
+
+  const connectionsCount = (id: string) => {
+    return allConnections.filter((conn) => conn.targetHandle === id).length;
+  };
+
   const inputRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [positions, setPositions] = useState<number[]>([]);
 
@@ -172,6 +178,7 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                 type="target"
                 position={Position.Left}
                 id={`input-${name}`}
+                isConnectable={connectionsCount(`input-${name}`) < 1}
                 style={{
                   position: "absolute",
                   top: positions[index] ?? 100,

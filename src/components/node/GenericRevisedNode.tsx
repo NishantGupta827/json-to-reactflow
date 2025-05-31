@@ -5,6 +5,7 @@ import {
   NodeToolbar,
   useReactFlow,
   useStore,
+  useNodeConnections,
 } from "@xyflow/react";
 import NodeInputsRenderer, { type InputField } from "./NodeInputsRenderer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -152,6 +153,12 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     setNodes((nds) => nds.filter((node) => node.id !== id));
   };
 
+  const allConnections = useNodeConnections();
+
+  const connectionsCount = (id: string) => {
+    return allConnections.filter((conn) => conn.sourceHandle === id).length;
+  };
+
   const RawIcon = LucideIcons[display_icon as keyof typeof LucideIcons];
   const IconComponent =
     (RawIcon as React.FC<React.SVGProps<SVGSVGElement>>) || LucideIcons.Plug;
@@ -171,7 +178,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-7 px-1 text-xs"
               onClick={handleCopy}
             >
               <Copy className="w-3.5 h-3.5 mr-1" />
@@ -180,7 +187,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-7 px-1 text-xs"
               onClick={handleDownload}
             >
               <Download className="w-3.5 h-3.5 mr-1" />
@@ -189,7 +196,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-7 px-1 text-xs"
               onClick={() => setEditOpen(true)}
             >
               <Edit className="w-3.5 h-3.5 mr-1" />
@@ -198,7 +205,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
             <Button
               variant="destructive"
               size="sm"
-              className="h-7 px-2 text-xs"
+              className="h-7 px-1 text-xs"
               onClick={handleDelete}
             >
               <Trash2 className="w-3.5 h-3.5 mr-1" />
@@ -284,6 +291,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
               type="source"
               position={Position.Right}
               id={`output-${output.name}`}
+              isConnectable={connectionsCount(`output-${output.name}`) < 1}
               style={{
                 position: "absolute",
                 top: outputHandlePositions[idx]

@@ -170,6 +170,7 @@ export const flowJson: FlowJson = {
       source: "node_2", // TextInputNode
       target: "node_1", // OpenAIChatNode
       targetHandle: "input-prompt", // matches id={`input-${name}`}
+      sourceHandle: "output-Message",
       animated: true,
       label: "Prompt input",
     },
@@ -178,6 +179,7 @@ export const flowJson: FlowJson = {
       source: "node_3", // SwitchNode
       target: "node_1", // OpenAIChatNode
       targetHandle: "input-system_message",
+      sourceHandle: "output-Prompt Message",
       animated: true,
       label: "Prompt Template",
     },
@@ -186,6 +188,7 @@ export const flowJson: FlowJson = {
       source: "node_1", // OpenAIChatNode
       target: "node_4", // ConditionalRouterNode
       targetHandle: "input-outputData",
+      sourceHandle: "output-Response Text",
       animated: true,
       label: "Response → Router",
     },
