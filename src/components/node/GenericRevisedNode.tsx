@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
 import { NodeEditDialog } from "./NodeEditDialog";
+import { Copy, Download, Edit, Trash2 } from "lucide-react";
 
 interface Output {
   name: string;
@@ -166,21 +167,41 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     <>
       {selected && (
         <NodeToolbar position={Position.Top}>
-          <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow">
-            <Button variant="secondary" size="sm" onClick={handleCopy}>
+          <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={handleCopy}
+            >
+              <Copy className="w-3.5 h-3.5 mr-1" />
               Copy
             </Button>
-            <Button variant="secondary" size="sm" onClick={handleDownload}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={handleDownload}
+            >
+              <Download className="w-3.5 h-3.5 mr-1" />
               Download
             </Button>
             <Button
-              variant="secondary"
+              variant="ghost"
               size="sm"
+              className="h-7 px-2 text-xs"
               onClick={() => setEditOpen(true)}
             >
+              <Edit className="w-3.5 h-3.5 mr-1" />
               Edit
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleDelete}>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-7 px-2 text-xs"
+              onClick={handleDelete}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1" />
               Delete
             </Button>
           </div>
