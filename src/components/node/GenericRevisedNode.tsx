@@ -96,55 +96,53 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
     URL.revokeObjectURL(url);
   };
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
+  const getUpstreamExecutionOrder = (
+    targetId: string,
+    edges: any[],
+    visited = new Set<string>()
+  ): string[] => {
+    if (visited.has(targetId)) return [];
+    visited.add(targetId);
 
-      const triggerNextNode = (sourceId: string) => {
-        const nextEdges = getEdges().filter((edge) => edge.source === sourceId);
+    const incomingEdges = edges.filter((edge) => edge.target === targetId);
+    let ordered: string[] = [];
 
-        for (const edge of nextEdges) {
-          const targetId = edge.target;
+    for (const edge of incomingEdges) {
+      ordered = [
+        ...ordered,
+        ...getUpstreamExecutionOrder(edge.source, edges, visited),
+      ];
+    }
 
-          setNodes((nodes) =>
-            nodes.map((node) =>
-              node.id === targetId
-                ? { ...node, data: { ...node.data, status: "loading" } }
-                : node
-            )
-          );
-
-          setTimeout(() => {
-            setNodes((nodes) =>
-              nodes.map((node) =>
-                node.id === targetId
-                  ? { ...node, data: { ...node.data, status: "success" } }
-                  : node
-              )
-            );
-            triggerNextNode(targetId);
-          }, 4000);
-        }
-      };
-
+    return [...ordered, targetId];
+  };
+  const runNodesInOrder = async (orderedNodeIds: string[]) => {
+    for (const nodeId of orderedNodeIds) {
       setNodes((nodes) =>
         nodes.map((node) =>
-          node.id === id
+          node.id === nodeId
             ? { ...node, data: { ...node.data, status: "loading" } }
             : node
         )
       );
 
-      setTimeout(() => {
-        setNodes((nodes) =>
-          nodes.map((node) =>
-            node.id === id
-              ? { ...node, data: { ...node.data, status: "success" } }
-              : node
-          )
-        );
-        triggerNextNode(id);
-      }, 4000);
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+
+      setNodes((nodes) =>
+        nodes.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, status: "success" } }
+            : node
+        )
+      );
+    }
+  };
+  const handleClick = useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const edges = getEdges();
+      const orderedIds = getUpstreamExecutionOrder(id, edges);
+      await runNodesInOrder(orderedIds);
     },
     [id, getEdges, setNodes]
   );
@@ -219,7 +217,11 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
           data.status as "initial" | "loading" | "success" | "error" | undefined
         }
       >
-        <Card className="relative w-[320px] rounded-2xl border bg-white shadow -py-3 pt-3">
+        <Card
+          className={`relative w-[320px] border bg-white shadow -py-3 pt-3 ${
+            selected ? "border-gray-800" : "border-gray-200"
+          }`}
+        >
           <CardHeader className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <IconComponent className="w-5 h-5 text-blue-600" />
@@ -253,7 +255,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
                   ) as HTMLDivElement[];
                 }
               }}
-              className="m"
+              className="mb-5"
             >
               <NodeInputsRenderer
                 inputs={inputs as InputField[]}
@@ -266,7 +268,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
 
             {(outputs as Output[]).length > 0 && (
               <>
-                <div className="rounded-md mt-5">
+                <div className="rounded-md">
                   {(outputs as Output[]).map((output, index) => (
                     <>
                       <div
@@ -274,7 +276,7 @@ export default function RevisedCustomNode({ data, id, selected }: NodeProps) {
                         ref={(el) => {
                           outputRefs.current[index] = el;
                         }}
-                        className="bg-gray-50 text-xs h-5 pr-3 -mx-6 text-right py-4 flex items-center justify-end border-t-1"
+                        className="bg-gray-50 text-xs h-5 pr-3 -mx-6 text-right py-4 flex items-center justify-end border-t-1 rounded-b-2xl"
                       >
                         {output.name}
                       </div>

@@ -11,12 +11,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Handle, Position, useNodeConnections } from "@xyflow/react";
+import { Textarea } from "@/components/ui/textarea";
 
 export interface InputField {
   name: string;
   label?: string;
   placeholder?: string;
-  type: "text" | "dropdown" | "checkbox" | "switch";
+  type: "text" | "dropdown" | "checkbox" | "switch" | "textarea";
   options?: string[];
   defaultValue?: any;
   handlePresent?: boolean;
@@ -152,6 +153,28 @@ const NodeInputsRenderer: React.FC<NodeInputsRendererProps> = ({
                 {label && (
                   <Label htmlFor={name}>{required ? `${label}*` : label}</Label>
                 )}
+              </div>
+            )}
+
+            {type === "textarea" && (
+              <div>
+                {label && (
+                  <Label className="text-sm">
+                    {label}{" "}
+                    {required && <span className="text-red-500">*</span>}
+                  </Label>
+                )}
+                <Textarea
+                  name={name}
+                  value={isDisabled ? "Receiving input" : String(value)}
+                  placeholder={isDisabled ? "" : placeholder}
+                  onChange={(e) => onChange(name, e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  disabled={isDisabled}
+                  className="disabled:bg-gray-100"
+                  
+                />
               </div>
             )}
 

@@ -35,7 +35,7 @@ const icons: Icons = {
   input: <Download />,
   output: <Upload />,
   chat: <MessageCircle />,
-  dragIcon: <GripVertical />,
+  dragIcon: <GripVertical className="cursor-grab" />,
   text: <Text />,
   agent: <Bot />,
   routing: <Route />,
@@ -48,10 +48,16 @@ type ButtonProps = {
   rightIcon: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-function Button({ leftIcon, label, rightIcon, ...rest }: ButtonProps) {
+function Button({
+  leftIcon,
+  label,
+  rightIcon,
+  className = "",
+  ...rest
+}: ButtonProps) {
   return (
     <button
-      className="mt-auto flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 shadow-sm text-sm font-medium text-gray-800 bg-white hover:bg-gray-100 transition-all duration-200"
+      className={`mt-auto flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 shadow-sm text-sm font-medium text-gray-800 bg-white hover:bg-gray-100 transition-all duration-200 ${className}`}
       {...rest}
     >
       {icons[leftIcon]}

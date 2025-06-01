@@ -37,25 +37,9 @@ export interface BasicFlowProps {
   sidebarJson: TestJsonType;
 }
 
-// const connectionLineStyle = {
-//   stroke: "#b1b1b7",
-// };
-
 const nodeTypes = {
   custom: RevisedCustomNode,
 };
-
-// const edgeTypes = {
-//   floating: FloatingEdge,
-// };
-
-// const defaultEdgeOptions = {
-//   type: "floating",
-//   markerEnd: {
-//     type: MarkerType.ArrowClosed,
-//     color: "#b1b1b7",
-//   },
-// };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { control, minimap, background, edges: normalizedEdges } = flowJson;
@@ -70,13 +54,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     setSelectedNode(node);
   }, []);
 
-  // const handleUpdateNode = useCallback((updatedNode: Node) => {
-  //   setNodes((nds) =>
-  //     nds.map((n) => (n.id === updatedNode.id ? { ...n, ...updatedNode } : n))
-  //   );
-  //   setSelectedNode(updatedNode);
-  // }, []);
-
   const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
@@ -89,8 +66,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
       setInitial(false);
     }
   }, [nodesInitialized, initial]);
-
-  //const sidebarTestJson: SideBarInputJSON = sidebarJson;
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => {
@@ -238,28 +213,25 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           onNodeDragStop={handleDragStop}
           //onDragStart={onDragStart}
           // onNodeDoubleClick={handleNodeDoubleClick}
-          onNodeClick={handleNodeClick}
+          // onNodeDoubleClick={handleNodeClick}
           onDragOver={onDragOver}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
-          // edgeTypes={edgeTypes}
-          // defaultEdgeOptions={defaultEdgeOptions}
-          // connectionLineComponent={CustomConnectionLine}
-          // connectionLineStyle={connectionLineStyle}
         >
           {isSidebarCollapsed && (
             <Panel position="top-left">
               <div
-                className="xy-theme__button flex"
+                className="xy-theme__button flex cursor-pointer"
                 style={{
                   width: "175px",
                   transition: "width 0.3s ease",
                   overflow: "hidden",
                   backgroundColor: "rgb(249, 249, 249)",
                 }}
+                onClick={() => toggleCollapse()}
               >
-                <ArrowRightFromLine onClick={() => toggleCollapse()} />
+                <ArrowRightFromLine />
                 <span style={{ margin: "auto" }}>Components</span>
               </div>
             </Panel>
@@ -279,13 +251,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             </Controls>
           )}
           {minimap && <MiniMap />}
-          {/* {selectedNode && (
-            <NodeDetailsPanel
-              node={selectedNode}
-              onClose={() => setSelectedNode(null)}
-              onUpdateNode={handleUpdateNode}
-            />
-          )} */}
         </ReactFlow>
       </div>
     </div>
