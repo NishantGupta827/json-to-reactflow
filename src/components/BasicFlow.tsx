@@ -43,16 +43,11 @@ const nodeTypes = {
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { control, minimap, background, edges: normalizedEdges } = flowJson;
-  const [, setSelectedNode] = useState<Node | null>(null);
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
     enableShortcuts: true,
   });
-
-  const handleNodeClick = useCallback((_: any, node: Node) => {
-    setSelectedNode(node);
-  }, []);
 
   const [nodes, setNodes] = useNodesState(flowJson.nodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
