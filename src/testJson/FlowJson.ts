@@ -1,4 +1,4 @@
-import { TestJsonType } from "@/components/sidebar/testingSideBarJson";
+import { SideBarJson } from "@/types/sidebar";
 import { FlowJson } from "../types/flowJson";
 
 export const flowJson: FlowJson = {
@@ -201,7 +201,7 @@ export const flowJson: FlowJson = {
   ],
 };
 
-export const SideBarJson: TestJsonType = {
+export const sideBarJson: SideBarJson = {
   folders: [
     {
       folderName: "Inputs",

@@ -1,32 +1,33 @@
-export interface SidebarInput {
-  type: "text" | "dropdown" | "checkbox" | "switch";
-  key: string;
-  label?: string;
-  value: string | boolean;
-  options?: string[];
-  required?: boolean;
-  defaultValue?: string | boolean;
-  placeholder?: string;
-  handlePresent?: boolean;
-}
+import { InputField } from "@/components/node/NodeInputsRenderer";
 
-export interface SidebarNode {
-  label: string;
-  editable: boolean;
-  inputs?: SidebarInput[];
-  incoming?: number;
-  outgoing?: number;
-}
-
-export interface SidebarJson {
-  Data: SidebarNode[];
-}
-
-export type SideBarProps = {
+interface Output {
   name: string;
-  shape: string;
-  bgColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  editable?: boolean;
+  type: "data" | "text";
+  description: string;
+}
+
+type NodeData = {
+  name?: string;
+  display_name?: string;
+  display_icon?: string;
+  description?: string;
+  inputs?: InputField[];
+  outputs?: Output[];
+  [key: string]: any;
+};
+
+export type Item = {
+  label: string;
+  icon: string;
+  data: NodeData;
+};
+
+type Folder = {
+  folderName: string;
+  icon: string;
+  item: Item[];
+};
+
+export type SideBarJson = {
+  folders: Folder[];
 };

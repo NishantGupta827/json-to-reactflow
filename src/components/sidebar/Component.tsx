@@ -1,5 +1,4 @@
-import React, { JSX, useEffect, useRef, useState } from "react";
-import { Item, TestJsonType } from "./testingSideBarJson";
+import React, { JSX } from "react";
 import { useDnD } from "./DnD";
 import {
   Bot,
@@ -12,9 +11,16 @@ import {
   Text,
   Upload,
 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
+import { Button } from "../ui/button";
+import { Item, SideBarJson } from "@/types/sidebar";
 
 type SideBarComponentProps = {
-  data: TestJsonType;
+  data: SideBarJson;
 };
 
 type SideBarItemProps = {
@@ -48,7 +54,7 @@ type ButtonProps = {
   rightIcon: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-function Button({
+function CustomButton({
   leftIcon,
   label,
   rightIcon,
@@ -68,50 +74,36 @@ function Button({
 }
 
 function SideBarDropdown({ label, icon, children }: DropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [maxHeight, setMaxHeight] = useState("0px");
-  useEffect(() => {
-    if (contentRef.current) {
-      setMaxHeight(
-        isOpen ? `${contentRef.current.scrollHeight + 10}px` : "0px"
-      );
-    }
-  }, [isOpen, children]);
-
+  const [isOpen, setIsOpen] = React.useState(false);
   return (
-    <div className="w-full bg-transparent">
-      <button
-        className="w-full flex items-center justify-between px-4 py-2 rounded hover:bg-gray-300"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-      >
-        {icons[icon]}
-        <span style={{ textAlign: "left" }}>{label}</span>
-        <div
-          className={`transform transition-transform duration-300 ${
-            isOpen ? "rotate-90" : ""
-          }`}
-        >
-          <ChevronRight />
-        </div>
-      </button>
-
-      <div
-        ref={contentRef}
-        style={{
-          maxHeight: maxHeight,
-          transition:
-            "max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease",
-          overflow: "hidden",
-          opacity: isOpen ? 1 : 0,
-          paddingTop: isOpen ? "0.5rem" : "0",
-          paddingBottom: isOpen ? "0.5rem" : "0",
-        }}
-      >
-        <div className="ml-4 flex flex-col gap-2">{children}</div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="flex flex-col gap-2"
+    >
+      <div className="flex items-center justify-between gap-4 m-auto w-full">
+        <CollapsibleTrigger asChild>
+          <Button
+            className="text-black bg-[#f9f9f9] w-full flex items-center justify-between px-4 py-2 rounded hover:bg-gray-300"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+          >
+            {icons[icon]}
+            <span style={{ textAlign: "left" }}>{label}</span>
+            <div
+              className={`transform transition-transform duration-300 ${
+                isOpen ? "rotate-90" : ""
+              }`}
+            >
+              <ChevronRight />
+            </div>
+          </Button>
+        </CollapsibleTrigger>
       </div>
-    </div>
+      <CollapsibleContent className="flex flex-col gap-2 p-[5px]">
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -150,7 +142,7 @@ function SideBarItem({ data }: SideBarItemProps) {
   };
 
   return (
-    <Button
+    <CustomButton
       leftIcon={data.icon}
       label={data.label}
       rightIcon={"dragIcon"}
