@@ -17,14 +17,15 @@ type NodeData = {
 };
 
 export type Item = {
-  label: string;
+  title: string;
   icon: string;
-  data: NodeData;
+  description: string;
+  attributes?: [string, string][];
+  nodeData: NodeData;
 };
 
 type Folder = {
   folderName: string;
-  icon: string;
   item: Item[];
 };
 
