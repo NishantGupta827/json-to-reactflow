@@ -28,13 +28,13 @@ import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import RevisedCustomNode from "./node/GenericRevisedNode";
-import { TestJsonType } from "./sidebar/testingSideBarJson";
 import { ArrowRightFromLine } from "lucide-react";
 import useUndoRedo from "@/hooks/useUndoRedo";
+import { SideBarJson } from "@/types/sidebar";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
-  sidebarJson: TestJsonType;
+  sidebarJson: SideBarJson;
 }
 
 const nodeTypes = {
