@@ -5,8 +5,16 @@ import {
   Position,
   NodeToolbar,
   useReactFlow,
+  useStore,
+  type Node,
 } from "@xyflow/react";
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +43,7 @@ interface AgentNodeData {
 }
 
 export default function AgentNode({ data, id, selected }: NodeProps) {
-  const { setNodes, getEdges } = useReactFlow();
+  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
   const [editOpen, setEditOpen] = useState(false);
 
   const inputsListRef = useRef<HTMLUListElement>(null);
@@ -44,41 +52,89 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
   const [inputHandleTops, setInputHandleTops] = useState<number[]>([]);
   const [outputHandleTops, setOutputHandleTops] = useState<number[]>([]);
 
-  useEffect(() => {
-    const updatePositions = () => {
-      if (!inputsListRef.current || !outputsListRef.current) return;
+  const zoom = useStore((s) => s.transform[2]);
 
-      const nodeContainer = inputsListRef.current.closest(
-        ".react-flow__node"
-      ) as HTMLElement;
-      if (!nodeContainer) return;
+  const updatePositions = useCallback(() => {
+    if (!inputsListRef.current || !outputsListRef.current) return;
 
-      const inputTops = Array.from(inputsListRef.current.children).map((li) => {
-        const liRect = li.getBoundingClientRect();
-        const containerRect = nodeContainer.getBoundingClientRect();
-        return liRect.top - containerRect.top + liRect.height / 2;
-      });
+    const nodeContainer = inputsListRef.current.closest(
+      ".react-flow__node"
+    ) as HTMLElement;
+    if (!nodeContainer) return;
 
-      const outputTops = Array.from(outputsListRef.current.children).map(
-        (li) => {
-          const liRect = li.getBoundingClientRect();
-          const containerRect = nodeContainer.getBoundingClientRect();
-          return liRect.top - containerRect.top + liRect.height / 2;
-        }
-      );
+    const inputTops = Array.from(inputsListRef.current.children).map((li) => {
+      const liRect = li.getBoundingClientRect();
+      const containerRect = nodeContainer.getBoundingClientRect();
+      return (liRect.top - containerRect.top + liRect.height / 2) / zoom;
+    });
 
-      setInputHandleTops(inputTops);
-      setOutputHandleTops(outputTops);
-    };
+    const outputTops = Array.from(outputsListRef.current.children).map((li) => {
+      const liRect = li.getBoundingClientRect();
+      const containerRect = nodeContainer.getBoundingClientRect();
+      return (liRect.top - containerRect.top + liRect.height / 2) / zoom;
+    });
+
+    setInputHandleTops(inputTops);
+    setOutputHandleTops(outputTops);
+  }, []);
+
+  const hasSetHandlePositions = useRef(false);
+
+  useLayoutEffect(() => {
+    if (hasSetHandlePositions.current) return;
 
     updatePositions();
-
-    window.addEventListener("resize", updatePositions);
-    return () => window.removeEventListener("resize", updatePositions);
+    hasSetHandlePositions.current = true;
   }, [data.inputs, data.outputs]);
 
   const handleDelete = () => {
     setNodes((nodes) => nodes.filter((n) => n.id !== id));
+  };
+
+  const revealNode = (
+    nodeId: string,
+    nodeToAdd: Node,
+    screenPos?: { x: number; y: number }
+  ) => {
+    setNodes((nodes) => {
+      const alreadyExists = nodes.find((n) => n.id === nodeId);
+      if (alreadyExists) {
+        return nodes.map((n) =>
+          n.id === nodeId ? { ...n, hidden: false } : n
+        );
+      }
+
+      let position = nodeToAdd.position;
+
+      if (screenPos && screenToFlowPosition) {
+        position = screenToFlowPosition(screenPos);
+      } else {
+        const currentNode = nodes.find((n) => n.id === id);
+        position =
+          position ||
+          (currentNode
+            ? {
+                x: currentNode.position.x + 300,
+                y: currentNode.position.y,
+              }
+            : { x: 0, y: 0 });
+      }
+
+      return [
+        ...nodes,
+        {
+          ...nodeToAdd,
+          position,
+          hidden: false,
+        },
+      ];
+    });
+
+    // requestAnimationFrame(() => {
+    //   requestAnimationFrame(() => {
+    //     setTimeout(() => updatePositions(), 20);
+    //   });
+    // });
   };
 
   const handleDownload = () => {
@@ -95,15 +151,6 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-  };
-
-  const revealNode = (nodeId: string) => {
-    console.log("revealing node", nodeId);
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.id === nodeId ? { ...node, hidden: false } : node
-      )
-    );
   };
 
   const runNode = async () => {
@@ -157,7 +204,7 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
         <Card className="w-[320px] shadow border">
           <CardHeader
             className={`flex flex-col gap-2 py-2 rounded-t-xl`}
-            style={{ backgroundColor: data.color as string }}
+            style={{ backgroundColor: (data.color as string) ?? "#ff9800" }}
           >
             <div className={`w-full`}>
               <h2 className="text-lg font-semibold text-white">
@@ -172,15 +219,6 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
                 <Play className="w-4 h-4 text-indigo-600" />
               </Button> */}
             </div>
-
-            {/* <div className="text-xs text-muted-foreground flex flex-col gap-1">
-              <div>
-                <span className="font-medium">Model:</span> {(data as AgentNodeData).model}
-              </div>
-              <div>
-                <span className="font-medium">Temperature:</span> {(data as AgentNodeData).temperature}
-              </div>
-            </div> */}
           </CardHeader>
 
           <CardContent className="space-y-4">
@@ -219,9 +257,14 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
                   <div className="space-y-1">
                     {items.map((item) => (
                       <div
-                        key={item.label}
+                        key={item.id}
                         className="w-full text-left bg-muted hover:bg-muted/80 text-sm rounded px-2 py-1 transition truncate z-[1000]"
-                        onClick={() => revealNode(item.id)}
+                        onClick={(e) => {
+                          revealNode(item.node.id, item.node, {
+                            x: e.clientX,
+                            y: e.clientY,
+                          });
+                        }}
                       >
                         {item.label}
                       </div>
@@ -239,8 +282,7 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
               </h4>
               <ul
                 ref={inputsListRef}
-                className="space-y-1 text-sm"
-                style={{ maxHeight: 100, overflowY: "auto" }}
+                className="space-y-1 text-sm overflow-y-auto"
               >
                 {(data.inputs as string[])?.length ? (
                   (data.inputs as string[]).map((input) => (

@@ -173,6 +173,23 @@ export const flowJson: FlowJson = {
                 description: "Runs a custom script on input data.",
                 inputs: ["script", "input"],
                 outputs: ["result"],
+                automations: [
+                  {
+                    id: "automation_log",
+                    label: "Logging",
+                    node: {
+                      id: "automation_log",
+                      type: "custom",
+                      position: { x: 1000, y: 50 },
+                      data: {
+                        title: "Log Execution",
+                        description: "Logs the script execution results.",
+                        inputs: ["logData"],
+                        outputs: ["logConfirmation"],
+                      },
+                    },
+                  },
+                ],
               },
             },
           },
@@ -230,7 +247,7 @@ export const flowJson: FlowJson = {
             label: "Custom Formatting",
             node: {
               id: "ability_format",
-              type: "ability",
+              type: "custom",
               position: { x: 800, y: 250 },
               data: {
                 title: "Custom Formatting",
