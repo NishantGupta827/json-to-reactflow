@@ -16,19 +16,8 @@ import {
   useState,
 } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Trash2,
-  Download,
-  Copy,
-  Edit,
-  Play,
-  Zap,
-  Settings,
-  Code2,
-} from "lucide-react";
+import { Zap, Settings, Code2 } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
-import { NodeEditDialog } from "./NodeEditDialog";
 
 interface AgentNodeData {
   title: string;
@@ -173,7 +162,7 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
 
   return (
     <>
-      {selected && (
+      {/* {selected && (
         <NodeToolbar position={Position.Top}>
           <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow text-xs">
             <Button onClick={handleCopy} variant="ghost" size="sm">
@@ -194,7 +183,7 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
             </Button>
           </div>
         </NodeToolbar>
-      )}
+      )} */}
 
       <NodeStatusIndicator
         status={

@@ -21,7 +21,7 @@ export type Item = {
   icon: string;
   description: string;
   attributes?: [string, string][];
-  nodeData: NodeData;
+  nodeData: any;
 };
 
 type Folder = {

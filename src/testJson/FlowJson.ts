@@ -29,7 +29,7 @@ export const flowJson: FlowJson = {
     {
       id: "node_2",
       type: "custom",
-      position: { x: 350, y: 150 },
+      position: { x: 350, y: 5000 },
       data: {
         title: "API Call",
         description: "Calls an external API to fetch data.",
