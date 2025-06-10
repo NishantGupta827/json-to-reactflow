@@ -3,7 +3,7 @@ import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
+  // MiniMap,
   applyEdgeChanges,
   applyNodeChanges,
   useNodesState,
@@ -267,7 +267,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             </Controls>
           )}
 
-          <Panel position="bottom-right">
+          <Panel position="bottom-right" className="flex gap-x-2">
             <Button variant="outline">Playground</Button>
             <Button variant="default" className="bg-purple-600">
               Publish{" "}

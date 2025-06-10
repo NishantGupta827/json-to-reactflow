@@ -28,7 +28,7 @@ export function getLayoutedElements(
   });
 
 
-  dagreGraph.setGraph({ rankdir:direction,nodesep: !isHorizontal?3*max_height:100, ranksep:!isHorizontal?100:max_width})
+  dagreGraph.setGraph({ rankdir:direction,nodesep: 200, ranksep:200})
 
   edges.forEach((edge) => {
     dagreGraph.setEdge(edge.source, edge.target);

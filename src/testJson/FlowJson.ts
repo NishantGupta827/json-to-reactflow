@@ -22,6 +22,8 @@ export const flowJson: FlowJson = {
         automations: [],
         tools: [],
         abilities: [],
+        // Added icon for Webhook Trigger
+        icon: "Webhook",
       },
     },
     {
@@ -38,7 +40,6 @@ export const flowJson: FlowJson = {
             label: "HTTP Request",
             node: {
               id: "automation_http",
-
               data: {
                 title: "HTTP Request",
                 description: "Handles outgoing HTTP requests.",
@@ -52,7 +53,6 @@ export const flowJson: FlowJson = {
             label: "Retry on Failure",
             node: {
               id: "automation_retry",
-
               data: {
                 title: "Retry on Failure",
                 description: "Retries a failed request automatically.",
@@ -68,7 +68,6 @@ export const flowJson: FlowJson = {
             label: "API Client",
             node: {
               id: "tool_api_client",
-
               data: {
                 title: "API Client",
                 description: "Tool for making API requests.",
@@ -82,7 +81,6 @@ export const flowJson: FlowJson = {
             label: "Header Manager",
             node: {
               id: "tool_header_mgr",
-
               data: {
                 title: "Header Manager",
                 description: "Manages API request headers.",
@@ -98,7 +96,6 @@ export const flowJson: FlowJson = {
             label: "Data Fetching",
             node: {
               id: "ability_fetch",
-
               data: {
                 title: "Data Fetching",
                 description: "Ability to fetch remote data.",
@@ -112,7 +109,6 @@ export const flowJson: FlowJson = {
             label: "HTTP Communication",
             node: {
               id: "ability_http",
-
               data: {
                 title: "HTTP Communication",
                 description: "Handles HTTP communication protocols.",
@@ -126,7 +122,6 @@ export const flowJson: FlowJson = {
             label: "Error Handling",
             node: {
               id: "ability_error",
-
               data: {
                 title: "Error Handling",
                 description: "Manages errors and exceptions.",
@@ -136,6 +131,7 @@ export const flowJson: FlowJson = {
             },
           },
         ],
+        icon: "Cloud",
       },
     },
     {
@@ -153,7 +149,6 @@ export const flowJson: FlowJson = {
             label: "Script Execution",
             node: {
               id: "automation_script",
-
               data: {
                 title: "Script Execution",
                 description: "Runs a custom script on input data.",
@@ -165,7 +160,6 @@ export const flowJson: FlowJson = {
                     label: "Logging",
                     node: {
                       id: "automation_log",
-
                       data: {
                         title: "Log Execution",
                         description: "Logs the script execution results.",
@@ -185,7 +179,6 @@ export const flowJson: FlowJson = {
             label: "JavaScript Engine",
             node: {
               id: "tool_js_engine",
-
               data: {
                 title: "JavaScript Engine",
                 description: "Executes JavaScript code safely.",
@@ -199,7 +192,6 @@ export const flowJson: FlowJson = {
             label: "JSON Formatter",
             node: {
               id: "tool_json_fmt",
-
               data: {
                 title: "JSON Formatter",
                 description: "Formats JSON into a readable structure.",
@@ -215,7 +207,6 @@ export const flowJson: FlowJson = {
             label: "Data Parsing",
             node: {
               id: "ability_parse",
-
               data: {
                 title: "Data Parsing",
                 description: "Parses structured data formats.",
@@ -229,7 +220,6 @@ export const flowJson: FlowJson = {
             label: "Custom Formatting",
             node: {
               id: "ability_format",
-
               data: {
                 title: "Custom Formatting",
                 description: "Applies custom formatting rules.",
@@ -239,6 +229,8 @@ export const flowJson: FlowJson = {
             },
           },
         ],
+        // Added icon for Format IPL Data
+        icon: "ListEnd", // Or "FileText", "Type"
       },
     },
     {
@@ -255,7 +247,6 @@ export const flowJson: FlowJson = {
             label: "Send Notification",
             node: {
               id: "automation_notify",
-
               data: {
                 title: "Send Notification",
                 description: "Sends notifications to external platforms.",
@@ -269,7 +260,6 @@ export const flowJson: FlowJson = {
             label: "Retry on Failure",
             node: {
               id: "automation_retry_slack",
-
               data: {
                 title: "Retry on Failure",
                 description: "Retries a failed Slack message.",
@@ -285,7 +275,6 @@ export const flowJson: FlowJson = {
             label: "Slack Webhook",
             node: {
               id: "tool_slack_webhook",
-
               data: {
                 title: "Slack Webhook",
                 description: "Sends messages using Slack webhook.",
@@ -299,7 +288,6 @@ export const flowJson: FlowJson = {
             label: "Message Formatter",
             node: {
               id: "tool_msg_fmt",
-
               data: {
                 title: "Message Formatter",
                 description: "Formats message content for Slack.",
@@ -315,7 +303,6 @@ export const flowJson: FlowJson = {
             label: "Real-time Alerts",
             node: {
               id: "ability_alert",
-
               data: {
                 title: "Real-time Alerts",
                 description: "Triggers alerts in real time.",
@@ -329,7 +316,6 @@ export const flowJson: FlowJson = {
             label: "Message Dispatch",
             node: {
               id: "ability_dispatch",
-
               data: {
                 title: "Message Dispatch",
                 description: "Dispatches messages to destinations.",
@@ -339,6 +325,7 @@ export const flowJson: FlowJson = {
             },
           },
         ],
+        icon: "MessageSquare",
       },
     },
   ],

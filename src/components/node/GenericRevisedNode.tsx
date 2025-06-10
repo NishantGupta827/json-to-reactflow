@@ -1,4 +1,3 @@
-// AgentNode.tsx
 import {
   Handle,
   NodeProps,
@@ -6,72 +5,99 @@ import {
   useReactFlow,
   useStore,
   type Node,
+  useUpdateNodeInternals,
 } from "@xyflow/react";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Zap, Settings, Code2 } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
+import * as LucideIcons from "lucide-react";
+import { LucideProps } from "lucide-react";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { cn } from "@/lib/utils";
 
-interface AgentNodeData {
-  title: string;
-  description?: string;
-  model?: string;
-  temperature?: number;
-  automations?: string[];
-  tools?: string[];
-  abilities?: string[];
-  status?: "initial" | "loading" | "success" | "error";
-  color?: string;
-}
+// interface AgentNodeData {
+//   title: string;
+//   description?: string;
+//   icon?: keyof typeof LucideIcons;
+//   model?: string;
+//   temperature?: number;
+//   automations?: { id: string; label: string; node: Node }[];
+//   tools?: { id: string; label: string; node: Node }[];
+//   abilities?: { id: string; label: string; node: Node }[];
+//   inputs?: string[];
+//   outputs?: string[];
+//   status?: "initial" | "loading" | "success" | "error";
+//   color?: string;
+// }
 
 export default function AgentNode({ data, id, selected }: NodeProps) {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
-  const [editOpen, setEditOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const inputsListRef = useRef<HTMLUListElement>(null);
   const outputsListRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const zoom = useStore((s) => s.transform[2]);
 
   const [inputHandleTops, setInputHandleTops] = useState<number[]>([]);
   const [outputHandleTops, setOutputHandleTops] = useState<number[]>([]);
 
-  const zoom = useStore((s) => s.transform[2]);
+  const updateNodeInternals = useUpdateNodeInternals(); // Initialize the hook
 
-  const updatePositions = useCallback(() => {
-    if (!inputsListRef.current || !outputsListRef.current) return;
+  const updateHandlePositions = useCallback(() => {
+    if (expanded && inputsListRef.current && outputsListRef.current) {
+      const nodeEl = inputsListRef.current.closest(
+        ".react-flow__node"
+      ) as HTMLElement;
+      if (!nodeEl) return;
 
-    const nodeContainer = inputsListRef.current.closest(
-      ".react-flow__node"
-    ) as HTMLElement;
-    if (!nodeContainer) return;
+      const getHandleTops = (ref: React.RefObject<HTMLUListElement>) =>
+        Array.from(ref.current?.children ?? []).map((li) => {
+          const liRect = (li as HTMLElement).getBoundingClientRect();
+          const containerRect = nodeEl.getBoundingClientRect();
+          return (liRect.top - containerRect.top + liRect.height / 2) / zoom;
+        });
 
-    const inputTops = Array.from(inputsListRef.current.children).map((li) => {
-      const liRect = li.getBoundingClientRect();
-      const containerRect = nodeContainer.getBoundingClientRect();
-      return (liRect.top - containerRect.top + liRect.height / 2) / zoom;
-    });
+      setInputHandleTops(
+        getHandleTops(inputsListRef as React.RefObject<HTMLUListElement>)
+      );
 
-    const outputTops = Array.from(outputsListRef.current.children).map((li) => {
-      const liRect = li.getBoundingClientRect();
-      const containerRect = nodeContainer.getBoundingClientRect();
-      return (liRect.top - containerRect.top + liRect.height / 2) / zoom;
-    });
+      setOutputHandleTops(
+        getHandleTops(outputsListRef as React.RefObject<HTMLUListElement>)
+      );
+    } else {
+      // When collapsed, provide fixed positions for the *single* visible handle (if any)
+      setInputHandleTops([60]);
+      setOutputHandleTops([60]);
+    }
+    // Crucial: Tell React Flow to re-measure this node immediately after
+    // positions are updated and the DOM might have changed.
+    updateNodeInternals(id);
+  }, [expanded, zoom, id, updateNodeInternals]);
+  useEffect(() => {
+    // We want this to run whenever expanded state changes, to recalculate or apply default.
+    updateHandlePositions();
+  }, [expanded, data.inputs, data.outputs, updateHandlePositions]);
 
-    setInputHandleTops(inputTops);
-    setOutputHandleTops(outputTops);
-  }, []);
-
-  const hasSetHandlePositions = useRef(false);
-
+  // useLayoutEffect can be used for initial setup or if you need to measure immediately
+  // after first render for some other purpose, but for dynamic handle positions
+  // based on content revealing/hiding, useEffect is usually more appropriate.
+  // We'll keep it as is if it's handling other layout-critical stuff, otherwise
+  // the useEffect above should be sufficient for handles.
   useLayoutEffect(() => {
-    if (hasSetHandlePositions.current) return;
-
-    updatePositions();
-    hasSetHandlePositions.current = true;
-  }, [data.inputs, data.outputs]);
-
-  const handleDelete = () => {
-    setNodes((nodes) => nodes.filter((n) => n.id !== id));
-  };
+    // This part is mainly for initial render if 'expanded' is true or when zoom changes.
+    // The useEffect above handles subsequent toggles.
+    if (expanded) {
+      // Only measure complex layout when expanded
+      updateHandlePositions();
+    }
+  }, [zoom]);
 
   const revealNode = (
     nodeId: string,
@@ -79,27 +105,22 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
     screenPos?: { x: number; y: number }
   ) => {
     setNodes((nodes) => {
-      const alreadyExists = nodes.find((n) => n.id === nodeId);
-      if (alreadyExists) {
+      const existing = nodes.find((n) => n.id === nodeId);
+      if (existing) {
         return nodes.map((n) =>
           n.id === nodeId ? { ...n, hidden: false } : n
         );
       }
 
       let position = nodeToAdd.position;
-
       if (screenPos && screenToFlowPosition) {
         position = screenToFlowPosition(screenPos);
       } else {
-        const currentNode = nodes.find((n) => n.id === id);
-        position =
-          position ||
-          (currentNode
-            ? {
-                x: currentNode.position.x + 300,
-                y: currentNode.position.y,
-              }
-            : { x: 0, y: 0 });
+        const current = nodes.find((n) => n.id === id);
+        position = position || {
+          x: current?.position.x ?? 0 + 300,
+          y: current?.position.y ?? 0,
+        };
       }
 
       return [
@@ -107,257 +128,220 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
         {
           ...nodeToAdd,
           position,
+          type: "custom",
           hidden: false,
         },
       ];
     });
-
-    // requestAnimationFrame(() => {
-    //   requestAnimationFrame(() => {
-    //     setTimeout(() => updatePositions(), 20);
-    //   });
-    // });
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${data.display_name || id}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  let IconComponent: ForwardRefExoticComponent<
+    LucideProps & RefAttributes<SVGSVGElement>
+  >;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-  };
-
-  const runNode = async () => {
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, status: "loading" } }
-          : node
-      )
-    );
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setNodes((nodes) =>
-      nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, status: "success" } }
-          : node
-      )
-    );
-  };
+  if (
+    data.icon &&
+    typeof data.icon === "string" &&
+    LucideIcons[data.icon as keyof typeof LucideIcons]
+  ) {
+    IconComponent = LucideIcons[
+      data.icon as keyof typeof LucideIcons
+    ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
+  } else {
+    IconComponent = LucideIcons.Zap;
+  }
 
   return (
     <>
-      {/* {selected && (
-        <NodeToolbar position={Position.Top}>
-          <div className="flex items-center gap-2 bg-white p-2 rounded-xl shadow text-xs">
-            <Button onClick={handleCopy} variant="ghost" size="sm">
-              <Copy className="w-3.5 h-3.5 mr-1" />
-              Copy
-            </Button>
-            <Button onClick={handleDownload} variant="ghost" size="sm">
-              <Download className="w-3.5 h-3.5 mr-1" />
-              Download
-            </Button>
-            <Button onClick={() => setEditOpen(true)} variant="ghost" size="sm">
-              <Edit className="w-3.5 h-3.5 mr-1" />
-              Edit
-            </Button>
-            <Button onClick={handleDelete} variant="destructive" size="sm">
-              <Trash2 className="w-3.5 h-3.5 mr-1" />
-              Delete
-            </Button>
-          </div>
-        </NodeToolbar>
-      )} */}
-
       <NodeStatusIndicator
         status={
           data.status as "loading" | "success" | "initial" | "error" | undefined
         }
       >
-        <Card className="w-[320px] shadow border">
-          <CardHeader
-            className={`flex flex-col gap-2 py-2 rounded-t-xl`}
-            style={{ backgroundColor: (data.color as string) ?? "#ff9800" }}
-          >
-            <div className={`w-full`}>
-              <h2 className="text-lg font-semibold text-white">
-                {data.title as string}
-              </h2>
-              {/* <Button
-                variant="ghost"
-                size="sm"
-                title="Run Node"
-                onClick={runNode}
+        <div ref={containerRef} className="relative">
+          <Card className="w-[320px] border shadow">
+            <CardHeader
+              className={cn(
+                "flex items-start justify-between py-2 px-4 rounded-t-xl",
+                expanded ? "" : "bg-white"
+              )}
+              style={
+                expanded
+                  ? { backgroundColor: (data.color as string) ?? "#ffe082" }
+                  : {}
+              }
+            >
+              <div
+                className="flex items-start gap-3 cursor-pointer"
+                onClick={() => setExpanded(!expanded)}
               >
-                <Play className="w-4 h-4 text-indigo-600" />
-              </Button> */}
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {data.description as string}
-            </p>
-
-            {[
-              {
-                title: "Automations",
-                icon: <Zap className="w-4 h-4 text-yellow-500" />,
-                items: data.automations as any[],
-              },
-              {
-                title: "Tools",
-                icon: <Settings className="w-4 h-4 text-blue-500" />,
-                items: data.tools as any[],
-              },
-              {
-                title: "Abilities",
-                icon: <Code2 className="w-4 h-4 text-green-500" />,
-                items: data.abilities as any[],
-              },
-            ].map(({ title, icon, items }) => (
-              <div key={title}>
-                <h3 className="text-sm font-semibold flex items-center justify-between">
-                  <span className="flex items-center gap-1">
-                    {icon}
-                    {title}
-                  </span>
-                  <span className="text-muted-foreground text-xs">
-                    {items?.length || 0}
-                  </span>
-                </h3>
-                {items && items.length > 0 && (
-                  <div className="space-y-1">
-                    {items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="w-full text-left bg-muted hover:bg-muted/80 text-sm rounded px-2 py-1 transition truncate z-[1000]"
-                        onClick={(e) => {
-                          revealNode(item.node.id, item.node, {
-                            x: e.clientX,
-                            y: e.clientY,
-                          });
-                        }}
-                      >
-                        {item.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <IconComponent
+                  className="w-5 h-5 text-muted-foreground mt-0.5"
+                  size={20}
+                />
+                <div className="flex flex-col">
+                  <h2 className="text-base font-semibold">
+                    {data.title as string}
+                  </h2>
+                  <p
+                    className={`text-sm ${
+                      expanded ? "text-black" : "text-muted-foreground"
+                    }`}
+                  >
+                    {data.description as string}
+                  </p>
+                </div>
               </div>
-            ))}
-          </CardContent>
+              <button onClick={() => setExpanded(!expanded)} title="Toggle">
+                <LucideIcons.ChevronRight
+                  className={cn("w-4 h-4 mt-1 transition-transform", {
+                    "rotate-90": expanded,
+                  })}
+                />
+              </button>
+            </CardHeader>
 
-          <div className="border-t border-muted py-3 px-4 flex justify-between gap-4">
-            <div className="flex-1">
-              <h4 className="text-xs font-semibold mb-1 text-muted-foreground">
-                Inputs ({(data.inputs as string[])?.length || 0})
-              </h4>
-              <ul
-                ref={inputsListRef}
-                className="space-y-1 text-sm overflow-y-auto"
-              >
-                {(data.inputs as string[])?.length ? (
-                  (data.inputs as string[]).map((input) => (
-                    <li
-                      key={input}
-                      className="bg-muted rounded px-2 py-1 truncate"
-                      title={input}
-                    >
-                      {input}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-muted-foreground">No inputs</li>
-                )}
-              </ul>
-            </div>
+            {expanded && (
+              <CardContent className="space-y-4 px-4 pt-2 pb-4">
+                {["automations", "tools", "abilities"].map((key) => {
+                  const items = (data as any)[key] as {
+                    id: string;
+                    label: string;
+                    node: Node;
+                  }[];
+                  const title = key[0].toUpperCase() + key.slice(1);
+                  const iconMap = {
+                    automations: (
+                      <LucideIcons.Zap className="w-4 h-4 text-yellow-500" />
+                    ),
+                    tools: (
+                      <LucideIcons.Settings className="w-4 h-4 text-blue-500" />
+                    ),
+                    abilities: (
+                      <LucideIcons.Code2 className="w-4 h-4 text-green-500" />
+                    ),
+                  };
+                  return (
+                    <div key={key}>
+                      <h3 className="text-sm font-semibold flex items-center justify-between">
+                        <span className="flex items-center gap-1">
+                          {iconMap[key as keyof typeof iconMap]} {title}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {items?.length ?? 0}
+                        </span>
+                      </h3>
+                      {items?.map((item) => (
+                        <div
+                          key={item.id}
+                          className="bg-muted px-2 py-1 rounded text-sm cursor-pointer hover:bg-muted/80 truncate mb-1"
+                          onClick={(e) =>
+                            revealNode(item.node.id, item.node, {
+                              x: e.clientX,
+                              y: e.clientY,
+                            })
+                          }
+                        >
+                          {item.label}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
 
-            <div className="flex-1">
-              <h4 className="text-xs font-semibold mb-1 text-muted-foreground">
-                Outputs ({(data.outputs as string[])?.length || 0})
-              </h4>
-              <ul
-                ref={outputsListRef}
-                className="space-y-1 text-sm"
-                style={{ maxHeight: 100, overflowY: "auto" }}
-              >
-                {(data.outputs as string[])?.length ? (
-                  (data.outputs as string[]).map((output) => (
-                    <li
-                      key={output}
-                      className="bg-muted rounded px-2 py-1 truncate"
-                      title={output}
-                    >
-                      {output}
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-muted-foreground">No outputs</li>
-                )}
-              </ul>
-            </div>
-          </div>
-        </Card>
+                <div className="flex gap-4 border-t pt-3">
+                  <div className="flex-1">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-1">
+                      Inputs ({(data.inputs as string[])?.length || 0})
+                    </h4>
+                    <ul ref={inputsListRef} className="space-y-1 text-sm">
+                      {(data.inputs as string[])?.length ? (
+                        (data.inputs as string[]).map((input) => (
+                          <li
+                            key={input}
+                            className="bg-muted rounded px-2 py-1 truncate"
+                            title={input}
+                          >
+                            {input}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-muted-foreground">No inputs</li>
+                      )}
+                    </ul>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-semibold text-muted-foreground mb-1">
+                      Outputs ({(data.outputs as string)?.length || 0})
+                    </h4>
+                    <ul ref={outputsListRef} className="space-y-1 text-sm">
+                      {(data.outputs as string[])?.length ? (
+                        (data.outputs as string[]).map((output) => (
+                          <li
+                            key={output}
+                            className="bg-muted rounded px-2 py-1 truncate"
+                            title={output}
+                          >
+                            {output}
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-muted-foreground">No outputs</li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        </div>
       </NodeStatusIndicator>
 
-      {(data.inputs as string[])?.map((inputName, index) => (
-        <Handle
-          key={`input-${index}`}
-          type="target"
-          position={Position.Left}
-          id={`input-${inputName}`}
-          style={{
-            top: inputHandleTops[index] || 0,
-            background: "#6b7280",
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            position: "absolute",
-            transform: "translateX(-50%) translateY(-50%)",
-          }}
-        />
-      ))}
+      {(expanded
+        ? (data.inputs as string[])
+        : [(data.inputs as string[])[0]]
+      ).map((inputName, index) =>
+        inputName ? (
+          <Handle
+            key={`input-${index}`}
+            type="target"
+            position={Position.Left}
+            id={`input-${inputName}`}
+            style={{
+              top: inputHandleTops[index] ?? 60,
+              background: "#6b7280",
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              position: "absolute",
+              transform: "translateX(-50%) translateY(-50%)",
+            }}
+          />
+        ) : null
+      )}
 
-      {(data.outputs as string[])?.map((outputName, index) => (
-        <Handle
-          key={`output-${index}`}
-          type="source"
-          position={Position.Right}
-          id={`output-${outputName}`}
-          style={{
-            top: outputHandleTops[index] || 0,
-            background: "#3b82f6",
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            position: "absolute",
-            transform: "translateX(50%) translateY(-50%)",
-          }}
-        />
-      ))}
-
-      {/* <NodeEditDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        data={data}
-        onSave={(updatedData) => {
-          setNodes((nodes) =>
-            nodes.map((node) =>
-              node.id === id ? { ...node, data: updatedData } : node
-            )
-          );
-        }}
-      /> */}
+      {(expanded
+        ? (data.outputs as string[])
+        : [(data.outputs as string[])[0]]
+      ).map((outputName, index) =>
+        outputName ? (
+          <Handle
+            key={`output-${index}`}
+            type="source"
+            position={Position.Right}
+            id={`output-${outputName}`}
+            style={{
+              top: outputHandleTops[index] ?? 60,
+              background: "#3b82f6",
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              position: "absolute",
+              transform: "translateX(50%) translateY(-50%)",
+            }}
+          />
+        ) : null
+      )}
     </>
   );
 }
