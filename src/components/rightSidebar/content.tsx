@@ -1,8 +1,16 @@
-import { Code, Plus, Settings, Trash, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Code,
+  MessageSquare,
+  Plus,
+  Settings,
+  Trash,
+  Zap,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { JSX, useEffect, useState } from "react";
-import { Node } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
 
 type genericContentProps = {
   data: any[];
@@ -63,24 +71,27 @@ export function GenericContent({ data, name, addition }: genericContentProps) {
   );
 }
 
-type SidebarContentProps = {
-  curr: Node;
-  setCurr: React.Dispatch<React.SetStateAction<Node | null>>;
+type nodeSidebarContentProps = {
+  currNode: Node;
+  setCurrNode: React.Dispatch<React.SetStateAction<Node | null>>;
 };
 
-export function SideBarContent({ curr, setCurr }: SidebarContentProps) {
+export function NodeSideBarContent({
+  currNode,
+  setCurrNode,
+}: nodeSidebarContentProps) {
   const [myMap, setMyMap] = useState<Map<string, []>>(
     new Map([
-      ["General", curr.data.automations as []],
-      ["Automations", curr.data.automations as []],
-      ["Tools", curr.data.tools as []],
-      ["Abilities", curr.data.abilities as []],
+      ["General", currNode.data.automations as []],
+      ["Automations", currNode.data.automations as []],
+      ["Tools", currNode.data.tools as []],
+      ["Abilities", currNode.data.abilities as []],
     ])
   );
 
   useEffect(
     () =>
-      setCurr((prev) => ({
+      setCurrNode((prev) => ({
         ...prev!,
         data: {
           ...prev!.data,
@@ -135,6 +146,70 @@ export function SideBarContent({ curr, setCurr }: SidebarContentProps) {
         name={active}
         addition={updateMap}
       />
+    </div>
+  );
+}
+
+type edgeSidebarContentProps = {
+  currEdge: Edge;
+  setCurrEdge: React.Dispatch<React.SetStateAction<Edge | null>>;
+};
+
+export function EdgeSideBarContent({
+  currEdge,
+  setCurrEdge,
+}: edgeSidebarContentProps) {
+  return (
+    <div className="flex-1 overflow-y-auto p-4">
+      <div className="mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
+          Configure this workflow connection and define what actions should be
+          performed.
+        </p>
+      </div>
+
+      <div className="p-3 border rounded-md mb-4 bg-gray-50">
+        <h4 className="font-medium mb-3 flex items-center">
+          <ArrowRight className="size-4 mr-2 text-purple-500" />
+          Connection Details
+        </h4>
+
+        <div className="text-sm space-y-2">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Type:</span>
+            <span className="capitalize">{currEdge.type || "default"}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Source:</span>
+            <span>{currEdge.source}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Target:</span>
+            <span>{currEdge.target}</span>
+          </div>
+        </div>
+      </div>
+      <div className="p-3 border rounded-md mb-4 bg-purple-50">
+        <h4 className="font-medium mb-3 flex items-center">
+          <MessageSquare className="size-4 mr-2 text-purple-500" />
+          Workflow Step Configuration
+        </h4>
+
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Step Number</label>
+          <Input
+            type="number"
+            min="1"
+            max="100"
+            value={currEdge!.data?.workflowStepNo as number}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Order of this step in the workflow
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
