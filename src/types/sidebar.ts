@@ -1,20 +1,20 @@
-import { InputField } from "@/components/node/NodeInputsRenderer";
+// import { InputField } from "@/components/node/NodeInputsRenderer";
 
-interface Output {
-  name: string;
-  type: "data" | "text";
-  description: string;
-}
+// interface Output {
+//   name: string;
+//   type: "data" | "text";
+//   description: string;
+// }
 
-type NodeData = {
-  name?: string;
-  display_name?: string;
-  display_icon?: string;
-  description?: string;
-  inputs?: InputField[];
-  outputs?: Output[];
-  [key: string]: any;
-};
+// type NodeData = {
+//   name?: string;
+//   display_name?: string;
+//   display_icon?: string;
+//   description?: string;
+//   inputs?: InputField[];
+//   outputs?: Output[];
+//   [key: string]: any;
+// };
 
 export type Item = {
   title: string;

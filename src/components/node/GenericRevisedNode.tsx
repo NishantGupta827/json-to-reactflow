@@ -2,6 +2,7 @@ import {
   Handle,
   NodeProps,
   Position,
+  useNodesState,
   useReactFlow,
   useStore,
   type Node,
@@ -36,8 +37,8 @@ import { cn } from "@/lib/utils";
 //   color?: string;
 // }
 
-export default function AgentNode({ data, id, selected }: NodeProps) {
-  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
+export default function AgentNode({ data, id }: NodeProps) {
+  const { setNodes, screenToFlowPosition, getNodes } = useReactFlow();
   const [expanded, setExpanded] = useState(false);
 
   const inputsListRef = useRef<HTMLUListElement>(null);
@@ -48,7 +49,7 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
   const [inputHandleTops, setInputHandleTops] = useState<number[]>([]);
   const [outputHandleTops, setOutputHandleTops] = useState<number[]>([]);
 
-  const updateNodeInternals = useUpdateNodeInternals(); // Initialize the hook
+  const updateNodeInternals = useUpdateNodeInternals();
 
   const updateHandlePositions = useCallback(() => {
     if (expanded && inputsListRef.current && outputsListRef.current) {
@@ -72,29 +73,17 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
         getHandleTops(outputsListRef as React.RefObject<HTMLUListElement>)
       );
     } else {
-      // When collapsed, provide fixed positions for the *single* visible handle (if any)
       setInputHandleTops([60]);
       setOutputHandleTops([60]);
     }
-    // Crucial: Tell React Flow to re-measure this node immediately after
-    // positions are updated and the DOM might have changed.
     updateNodeInternals(id);
   }, [expanded, zoom, id, updateNodeInternals]);
   useEffect(() => {
-    // We want this to run whenever expanded state changes, to recalculate or apply default.
     updateHandlePositions();
   }, [expanded, data.inputs, data.outputs, updateHandlePositions]);
 
-  // useLayoutEffect can be used for initial setup or if you need to measure immediately
-  // after first render for some other purpose, but for dynamic handle positions
-  // based on content revealing/hiding, useEffect is usually more appropriate.
-  // We'll keep it as is if it's handling other layout-critical stuff, otherwise
-  // the useEffect above should be sufficient for handles.
   useLayoutEffect(() => {
-    // This part is mainly for initial render if 'expanded' is true or when zoom changes.
-    // The useEffect above handles subsequent toggles.
     if (expanded) {
-      // Only measure complex layout when expanded
       updateHandlePositions();
     }
   }, [zoom]);
@@ -171,13 +160,11 @@ export default function AgentNode({ data, id, selected }: NodeProps) {
                   : {}
               }
             >
-              <div
-                className="flex items-start gap-3 cursor-pointer"
-                onClick={() => setExpanded(!expanded)}
-              >
+              <div className="flex items-start gap-3 cursor-pointer">
                 <IconComponent
                   className="w-5 h-5 text-muted-foreground mt-0.5"
                   size={20}
+                  onClick={() => setExpanded(!expanded)}
                 />
                 <div className="flex flex-col">
                   <h2 className="text-base font-semibold">

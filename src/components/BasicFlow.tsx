@@ -49,7 +49,7 @@ const nodeTypes = {
 const proOptions = { hideAttribution: true };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { control, minimap, background, edges: normalizedEdges } = flowJson;
+  const { control, background, edges: normalizedEdges } = flowJson;
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
