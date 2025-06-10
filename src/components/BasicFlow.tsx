@@ -19,6 +19,8 @@ import {
   useNodesInitialized,
   NodeMouseHandler,
   Panel,
+  Edge,
+  EdgeMouseHandler,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -31,11 +33,12 @@ import { getLayoutedElements } from "@/utils/layoutUtil";
 import RevisedCustomNode from "./node/GenericRevisedNode";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { SideBarJson } from "@/types/sidebar";
-import { NodeSideBarHeader } from "./nodeSidebar/header";
-import { NodeSideBarFooter } from "./nodeSidebar/footer";
-import { SideBarContent } from "./nodeSidebar/content";
+import { EdgeSideBarHeader, NodeSideBarHeader } from "./rightSidebar/header";
+import { NodeSideBarFooter } from "./rightSidebar/footer";
+import { EdgeSideBarContent, NodeSideBarContent } from "./rightSidebar/content";
 import { ArrowDown } from "lucide-react";
 import { Button } from "./ui/button";
+import CustomEdge from "./edge/GenericEdge";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -46,23 +49,33 @@ const nodeTypes = {
   custom: RevisedCustomNode,
 };
 
+const edgeTypes = {
+  custom: CustomEdge,
+};
+
 const proOptions = { hideAttribution: true };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { control, background, edges: normalizedEdges } = flowJson;
+  const { control, minimap, background } = flowJson;
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
     enableShortcuts: true,
   });
-  const [sidebarActive, setSidebarActive] = useState(false);
-  const [curr, setCurr] = useState<Node | null>(null);
 
+  const [sidebarActive, setSidebarActive] = useState(false);
+  const [currNode, setCurrNode] = useState<Node | null>(null);
+  const [currEdge, setCurrEdge] = useState<Edge | null>(null);
   const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
     ...ele,
     type: ele.type ?? "custom",
     position: ele.position ?? { x: 0, y: 0 },
     data: ele.data ?? {},
+  }));
+
+  const normalizedEdges: Edge[] = flowJson.edges.map((ele) => ({
+    ...ele,
+    type: "custom",
   }));
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
@@ -167,8 +180,20 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   ) => {
     event.stopPropagation();
     setSidebarActive(true);
-    setCurr(node);
+    setCurrNode(node);
+    setCurrEdge(null);
     console.log("Double clicked node:", node);
+  };
+
+  const onEdgeClick: EdgeMouseHandler = (
+    event: React.MouseEvent,
+    edge: Edge
+  ) => {
+    event.stopPropagation();
+    setSidebarActive(true);
+    setCurrNode(null);
+    setCurrEdge(edge);
+    console.log("Edge Clicked:", edge);
   };
 
   const getCurrentFlowJSON = () => {
@@ -203,24 +228,25 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
     [nodes, edges, setNodes, setEdges]
   );
 
-  const closeNodeSideBar = () => {
+  const closeSideBar = () => {
     setSidebarActive(false);
-    setCurr(null);
+    setCurrNode(null);
+    setCurrEdge(null);
   };
 
   const saveSideBar = () => {
-    console.log(curr);
+    console.log(currNode);
     setNodes((nds) =>
       nds.map((node) => {
-        if (node.id === curr?.id) {
+        if (node.id === currNode?.id) {
           return {
-            ...curr,
+            ...currNode,
           };
         }
         return node;
       })
     ),
-      closeNodeSideBar();
+      closeSideBar();
   };
 
   return (
@@ -247,9 +273,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           onNodeDragStop={handleDragStop}
           onDragOver={onDragOver}
           onNodeDoubleClick={onNodeDoubleClick}
+          onEdgeClick={onEdgeClick}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
           <Background {...ParseBackground(background as BackgroundConfig)} />
@@ -288,16 +316,32 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             borderRight: "1px solid #ccc",
           }}
         >
-          {curr && (
+          {currNode && (
             <div className="flex flex-col h-screen">
               <NodeSideBarHeader
-                title={curr.data.title as string}
-                bgColor={curr.data.color as string}
-                closeSideBar={closeNodeSideBar}
+                title={currNode.data.title as string}
+                bgColor={currNode.data.color as string}
+                closeSideBar={closeSideBar}
               />
-              <SideBarContent curr={curr} setCurr={setCurr} />
+              <NodeSideBarContent
+                currNode={currNode as Node}
+                setCurrNode={setCurrNode}
+              />
               <NodeSideBarFooter
-                closeSideBar={closeNodeSideBar}
+                closeSideBar={closeSideBar}
+                saveSideBar={saveSideBar}
+              />
+            </div>
+          )}
+          {currEdge && (
+            <div className="flex flex-col h-screen">
+              <EdgeSideBarHeader closeSideBar={closeSideBar} />
+              <EdgeSideBarContent
+                currEdge={currEdge}
+                setCurrEdge={setCurrEdge}
+              />
+              <NodeSideBarFooter
+                closeSideBar={closeSideBar}
                 saveSideBar={saveSideBar}
               />
             </div>
