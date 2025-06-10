@@ -1,4 +1,4 @@
-import React, { act, useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -16,9 +16,9 @@ import {
   ControlButton,
   ReactFlowProvider,
   useReactFlow,
-  Panel,
   useNodesInitialized,
   NodeMouseHandler,
+  Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -29,12 +29,13 @@ import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import RevisedCustomNode from "./node/GenericRevisedNode";
-import { ArrowRightFromLine } from "lucide-react";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { SideBarJson } from "@/types/sidebar";
 import { NodeSideBarHeader } from "./nodeSidebar/header";
 import { NodeSideBarFooter } from "./nodeSidebar/footer";
-import { GenericContent, SideBarContent } from "./nodeSidebar/content";
+import { SideBarContent } from "./nodeSidebar/content";
+import { ArrowDown } from "lucide-react";
+import { Button } from "./ui/button";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -44,6 +45,8 @@ export interface BasicFlowProps {
 const nodeTypes = {
   custom: RevisedCustomNode,
 };
+
+const proOptions = { hideAttribution: true };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const { control, minimap, background, edges: normalizedEdges } = flowJson;
@@ -55,7 +58,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [curr, setCurr] = useState<Node | null>(null);
 
-  const [nodes, setNodes] = useNodesState(flowJson.nodes);
+  const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
+    ...ele,
+    type: ele.type ?? "custom",
+    position: ele.position ?? { x: 0, y: 0 },
+    data: ele.data ?? {},
+  }));
+
+  const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const nodesInitialized = useNodesInitialized();
@@ -240,6 +250,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
+          proOptions={proOptions}
         >
           <Background {...ParseBackground(background as BackgroundConfig)} />
           {control && (
@@ -255,7 +266,17 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
               <Export />
             </Controls>
           )}
-          {minimap && <MiniMap />}
+
+          <Panel position="bottom-right">
+            <Button variant="outline">Playground</Button>
+            <Button variant="default" className="bg-purple-600">
+              Publish{" "}
+              <span className="ml-1">
+                <ArrowDown height={16} width={16} />
+              </span>
+            </Button>
+          </Panel>
+          {/* {minimap && <MiniMap />} */}
         </ReactFlow>
       </div>
       {sidebarActive && (

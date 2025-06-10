@@ -3,18 +3,11 @@ import {
   Handle,
   NodeProps,
   Position,
-  NodeToolbar,
   useReactFlow,
   useStore,
   type Node,
 } from "@xyflow/react";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Zap, Settings, Code2 } from "lucide-react";
 import { NodeStatusIndicator } from "@/components/node-status-indicator";
