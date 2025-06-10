@@ -13,8 +13,6 @@ export const flowJson: FlowJson = {
   nodes: [
     {
       id: "node_1",
-      type: "custom",
-      position: { x: 100, y: 150 },
       data: {
         title: "Webhook Trigger",
         description: "Triggers the workflow when a specific URL is hit.",
@@ -28,8 +26,6 @@ export const flowJson: FlowJson = {
     },
     {
       id: "node_2",
-      type: "custom",
-      position: { x: 350, y: 5000 },
       data: {
         title: "API Call",
         description: "Calls an external API to fetch data.",
@@ -42,8 +38,7 @@ export const flowJson: FlowJson = {
             label: "HTTP Request",
             node: {
               id: "automation_http",
-              type: "custom",
-              position: { x: 550, y: 50 },
+
               data: {
                 title: "HTTP Request",
                 description: "Handles outgoing HTTP requests.",
@@ -57,8 +52,7 @@ export const flowJson: FlowJson = {
             label: "Retry on Failure",
             node: {
               id: "automation_retry",
-              type: "custom",
-              position: { x: 550, y: 100 },
+
               data: {
                 title: "Retry on Failure",
                 description: "Retries a failed request automatically.",
@@ -74,8 +68,7 @@ export const flowJson: FlowJson = {
             label: "API Client",
             node: {
               id: "tool_api_client",
-              type: "custom",
-              position: { x: 550, y: 150 },
+
               data: {
                 title: "API Client",
                 description: "Tool for making API requests.",
@@ -89,8 +82,7 @@ export const flowJson: FlowJson = {
             label: "Header Manager",
             node: {
               id: "tool_header_mgr",
-              type: "custom",
-              position: { x: 550, y: 200 },
+
               data: {
                 title: "Header Manager",
                 description: "Manages API request headers.",
@@ -106,8 +98,7 @@ export const flowJson: FlowJson = {
             label: "Data Fetching",
             node: {
               id: "ability_fetch",
-              type: "custom",
-              position: { x: 550, y: 250 },
+
               data: {
                 title: "Data Fetching",
                 description: "Ability to fetch remote data.",
@@ -121,8 +112,7 @@ export const flowJson: FlowJson = {
             label: "HTTP Communication",
             node: {
               id: "ability_http",
-              type: "custom",
-              position: { x: 550, y: 300 },
+
               data: {
                 title: "HTTP Communication",
                 description: "Handles HTTP communication protocols.",
@@ -136,8 +126,7 @@ export const flowJson: FlowJson = {
             label: "Error Handling",
             node: {
               id: "ability_error",
-              type: "custom",
-              position: { x: 550, y: 350 },
+
               data: {
                 title: "Error Handling",
                 description: "Manages errors and exceptions.",
@@ -151,8 +140,6 @@ export const flowJson: FlowJson = {
     },
     {
       id: "node_3",
-      type: "custom",
-      position: { x: 600, y: 150 },
       data: {
         title: "Format IPL Data",
         description:
@@ -166,8 +153,7 @@ export const flowJson: FlowJson = {
             label: "Script Execution",
             node: {
               id: "automation_script",
-              type: "custom",
-              position: { x: 800, y: 50 },
+
               data: {
                 title: "Script Execution",
                 description: "Runs a custom script on input data.",
@@ -179,8 +165,7 @@ export const flowJson: FlowJson = {
                     label: "Logging",
                     node: {
                       id: "automation_log",
-                      type: "custom",
-                      position: { x: 1000, y: 50 },
+
                       data: {
                         title: "Log Execution",
                         description: "Logs the script execution results.",
@@ -200,8 +185,7 @@ export const flowJson: FlowJson = {
             label: "JavaScript Engine",
             node: {
               id: "tool_js_engine",
-              type: "custom",
-              position: { x: 800, y: 100 },
+
               data: {
                 title: "JavaScript Engine",
                 description: "Executes JavaScript code safely.",
@@ -215,8 +199,7 @@ export const flowJson: FlowJson = {
             label: "JSON Formatter",
             node: {
               id: "tool_json_fmt",
-              type: "custom",
-              position: { x: 800, y: 150 },
+
               data: {
                 title: "JSON Formatter",
                 description: "Formats JSON into a readable structure.",
@@ -232,8 +215,7 @@ export const flowJson: FlowJson = {
             label: "Data Parsing",
             node: {
               id: "ability_parse",
-              type: "custom",
-              position: { x: 800, y: 200 },
+
               data: {
                 title: "Data Parsing",
                 description: "Parses structured data formats.",
@@ -247,8 +229,7 @@ export const flowJson: FlowJson = {
             label: "Custom Formatting",
             node: {
               id: "ability_format",
-              type: "custom",
-              position: { x: 800, y: 250 },
+
               data: {
                 title: "Custom Formatting",
                 description: "Applies custom formatting rules.",
@@ -262,8 +243,6 @@ export const flowJson: FlowJson = {
     },
     {
       id: "node_4",
-      type: "custom",
-      position: { x: 850, y: 150 },
       data: {
         title: "Slack Notification",
         description: "Sends a message to a specified Slack channel.",
@@ -276,8 +255,7 @@ export const flowJson: FlowJson = {
             label: "Send Notification",
             node: {
               id: "automation_notify",
-              type: "custom",
-              position: { x: 1050, y: 50 },
+
               data: {
                 title: "Send Notification",
                 description: "Sends notifications to external platforms.",
@@ -291,8 +269,7 @@ export const flowJson: FlowJson = {
             label: "Retry on Failure",
             node: {
               id: "automation_retry_slack",
-              type: "custom",
-              position: { x: 1050, y: 100 },
+
               data: {
                 title: "Retry on Failure",
                 description: "Retries a failed Slack message.",
@@ -308,8 +285,7 @@ export const flowJson: FlowJson = {
             label: "Slack Webhook",
             node: {
               id: "tool_slack_webhook",
-              type: "custom",
-              position: { x: 1050, y: 150 },
+
               data: {
                 title: "Slack Webhook",
                 description: "Sends messages using Slack webhook.",
@@ -323,8 +299,7 @@ export const flowJson: FlowJson = {
             label: "Message Formatter",
             node: {
               id: "tool_msg_fmt",
-              type: "custom",
-              position: { x: 1050, y: 200 },
+
               data: {
                 title: "Message Formatter",
                 description: "Formats message content for Slack.",
@@ -340,8 +315,7 @@ export const flowJson: FlowJson = {
             label: "Real-time Alerts",
             node: {
               id: "ability_alert",
-              type: "custom",
-              position: { x: 1050, y: 250 },
+
               data: {
                 title: "Real-time Alerts",
                 description: "Triggers alerts in real time.",
@@ -355,8 +329,7 @@ export const flowJson: FlowJson = {
             label: "Message Dispatch",
             node: {
               id: "ability_dispatch",
-              type: "custom",
-              position: { x: 1050, y: 300 },
+
               data: {
                 title: "Message Dispatch",
                 description: "Dispatches messages to destinations.",
@@ -399,171 +372,3 @@ export const flowJson: FlowJson = {
     },
   ],
 };
-
-// export const sideBarJson: SideBarJson = {
-//   folders: [
-//     {
-//       folderName: "Inputs",
-//       icon: "input",
-//       item: [
-//         {
-//           label: "Chat Input",
-//           icon: "chat",
-//           data: {
-//             name: "ChatInputNode",
-//             display_name: "Chat Input",
-//             display_icon: "MessageSquareMore",
-//             description: "Create chat inputs for the workflow",
-//             inputs: [
-//               {
-//                 name: "textInput",
-//                 label: "Text",
-//                 type: "text",
-//                 placeholder: "Type something...",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//             ],
-//             outputs: [
-//               {
-//                 name: "Message",
-//                 type: "text",
-//                 description: "User-entered text",
-//               },
-//             ],
-//           },
-//         },
-//         {
-//           label: "Text Input",
-//           icon: "text",
-//           data: {
-//             name: "TextInputNode",
-//             display_name: "Text Input",
-//             display_icon: "Input",
-//             description: "A simple text input node.",
-//             inputs: [
-//               {
-//                 name: "textInput",
-//                 label: "Enter text",
-//                 type: "text",
-//                 placeholder: "Type something...",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//             ],
-//             outputs: [
-//               {
-//                 name: "textOutput",
-//                 type: "text",
-//                 description: "User-entered text",
-//               },
-//             ],
-//           },
-//         },
-//       ],
-//     },
-//     {
-//       folderName: "Outputs",
-//       icon: "output",
-//       item: [
-//         {
-//           label: "Chat Output",
-//           icon: "chat",
-//           data: {
-//             name: "ChatOutputNode",
-//             display_name: "Chat Output",
-//             display_icon: "MessageSquareMore",
-//             description: "Display the final response from the LLM.",
-//             inputs: [
-//               {
-//                 name: "outputData",
-//                 label: "Incoming Text",
-//                 type: "text",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//             ],
-//             outputs: [
-//               {
-//                 name: "Message",
-//                 type: "text",
-//                 description: "Final response from LLM as Text.",
-//               },
-//             ],
-//           },
-//         },
-//       ],
-//     },
-//     {
-//       folderName: "Agent",
-//       icon: "agent",
-//       item: [
-//         {
-//           label: "Open API",
-//           icon: "agent",
-//           data: {
-//             name: "OpenAIChatNode",
-//             display_name: "OpenAI Chat",
-//             display_icon: "Bot",
-//             description:
-//               "This node sends a prompt to OpenAI's Chat model and returns a response.",
-//             inputs: [
-//               {
-//                 name: "prompt",
-//                 label: "Enter Prompt",
-//                 type: "text",
-//                 placeholder: "Enter your prompt...",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//               {
-//                 name: "system_message",
-//                 type: "text",
-//                 label: "System Message",
-//                 placeholder: "Type something...",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//               {
-//                 name: "model",
-//                 type: "dropdown",
-//                 label: "Enter OpenAI model",
-//                 options: ["gpt-3.5-turbo", "gpt-4"],
-//                 placeholder: "Select model",
-//                 required: true,
-//                 handlePresent: false,
-//                 value: "",
-//               },
-//               {
-//                 name: "key",
-//                 type: "text",
-//                 label: "OpenAI API Key",
-//                 placeholder: "",
-//                 required: true,
-//                 handlePresent: true,
-//                 value: "",
-//               },
-//             ],
-//             outputs: [
-//               {
-//                 name: "Response Text",
-//                 type: "text",
-//                 description: "The raw response from the model",
-//               },
-//               {
-//                 name: "Full JSON Response",
-//                 type: "data",
-//                 description: "The complete JSON response object",
-//               },
-//             ],
-//           },
-//         },
-//       ],
-//     },
-//   ],
-// };

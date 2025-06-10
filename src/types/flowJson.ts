@@ -10,11 +10,14 @@ export interface BackgroundConfig {
   gridSize?: number;
 }
 
+type PartialNodeInput = Partial<Pick<Node, "type" | "position">> &
+  Pick<Node, "id"> & { data?: any };
+
 export interface FlowJson {
   export?: boolean;
   control?: boolean;
   minimap?: boolean;
-  nodes: Node[];
+  nodes: PartialNodeInput[];
   edges: Edge[];
   background?: BackgroundConfig;
 }
