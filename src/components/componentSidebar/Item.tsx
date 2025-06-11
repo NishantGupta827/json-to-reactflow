@@ -1,5 +1,6 @@
 import { Item } from "@/types/sidebar";
 import { useDnD } from "./DnD";
+import { Bot } from "lucide-react";
 
 type ItemProps = {
   data: Item;
@@ -45,36 +46,23 @@ export default function SideBarItemComponent({ data }: ItemProps) {
 
   return (
     <div
-      className="p-2 mb-1 hover:bg-muted rounded-md cursor-grab active:cursor-grabbing"
+      className="box-border flex flex-row gap-2 items-start justify-start p-2 relative overflow-hidden"
       onDragStart={onDragStart}
       draggable={true}
     >
-      <div className="flex items-start mb-1">
-        <div className="mr-2 mt-0.5">{data.icon}</div>
-        <div>
-          <div className="text-sm">{data.title}</div>
-          <div className="text-xs text-muted-foreground">
-            {data.description}
+      <div className="shrink-0">
+        <Bot />
+      </div>
+      <div className="relative w-0 flex-1">
+        <div className="box-border flex flex-col items-start justify-start leading-[0] not-italic p-0 relative text-left">
+          <div className="font-['Inter:Semi_Bold',_sans-serif] font-semibold relative shrink-0 text-[#475161] text-[14px] w-full">
+            <p className="block leading-[1.5]">{data.title}</p>
+          </div>
+          <div className="font-['Inter:Regular',_sans-serif] font-normal relative shrink-0 text-[#6e6b86] text-[12px] tracking-[0.24px] w-full">
+            <p className="block leading-[1.5]">{data.description}</p>
           </div>
         </div>
       </div>
-      {data.attributes && (
-        <div className="ml-6 mt-1 text-xs bg-gray-50 p-1.5 rounded border border-gray-100">
-          {data.attributes.map((data, id) => (
-            <div
-              className="flex items-center justify-between mb-0.5"
-              key={`${data}-${id}`}
-            >
-              <span key={`${id}_1`} className="text-muted-foreground">
-                {data[0]}
-              </span>
-              <span key={`${id}_2`} className="font-medium">
-                {data[1]}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

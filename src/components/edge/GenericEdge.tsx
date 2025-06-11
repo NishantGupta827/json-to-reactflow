@@ -7,7 +7,6 @@ import {
 } from "@xyflow/react";
 import { Trash2, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
 
 export default function CustomEdge({
   id,

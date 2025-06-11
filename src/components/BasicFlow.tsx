@@ -66,6 +66,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
   const [sidebarActive, setSidebarActive] = useState(false);
   const [currNode, setCurrNode] = useState<Node | null>(null);
   const [currEdge, setCurrEdge] = useState<Edge | null>(null);
+
   const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
     ...ele,
     type: ele.type ?? "custom",
@@ -80,6 +81,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
+
+  const [count, setCount] = useState(nodes.length + 1);
 
   const nodesInitialized = useNodesInitialized();
   const [initial, setInitial] = useState(true);
@@ -156,11 +159,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         });
 
         const newNode: Node = {
-          id: `node_${+new Date()}`,
+          id: `node_${count}`,
           type,
           position,
           data,
         };
+
+        setCount((prev) => {
+          return prev + 1;
+        });
+        console.log(count);
 
         setNodes((nds) => {
           const updated = nds.concat(newNode);
@@ -171,7 +179,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         console.error("Failed to parse node data from drag event", err);
       }
     },
-    [screenToFlowPosition, setNodes]
+    [screenToFlowPosition, setNodes, setCount, count]
   );
 
   const onNodeDoubleClick: NodeMouseHandler = (

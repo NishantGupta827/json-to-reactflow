@@ -58,13 +58,15 @@ const Sidebar: React.FC<SidebarProps> = (json) => {
           padding: "1rem",
           display: "flex",
           flexDirection: "column",
-          gap: "1rem",
           height: "100%",
           boxSizing: "border-box",
           backgroundColor: "#ffffff",
           marginBottom: "50px",
         }}
       >
+        <div className="text-[#6e6b86]">
+          <p>Components</p>
+        </div>
         <div className="p-3">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
