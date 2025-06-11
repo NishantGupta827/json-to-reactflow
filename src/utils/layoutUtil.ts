@@ -34,8 +34,9 @@ export function getLayoutedElements(
 
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: !isHorizontal ? 3 * max_height : 100,
-    ranksep: !isHorizontal ? 100 : max_width,
+    ranksep: max_width * 0.5,
+    //nodesep: !isHorizontal ? 3 * max_height : 100,
+    //ranksep: !isHorizontal ? 100 : max_width,
   });
 
   edges.forEach((edge) => {
