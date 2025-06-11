@@ -200,6 +200,7 @@ export function EdgeSideBarContent({
         <div className="mb-4">
           <label className="block text-sm mb-1">Step Number</label>
           <Input
+            readOnly
             type="number"
             min="1"
             max="100"
