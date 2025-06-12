@@ -36,9 +36,11 @@ import { SideBarJson } from "@/types/sidebar";
 import { EdgeSideBarHeader, NodeSideBarHeader } from "./rightSidebar/header";
 import { NodeSideBarFooter } from "./rightSidebar/footer";
 import { EdgeSideBarContent, NodeSideBarContent } from "./rightSidebar/content";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, FlaskConical } from "lucide-react";
 import { Button } from "./ui/button";
 import CustomEdge from "./edge/GenericEdge";
+import TestingButton from "./controls/Testing";
+import { ConvertAgentPayload } from "@/testJson/AgentNode";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
@@ -257,6 +259,32 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
       closeSideBar();
   };
 
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const test = () => {
+    console.log("clicked");
+    console.log(text);
+    console.log(JSON.parse(text));
+    const newNode: Node = {
+      id: `node_${count}`,
+      type: "custom",
+      position: { x: 100, y: 100 },
+      data: ConvertAgentPayload(JSON.parse(text)),
+    };
+
+    setCount((prev) => {
+      return prev + 1;
+    });
+    console.log(count);
+
+    setNodes((nds) => {
+      const updated = nds.concat(newNode);
+      return updated;
+    });
+    setText("");
+    setOpen(false);
+  };
+
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex" }}>
       <div
@@ -298,11 +326,42 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
               >
                 js
               </ControlButton>
+
+              <ControlButton>
+                <FlaskConical onClick={() => setOpen(true)} />
+              </ControlButton>
               <Import />
               <Export />
             </Controls>
           )}
-
+          {open && (
+            <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded shadow-md w-80">
+                <h2 className="text-lg font-semibold mb-4">Enter node label</h2>
+                <textarea
+                  rows={15}
+                  className="w-full p-2 border rounded mb-4 resize-y"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Enter node content"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    className="px-4 py-2 bg-gray-300 rounded"
+                    onClick={() => setOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                    onClick={test}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <Panel position="bottom-right" className="flex gap-x-2">
             <Button variant="outline">Playground</Button>
             <Button variant="default" className="bg-purple-600">
