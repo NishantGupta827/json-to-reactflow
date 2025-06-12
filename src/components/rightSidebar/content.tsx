@@ -9,8 +9,28 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { JSX, useEffect, useState } from "react";
+import {
+  JSX,
+  JSXElementConstructor,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
+} from "react";
 import { Edge, Node } from "@xyflow/react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { SelectLabel } from "@radix-ui/react-select";
+import { Textarea } from "../ui/textarea";
+import { Slider } from "../ui/slider";
+import { cn } from "@/lib/utils";
 
 type genericContentProps = {
   data: any[];
@@ -71,6 +91,121 @@ export function GenericContent({ data, name, addition }: genericContentProps) {
   );
 }
 
+type generalContentProps = {
+  data: any;
+};
+
+export function GeneralContent({ data }: generalContentProps) {
+  const [randomness, setRandomness] = useState(data.randomness);
+  const options = data.provider_options;
+  console.log(data);
+
+  return (
+    <div>
+      <div className="mb-4">
+        <p className="text-sm text-muted-foreground mb-2">
+          Define the AI agent instructions, then create a workflow using Tools.
+        </p>
+      </div>
+
+      {/* Provider & Model Section */}
+      <div className="p-3 border rounded-md mb-4 bg-gray-50">
+        <h4 className="font-medium mb-3 flex items-center">
+          Model Configuration
+        </h4>
+
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Model Provider</label>
+          <Select
+            onValueChange={(e) => {
+              console.log(e);
+              data.provider = e;
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={data.provider} />
+            </SelectTrigger>
+            <SelectContent>
+              {/* <SelectGroup> */}
+              {options.map((item, index) => {
+                <SelectItem value={item.value} key={item.value}>
+                  {item.label}
+                </SelectItem>;
+              })}
+              {/* </SelectGroup> */}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Model</label>
+          <Select
+            onValueChange={(e) => {
+              console.log(e);
+              data.model = e;
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={data.model} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {data.provider_options &&
+                  data.model_options[data.provider].map(
+                    (id: number, ele: { value: string; label: string }) => {
+                      <SelectItem value={ele.value} key={id}>
+                        {ele.label}
+                      </SelectItem>;
+                    }
+                  )}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/*Agent Behaviour*/}
+      <div className="p-3 border rounded-md mb-4 bg-gray-50">
+        <h4 className="font-medium mb-3 flex items-center">Agent Behaviour</h4>
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Background</label>
+          <Textarea
+            value={data.background}
+            onChange={(e) => (data.background = e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Instruction</label>
+          <Textarea
+            value={data.instruction}
+            onChange={(e) => (data.background = e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Output Format</label>
+          <Textarea
+            value={data.output}
+            onChange={(e) => (data.background = e.target.value)}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Randomness</label>
+          <Slider
+            defaultValue={[data.randomness]}
+            onValueChange={(e) => {
+              setRandomness(e);
+              data.randomness = e;
+            }}
+            max={2}
+            step={0.2}
+            className={cn("w-[60%]")}
+          />
+          <div key={randomness}>{randomness}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type nodeSidebarContentProps = {
   currNode: Node;
   setCurrNode: React.Dispatch<React.SetStateAction<Node | null>>;
@@ -82,7 +217,7 @@ export function NodeSideBarContent({
 }: nodeSidebarContentProps) {
   const [myMap, setMyMap] = useState<Map<string, []>>(
     new Map([
-      ["General", currNode.data.automations as []],
+      //["General", currNode.data.inputs as []],
       ["Automations", currNode.data.automations as []],
       ["Tools", currNode.data.tools as []],
       ["Abilities", currNode.data.abilities as []],
@@ -116,36 +251,42 @@ export function NodeSideBarContent({
   return (
     <div className="flex-1 overflow-y-auto p-4">
       <div className="flex border-b border-gray-200 mb-4">
+        {currNode.data.component == "agent" && (
+          <button
+            className="py-2 px-3 text-sm text-muted-foreground"
+            onClick={() => setActive("General")}
+          >
+            General
+          </button>
+        )}
         <button
-          className="py-2 px-3 text-sm text-muted-foreground"
-          onClick={() => setActive("General")}
-        >
-          General
-        </button>
-        <button
-          className="py-2 px-3 text-sm text-muted-foreground"
+          className="py-2 px-3 text-sm text-muted-foreground m-auto"
           onClick={() => setActive("Automations")}
         >
           Automations
         </button>
         <button
-          className="py-2 px-3 text-sm text-muted-foreground"
+          className="py-2 px-3 text-sm text-muted-foreground m-auto"
           onClick={() => setActive("Tools")}
         >
           Tools
         </button>
         <button
-          className="py-2 px-3 text-sm text-muted-foreground"
+          className="py-2 px-3 text-sm text-muted-foreground m-auto"
           onClick={() => setActive("Abilities")}
         >
           Abilities
         </button>
       </div>
-      <GenericContent
-        data={myMap.get(active) as []}
-        name={active}
-        addition={updateMap}
-      />
+      {myMap.get(active) ? (
+        <GenericContent
+          data={myMap.get(active) as []}
+          name={active}
+          addition={updateMap}
+        />
+      ) : (
+        <GeneralContent data={currNode.data} />
+      )}
     </div>
   );
 }
