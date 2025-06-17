@@ -39,7 +39,6 @@ import { EdgeSideBarContent, NodeSideBarContent } from "./rightSidebar/content";
 import { ArrowDown, FlaskConical } from "lucide-react";
 import { Button } from "./ui/button";
 import CustomEdge from "./edge/GenericEdge";
-import TestingButton from "./controls/Testing";
 import { ConvertAgentPayload } from "@/testJson/AgentNode";
 
 export interface BasicFlowProps {
@@ -58,7 +57,7 @@ const edgeTypes = {
 const proOptions = { hideAttribution: true };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
-  const { control, minimap, background } = flowJson;
+  const { control, background } = flowJson;
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
