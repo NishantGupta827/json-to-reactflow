@@ -2,7 +2,6 @@ import {
   Handle,
   NodeProps,
   Position,
-  useNodesState,
   useReactFlow,
   useStore,
   type Node,
@@ -38,7 +37,7 @@ import { cn } from "@/lib/utils";
 // }
 
 export default function AgentNode({ data, id }: NodeProps) {
-  const { setNodes, screenToFlowPosition, getNodes } = useReactFlow();
+  const { setNodes, screenToFlowPosition } = useReactFlow();
   const [expanded, setExpanded] = useState(false);
 
   const inputsListRef = useRef<HTMLUListElement>(null);

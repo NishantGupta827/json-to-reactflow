@@ -9,15 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import {
-  JSX,
-  JSXElementConstructor,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useEffect,
-  useState,
-} from "react";
+import { JSX, useEffect, useState } from "react";
 import { Edge, Node } from "@xyflow/react";
 import {
   Select,
@@ -27,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { SelectLabel } from "@radix-ui/react-select";
 import { Textarea } from "../ui/textarea";
 import { Slider } from "../ui/slider";
 import { cn } from "@/lib/utils";
@@ -97,8 +88,18 @@ type generalContentProps = {
 
 export function GeneralContent({ data }: generalContentProps) {
   const [randomness, setRandomness] = useState(data.randomness);
+  const [background, setBackground] = useState(data.background);
+  const [instruction, setInstruction] = useState(data.instruction);
+  const [output, setOutput] = useState(data.output);
+  const [provider, setProvider] = useState(data.provider);
+  const [model, setModel] = useState(data.model);
+
   const options = data.provider_options;
   console.log(data);
+
+  if (data.component != "agent") {
+    return <div>Nothing to show here</div>;
+  }
 
   return (
     <div>
@@ -118,20 +119,26 @@ export function GeneralContent({ data }: generalContentProps) {
           <label className="block text-sm mb-1">Model Provider</label>
           <Select
             onValueChange={(e) => {
-              console.log(e);
               data.provider = e;
+              setProvider(e);
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder={data.provider} />
+              <SelectValue
+                placeholder={
+                  data.provider_options.filter(
+                    (opt) => opt.value == provider
+                  )[0].label
+                }
+              />
             </SelectTrigger>
             <SelectContent>
               {/* <SelectGroup> */}
-              {options.map((item, index) => {
-                <SelectItem value={item.value} key={item.value}>
+              {options.map((item, index) => (
+                <SelectItem value={item.value} key={index}>
                   {item.label}
-                </SelectItem>;
-              })}
+                </SelectItem>
+              ))}
               {/* </SelectGroup> */}
             </SelectContent>
           </Select>
@@ -142,21 +149,23 @@ export function GeneralContent({ data }: generalContentProps) {
             onValueChange={(e) => {
               console.log(e);
               data.model = e;
+              setModel(e);
             }}
+            key={provider}
           >
             <SelectTrigger>
-              <SelectValue placeholder={data.model} />
+              {data.model_options[provider].some(
+                (opt) => opt.value === model
+              ) && <SelectValue placeholder={model} />}
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 {data.provider_options &&
-                  data.model_options[data.provider].map(
-                    (id: number, ele: { value: string; label: string }) => {
-                      <SelectItem value={ele.value} key={id}>
-                        {ele.label}
-                      </SelectItem>;
-                    }
-                  )}
+                  data.model_options[provider].map((ele, id) => (
+                    <SelectItem value={ele.value} key={id}>
+                      {ele.label}
+                    </SelectItem>
+                  ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -169,22 +178,31 @@ export function GeneralContent({ data }: generalContentProps) {
         <div className="mb-4">
           <label className="block text-sm mb-1">Background</label>
           <Textarea
-            value={data.background}
-            onChange={(e) => (data.background = e.target.value)}
+            value={background}
+            onChange={(e) => {
+              setBackground(e.target.value);
+              data.background = e.target.value;
+            }}
           />
         </div>
         <div className="mb-4">
           <label className="block text-sm mb-1">Instruction</label>
           <Textarea
-            value={data.instruction}
-            onChange={(e) => (data.background = e.target.value)}
+            value={instruction}
+            onChange={(e) => {
+              setInstruction(e.target.value);
+              data.instruction = e.target.value;
+            }}
           />
         </div>
         <div className="mb-4">
           <label className="block text-sm mb-1">Output Format</label>
           <Textarea
-            value={data.output}
-            onChange={(e) => (data.background = e.target.value)}
+            value={output}
+            onChange={(e) => {
+              setOutput(e.target.value);
+              data.output = e.target.value;
+            }}
           />
         </div>
         <div className="mb-4">
@@ -246,7 +264,9 @@ export function NodeSideBarContent({
     });
   };
 
-  const [active, setActive] = useState("General");
+  const [active, setActive] = useState(
+    currNode.data.component == "agent" ? "General" : "Automations"
+  );
 
   return (
     <div className="flex-1 overflow-y-auto p-4">
@@ -296,10 +316,7 @@ type edgeSidebarContentProps = {
   setCurrEdge: React.Dispatch<React.SetStateAction<Edge | null>>;
 };
 
-export function EdgeSideBarContent({
-  currEdge,
-  setCurrEdge,
-}: edgeSidebarContentProps) {
+export function EdgeSideBarContent({ currEdge }: edgeSidebarContentProps) {
   return (
     <div className="flex-1 overflow-y-auto p-4">
       <div className="mb-4">

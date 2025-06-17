@@ -5,7 +5,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
 } from "@xyflow/react";
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 
 export default function CustomEdge({
