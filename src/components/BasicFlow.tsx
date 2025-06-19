@@ -30,7 +30,7 @@ import Sidebar from "./componentSidebar/SideBar";
 import { Export, Import } from "./controls/ImportExport";
 import { BackgroundConfig, FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
-import RevisedCustomNode from "./node/GenericRevisedNode";
+import AgentNode from "./node/GenericRevisedNode";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { SideBarJson } from "@/types/sidebar";
 import { EdgeSideBarHeader, NodeSideBarHeader } from "./rightSidebar/header";
@@ -47,12 +47,12 @@ export interface BasicFlowProps {
 }
 
 const nodeTypes = {
-  custom: RevisedCustomNode,
+  custom: AgentNode,
 };
 
-const edgeTypes = {
-  custom: CustomEdge,
-};
+// const edgeTypes = {
+//   custom: CustomEdge,
+// };
 
 const proOptions = { hideAttribution: true };
 
@@ -77,7 +77,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   const normalizedEdges: Edge[] = flowJson.edges.map((ele) => ({
     ...ele,
-    type: "custom",
   }));
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
@@ -90,7 +89,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   useEffect(() => {
     if (nodesInitialized && initial) {
-      onLayout("LR");
+      onLayout("TB");
       setInitial(false);
     }
   }, [nodesInitialized, initial]);
@@ -312,7 +311,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
-          edgeTypes={edgeTypes}
+          // edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
           <Background {...ParseBackground(background as BackgroundConfig)} />

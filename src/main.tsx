@@ -6,6 +6,7 @@ import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { flowJson } from "./testJson/FlowJson.ts";
 import { testSideBar } from "./testJson/TestSideBar.ts";
+// import '@contentstack/venus-components/build/main.css';
 
 const props: BasicFlowProps = { flowJson: flowJson, sidebarJson: testSideBar };
 

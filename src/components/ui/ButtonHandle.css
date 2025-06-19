@@ -1,0 +1,60 @@
+/* ButtonHandle.css */
+
+.handle-wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.handle-wrapper.vertical {
+  flex-direction: column;
+}
+
+.handle-wrapper.vertical.reverse {
+  flex-direction: column-reverse;
+}
+
+.handle-wrapper.horizontal {
+  flex-direction: row;
+}
+
+.handle-wrapper.horizontal.reverse {
+  flex-direction: row-reverse;
+}
+
+.handle-line.vertical {
+  height: 10px;
+  width: 0px;
+  background-color: #d1d5db; /* gray-300 */
+}
+
+.handle-line.horizontal {
+  width: 10px;
+  height: 0px;
+  background-color: #d1d5db;
+}
+
+.handle-offset-top {
+  left: 50%;
+  transform: translate(-50%, -100%);
+}
+
+.handle-offset-bottom {
+  left: 50%;
+  transform: translate(-50%, 10px);
+}
+
+.handle-offset-left {
+  top: 50%;
+  transform: translate(-100%, -50%);
+}
+
+.handle-offset-right {
+  top: 50%;
+  transform: translate(10px, -50%);
+}
+
+.nodrag.nopan {
+  pointer-events: auto;
+}

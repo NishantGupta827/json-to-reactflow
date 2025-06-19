@@ -1,0 +1,73 @@
+.agent-node-container {
+  position: relative;
+}
+
+.agent-node-card {
+  border: 2px solid #d3d3d3;
+  border-radius: 8px;
+  background-color: #fff;
+  width: 240px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.agent-node-header {
+  display: flex;
+  align-items: center;
+}
+
+.agent-node-icon-box {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d3d3d3;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f8ff;
+  margin-right: 8px;
+}
+
+.agent-node-icon {
+  color: #3b82f6;
+  width: 18px;
+  height: 18px;
+}
+
+.agent-node-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.agent-node-description {
+  font-size: 12px;
+  color: #555;
+}
+
+/* ---------- Handle button visibility styles ---------- */
+
+.handle-button {
+  background-color: #e5f0ff;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+  border-radius: 999px;
+  padding: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.handle-wrapper:hover .handle-button,
+.handle-button:hover {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.handle-button:hover {
+  background-color: #dbeafe;
+}
