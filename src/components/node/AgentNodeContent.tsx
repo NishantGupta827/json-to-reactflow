@@ -1,41 +1,41 @@
-import { Edge, Handle, Position } from "@xyflow/react";
+import { Edge, Handle, Position, useReactFlow } from "@xyflow/react";
 import * as LucideIcons from "lucide-react";
 import { LucideProps } from "lucide-react";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
 import { Plus } from "lucide-react";
 import { ButtonHandle } from "../ui/ButtonHandle";
+import { nodeOptionsJson } from "@/testJson/NodeOptions";
 import "./AgentNode.css";
 
 type AgentNodeProps = {
   data: any;
   id: string;
   edges: Edge[];
+  onHandleClick: (info: {
+    nodeId: string;
+    handleId: string;
+    type: "source" | "target";
+    nodeData: any;
+  }) => void;
 };
 
-export default function AgentNodeContent({ data, id, edges }: AgentNodeProps) {
-  let IconComponent: ForwardRefExoticComponent<
-    LucideProps & RefAttributes<SVGSVGElement>
-  > = LucideIcons.Zap;
-
-  if (
-    data.icon &&
-    typeof data.icon === "string" &&
-    LucideIcons[data.icon as keyof typeof LucideIcons]
-  ) {
-    IconComponent = LucideIcons[
-      data.icon as keyof typeof LucideIcons
-    ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
-  }
+export default function AgentNodeContent({
+  data,
+  id,
+  edges,
+  onHandleClick,
+}: AgentNodeProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [clickedHandle, setClickedHandle] = useState<{
+    handleId: string;
+    type: "source" | "target";
+  } | null>(null);
 
   const isConnected = (handleId: string, type: "source" | "target") => {
-    return edges?.some((edge) => {
-      if (type === "source") {
-        return edge.source === id && edge.sourceHandle === handleId;
-      }
-      if (type === "target") {
-        return edge.target === id && edge.targetHandle === handleId;
-      }
-      return false;
+    return edges.some((edge) => {
+      return type === "source"
+        ? edge.source === id && edge.sourceHandle === handleId
+        : edge.target === id && edge.targetHandle === handleId;
     });
   };
 
@@ -46,7 +46,7 @@ export default function AgentNodeContent({ data, id, edges }: AgentNodeProps) {
   ) => {
     const handleId = `${id}-${positionName}`;
     const connected = isConnected(handleId, type);
-  
+
     if (connected) {
       return (
         <Handle
@@ -63,14 +63,24 @@ export default function AgentNodeContent({ data, id, edges }: AgentNodeProps) {
         />
       );
     }
-  
+
     return (
-      <ButtonHandle type={type} position={position} id={handleId} className="handle-wrapper">
+      <ButtonHandle
+        type={type}
+        position={position}
+        id={handleId}
+        className="handle-wrapper"
+      >
         <button
           className="handle-button"
           onClick={(e) => {
             e.stopPropagation();
-            alert(`Clicked handle: ${id}-${positionName}`);
+            onHandleClick?.({
+              nodeId: id,
+              handleId,
+              type,
+              nodeData: data,
+            });
           }}
         >
           <Plus size={10} />
@@ -78,7 +88,20 @@ export default function AgentNodeContent({ data, id, edges }: AgentNodeProps) {
       </ButtonHandle>
     );
   };
-  
+
+  let IconComponent: ForwardRefExoticComponent<
+    LucideProps & RefAttributes<SVGSVGElement>
+  > = LucideIcons.Zap;
+
+  if (
+    data.icon &&
+    typeof data.icon === "string" &&
+    LucideIcons[data.icon as keyof typeof LucideIcons]
+  ) {
+    IconComponent = LucideIcons[
+      data.icon as keyof typeof LucideIcons
+    ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
+  }
 
   return (
     <div className="agent-node-container">
@@ -98,6 +121,81 @@ export default function AgentNodeContent({ data, id, edges }: AgentNodeProps) {
       {renderHandle("right", "source", Position.Right)}
       {renderHandle("bottom", "source", Position.Bottom)}
       {renderHandle("left", "source", Position.Left)}
+
+      {/* {showModal && clickedHandle && (
+        <NodeSelectionModal
+          onClose={() => setShowModal(false)}
+          onSelect={handleNodeSelect}
+        />
+      )} */}
+    </div>
+  );
+}
+
+type Category = "tools" | "agents" | "automations" | "triggers";
+
+export function NodeSelectionModal({
+  onClose,
+  onSelect,
+}: {
+  onClose: () => void;
+  onSelect: (node: any) => void;
+}) {
+  const [category, setCategory] = useState<Category>("tools");
+  const nodes = nodeOptionsJson[category];
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-sidebar">
+          {(["tools", "agents", "automations", "triggers"] as Category[]).map(
+            (cat) => (
+              <button
+                key={cat}
+                className={`modal-category-btn ${
+                  category === cat ? "active" : ""
+                }`}
+                onClick={() => setCategory(cat)}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            )
+          )}
+        </div>
+
+        <div className="modal-main">
+          <div className="modal-header">
+            <h2>Select next step</h2>
+            <button className="close-btn" onClick={onClose}>
+              x
+            </button>
+          </div>
+
+          <div className="modal-subheader">
+            <input
+              className="search-input"
+              placeholder="Search apps..."
+              type="text"
+            />
+            <button className="browse-btn">Browse</button>
+          </div>
+
+          <div className="modal-grid">
+            {nodes.map((item) => (
+              <div
+                key={item.id}
+                className="modal-node-card"
+                onClick={() => onSelect(item.node)}
+              >
+                <div className="node-title">{item.node.data.title}</div>
+                <div className="node-description">
+                  {item.node.data.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
