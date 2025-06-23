@@ -21,6 +21,7 @@ import {
   Panel,
   Edge,
   EdgeMouseHandler,
+  NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -40,6 +41,8 @@ import { ArrowDown, FlaskConical } from "lucide-react";
 import { Button } from "./ui/button";
 import CustomEdge from "./edge/GenericEdge";
 import { ConvertAgentPayload } from "@/testJson/AgentNode";
+import { NodeSelectionModal } from "./node/AgentNodeContent";
+import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
 import { AgentConfig } from "@/types/agent";
 
@@ -48,10 +51,6 @@ export interface BasicFlowProps {
   sidebarJson: SideBarJson;
   agentJson: AgentConfig;
 }
-
-const nodeTypes = {
-  custom: AgentNode,
-};
 
 // const edgeTypes = {
 //   custom: CustomEdge,
@@ -70,6 +69,19 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     maxHistorySize: 100,
     enableShortcuts: true,
   });
+
+  const [modalData, setModalData] = useState<{
+    nodeId: string;
+    handleId: string;
+    type: "source" | "target";
+    nodeData: any;
+  } | null>(null);
+
+  const nodeTypes = {
+    custom: (nodeProps: NodeProps) => (
+      <AgentNodeWrapper {...nodeProps} onHandleClick={setModalData} />
+    ),
+  };
 
   const [sidebarActive, setSidebarActive] = useState(false);
   const [currNode, setCurrNode] = useState<Node | null>(null);
@@ -377,7 +389,46 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               </span>
             </Button>
           </Panel>
-          {/* {minimap && <MiniMap />} */}
+          {modalData && (
+            <NodeSelectionModal
+              onClose={() => setModalData(null)}
+              onSelect={(newNode) => {
+                const newId = `node_${Date.now()}`;
+                const position = { x: 300, y: 300 };
+
+                setNodes((nds) => [
+                  ...nds,
+                  {
+                    id: newId,
+                    position,
+                    data: newNode.data,
+                    type: "custom",
+                  },
+                ]);
+
+                setEdges((eds) => [
+                  ...eds,
+                  {
+                    id: `e${modalData.nodeId}-${newId}`,
+                    source:
+                      modalData.type === "source" ? modalData.nodeId : newId,
+                    target:
+                      modalData.type === "target" ? modalData.nodeId : newId,
+                    sourceHandle:
+                      modalData.type === "source"
+                        ? modalData.handleId
+                        : undefined,
+                    targetHandle:
+                      modalData.type === "target"
+                        ? modalData.handleId
+                        : undefined,
+                  },
+                ]);
+
+                setModalData(null);
+              }}
+            />
+          )}
         </ReactFlow>
       </div>
       {sidebarActive ? (
