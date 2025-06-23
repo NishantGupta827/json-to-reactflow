@@ -15,7 +15,7 @@ export function SideBarHeader({ icon, title, onClose }: SideBarProps) {
     LucideIcons.LucideProps & RefAttributes<SVGSVGElement>
   >;
 
-  console.log(IconComponent);
+  // console.log(IconComponent);
 
   return (
     <div className="flex items-center justify-between mb-4">

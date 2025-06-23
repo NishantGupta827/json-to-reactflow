@@ -38,7 +38,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
   return (
     <div
-      className="relative w-full"
+      className="w-full"
       style={{ backgroundColor: "#F7F7F7" }}
       ref={dropdownRef}
     >

@@ -1,9 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from "react"; // Import useMemo
 import {
   ReactFlow,
-  Background,
   Controls,
-  // MiniMap,
   applyEdgeChanges,
   applyNodeChanges,
   useNodesState,
@@ -29,23 +33,19 @@ import { Export, Import } from "./controls/ImportExport";
 import { FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import { SideBarHeader } from "./rightSidebar/header";
 import { FlaskConical } from "lucide-react";
+// import CustomEdge from "./edge/GenericEdge";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
 import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
-import { TestForIsland } from "./controls/IslandTesting";
+import { SideBarHeader } from "./rightSidebar/header";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
   agentJson: AgentConfig;
 }
-
-// const edgeTypes = {
-//   custom: CustomEdge,
-// };
 
 const proOptions = { hideAttribution: true };
 
@@ -66,11 +66,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     nodeData: any;
   } | null>(null);
 
-  const nodeTypes = {
-    custom: (nodeProps: NodeProps) => (
-      <AgentNodeWrapper {...nodeProps} onHandleClick={setModalData} />
-    ),
-  };
+  const nodeTypes = useMemo(() => {
+    return {
+      custom: (nodeProps: NodeProps) => (
+        <AgentNodeWrapper {...nodeProps} onHandleClick={setModalData} />
+      ),
+    };
+  }, [setModalData]);
 
   const [currNode, setCurrNode] = useState<Node | null>(null);
   const [currEdge, setCurrEdge] = useState<Edge | null>(null);
@@ -79,7 +81,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     ...ele,
     type: ele.type ?? "custom",
     position: ele.position ?? { x: 0, y: 0 },
-    data: ele.data ?? {},
+    data: {
+      ...ele.data,
+      isIsland: false, // ensure default isIsland is false
+    },
   }));
 
   const normalizedEdges: Edge[] = flowJson.edges.map((ele) => ({
@@ -107,18 +112,24 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     }
   }, [nodesInitialized, initial]);
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => {
-      const updated = applyNodeChanges(changes, nds);
-      takeSnapshot();
-      return updated;
-    });
-  }, []);
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setNodes((nds) => {
+        const updated = applyNodeChanges(changes, nds);
+        takeSnapshot();
+        setTimeout(() => TestForIsland(), 0);
+        return updated;
+      });
+    },
+    [takeSnapshot]
+  );
+
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((eds) => {
         const updated = applyEdgeChanges(changes, eds);
         takeSnapshot();
+        setTimeout(() => TestForIsland(), 0);
         return updated;
       });
     },
@@ -133,6 +144,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
       setEdges((eds) => {
         const updated = addEdge(params, eds);
         takeSnapshot();
+        setTimeout(() => TestForIsland(), 0);
         return updated;
       });
     },
@@ -141,58 +153,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
 
   const handleDragStart = useCallback(() => {
     takeSnapshot(); // take snapshot before move
-  }, []);
+  }, [takeSnapshot]); // Added takeSnapshot to dependencies
 
   const handleDragStop = useCallback(() => {
     takeSnapshot(); // optionally snapshot again after move
-  }, []);
+  }, [takeSnapshot]); // Added takeSnapshot to dependencies
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent<HTMLElement>) => {
-      event.preventDefault();
-
-      const raw = event.dataTransfer.getData("application/reactflow");
-      if (!raw) return;
-
-      try {
-        const { type, data } = JSON.parse(raw) as {
-          type: string;
-          data: Node;
-        };
-
-        const position = screenToFlowPosition({
-          x: event.clientX - 50,
-          y: event.clientY - 50,
-        });
-
-        const newNode: Node = {
-          id: `node_${count}`,
-          type,
-          position,
-          data,
-        };
-
-        setCount((prev) => {
-          return prev + 1;
-        });
-        console.log(count);
-
-        setNodes((nds) => {
-          const updated = nds.concat(newNode);
-          takeSnapshot();
-          return updated;
-        });
-      } catch (err) {
-        console.error("Failed to parse node data from drag event", err);
-      }
-    },
-    [screenToFlowPosition, setNodes, setCount, count]
-  );
 
   const onNodeDoubleClick: NodeMouseHandler = (
     event: React.MouseEvent,
@@ -214,7 +184,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     console.log("Edge Clicked:", edge);
   };
 
-  const getCurrentFlowJSON = () => {
+  const getCurrentFlowJSON = useCallback(() => {
+    // Memoize to prevent re-creation
     return {
       export: flowJson.export,
       background: background,
@@ -231,7 +202,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
         label,
       })),
     };
-  };
+  }, [flowJson.export, background, nodes, edges]);
 
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
@@ -243,7 +214,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
         fitView({ padding: 0.2, duration: 500 });
       }, 0);
     },
-    [nodes, edges, setNodes, setEdges]
+    [nodes, edges, setNodes, setEdges, fitView] // Added fitView to dependencies
   );
 
   const [open, setOpen] = useState(false);
@@ -253,25 +224,45 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   };
 
   function TestForIsland() {
-    const node = nodes.find((ele) => ele.id == "node_1");
-    const visited = new Set();
-    const arr: string[] = [node!.id];
-    while (arr.length != 0) {
-      const id = arr.pop();
-      visited.add(id);
-      const conns = reactflow.getNodeConnections({
-        nodeId: id as string,
-      });
-      conns.forEach((ele) => {
-        const initial = visited.size;
-        visited.add(ele.target);
-        const final = visited.size;
-        if (initial != final) {
-          arr.push(ele.target);
-        }
-      });
+    const startingNode = nodes.find((ele) => ele.id === "node_1");
+    if (!startingNode) {
+      console.error("Starting node not found");
+      return;
     }
-    return visited.size == nodes.length;
+
+    const visited = new Set<string>();
+    const queue: string[] = [startingNode.id];
+
+    while (queue.length > 0) {
+      const id = queue.pop()!;
+      if (!visited.has(id)) {
+        visited.add(id);
+        const conns = reactflow.getNodeConnections({ nodeId: id });
+        conns.forEach((ele) => {
+          if (!visited.has(ele.target)) {
+            queue.push(ele.target);
+          }
+        });
+      }
+    }
+
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          isIsland: !visited.has(node.id),
+        },
+      }))
+    );
+
+    const islandNodes = nodes.filter((ele) => !visited.has(ele.id));
+    if (islandNodes.length > 0) {
+      console.log(
+        "Island node(s) detected:",
+        islandNodes.map((n) => n.id)
+      );
+    }
   }
 
   return (
@@ -283,7 +274,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
-          onDrop={onDrop}
           onNodeDragStart={handleDragStart}
           onNodeDragStop={handleDragStop}
           onDragOver={onDragOver}
@@ -292,7 +282,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
-          // edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
           {control && (
@@ -350,8 +339,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
                   (ele) => ele.id == modalData.nodeId
                 )?.position;
 
-                console.log(modalData.handleId);
-                console.log(modalData.nodeId);
+                // console.log(modalData.handleId);
+                // console.log(modalData.nodeId);
 
                 switch (modalData.handleId) {
                   case `${modalData.nodeId}-right`:
@@ -379,7 +368,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
                   {
                     id: newId,
                     position,
-                    data: newNode.data,
+                    data: {
+                      ...newNode.data,
+                      isIsland: false,
+                    },
                     type: "custom",
                   },
                 ]);

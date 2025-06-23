@@ -147,7 +147,7 @@ type AgentProps = {
 export function Default({ data }: AgentProps) {
   const [edit, setEdit] = useState(false);
 
-  useEffect(() => console.log(data), [edit]);
+  // useEffect(() => console.log(data), [edit]);
 
   return (
     <div

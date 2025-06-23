@@ -1,4 +1,4 @@
-import { Edge, Handle, Position, useReactFlow } from "@xyflow/react";
+import { Edge, Handle, Position } from "@xyflow/react";
 import * as LucideIcons from "lucide-react";
 import { LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
@@ -25,11 +25,6 @@ export default function AgentNodeContent({
   edges,
   onHandleClick,
 }: AgentNodeProps) {
-  const [showModal, setShowModal] = useState(false);
-  const [clickedHandle, setClickedHandle] = useState<{
-    handleId: string;
-    type: "source" | "target";
-  } | null>(null);
 
   const isConnected = (handleId: string, type: "source" | "target") => {
     return edges.some((edge) => {
@@ -114,7 +109,7 @@ export default function AgentNodeContent({
 
   return (
     <div className="agent-node-container">
-      <div className="agent-node-card">
+      <div className={`${data.isIsland ? "island-node" : "agent-node-card"}`}>
         <div className="agent-node-header">
           <div className="agent-node-icon-box">
             <IconComponent className="agent-node-icon" />

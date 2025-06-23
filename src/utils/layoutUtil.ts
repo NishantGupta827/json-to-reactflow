@@ -50,17 +50,17 @@ export function getLayoutedElements(
 
   dagre.layout(dagreGraph);
 
-  console.log(dagreGraph.edges());
+  // console.log(dagreGraph.edges());
 
   let curr = 0;
 
   const layoutedEdges = dagreGraph.edges().map((ele) => {
     const handles: string[] = ele.name?.split("###") as [];
-    console.log(handles);
+    // console.log(handles);
     const edge: Edge = edges.filter((e) => {
       return e.sourceHandle == handles[0] && e.targetHandle == handles[1];
     })[0];
-    console.log(edge);
+    // console.log(edge);
     curr += 1;
     return {
       ...edge,
