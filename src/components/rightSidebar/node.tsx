@@ -1,4 +1,5 @@
 import { Node } from "@xyflow/react";
+import "./RightSidebar.css";
 
 type NodeSideBarData = {
   title: string;
@@ -26,7 +27,10 @@ export default function NodeContent({ data }: NodeContentProps) {
 
   function isNodeSideBarData(input: unknown): input is NodeSideBarData {
     return (
-      typeof input === "object" && input !== null && "someExpectedKey" in input
+      typeof input === "object" &&
+      input !== null &&
+      "title" in input &&
+      "placeholder" in input
     );
   }
 
@@ -39,19 +43,12 @@ export default function NodeContent({ data }: NodeContentProps) {
 
   return (
     <>
-      {info.map((ele, id) => {
-        return (
-          <div key={id} style={{ marginBottom: "10px", fontSize: "0.875rem" }}>
-            <span>{ele.title}</span>
-            <div
-              style={{ backgroundColor: "#F7F7F7" }}
-              className="w-full border rounded-md px-3 py-2 text-left shadow-sm"
-            >
-              {ele.placeholder}
-            </div>
-          </div>
-        );
-      })}
+      {info.map((ele, id) => (
+        <div className="node-section" key={id}>
+          <span className="node-label">{ele.title}</span>
+          <div className="node-value-box">{ele.placeholder}</div>
+        </div>
+      ))}
     </>
   );
 }

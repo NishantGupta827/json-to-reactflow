@@ -1,4 +1,4 @@
-type agentPayload = {
+export type agentPayload = {
   abilities: string[]; //need to check
   //id: "745c1e2179e84c27bee58ceb6cf9813f",title: "Testing",type: "agent"
   // Icons of abilities are constant based on the type

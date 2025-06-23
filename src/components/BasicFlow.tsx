@@ -75,7 +75,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   }, [setModalData]);
 
   const [currNode, setCurrNode] = useState<Node | null>(null);
-  const [currEdge, setCurrEdge] = useState<Edge | null>(null);
+  const [, setCurrEdge] = useState<Edge | null>(null);
 
   const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
     ...ele,
@@ -99,8 +99,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
-
-  const [count, setCount] = useState(nodes.length + 1);
 
   const nodesInitialized = useNodesInitialized();
   const [initial, setInitial] = useState(true);
@@ -137,7 +135,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   );
 
   const reactFlowWrapper = useRef(null);
-  const { screenToFlowPosition } = useReactFlow();
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -217,12 +214,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     [nodes, edges, setNodes, setEdges, fitView] // Added fitView to dependencies
   );
 
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState("");
-  const test = () => {
-    console.log("clicked");
-  };
-
   function TestForIsland() {
     const startingNode = nodes.find((ele) => ele.id === "node_1");
     if (!startingNode) {
@@ -300,34 +291,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
               <Import />
               <Export />
             </Controls>
-          )}
-          {open && (
-            <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-white p-6 rounded shadow-md w-80">
-                <h2 className="text-lg font-semibold mb-4">Enter node label</h2>
-                <textarea
-                  rows={15}
-                  className="w-full p-2 border rounded mb-4 resize-y"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Enter node content"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    className="px-4 py-2 bg-gray-300 rounded"
-                    onClick={() => setOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded"
-                    onClick={test}
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
           )}
           {modalData && (
             <NodeSelectionModal
@@ -424,7 +387,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
         ) : (
           <div
             style={{ height: "100%", overflowY: "auto" }}
-            className="max-w-sm w-full border rounded-lg p-4 bg-white shadow-sm"
+            className="custom-box"
           >
             <SideBarHeader
               icon={

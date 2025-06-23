@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import "./RightSidebar.css";
 
 interface Option {
   label: string;
@@ -33,29 +34,26 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <div
-      className="w-full"
-      style={{ backgroundColor: "#F7F7F7" }}
-      ref={dropdownRef}
-    >
+    <div className="custom-select-wrapper" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         disabled={disabled}
-        className="w-full border rounded-md px-3 py-2 text-left shadow-sm hover:border-gray-400 focus:outline-none"
+        className="custom-select-trigger"
       >
         {value ? (
           value.label
         ) : (
-          <span className="text-gray-400">{placeholder}</span>
+          <span className="custom-select-placeholder">{placeholder}</span>
         )}
       </button>
 
       {isOpen && (
-        <ul className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+        <ul className="custom-select-dropdown">
           {options.map((option) => (
             <li
               key={option.value}
@@ -63,8 +61,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 onChange(option);
                 setIsOpen(false);
               }}
-              className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                value?.value === option.value ? "bg-gray-100 font-medium" : ""
+              className={`custom-select-option ${
+                value?.value === option.value ? "active" : ""
               }`}
             >
               {option.label}
