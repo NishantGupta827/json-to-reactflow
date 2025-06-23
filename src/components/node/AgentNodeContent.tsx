@@ -55,9 +55,10 @@ export default function AgentNodeContent({
           id={handleId}
           style={{
             background: "#3b82f6",
-            width: 9,
-            height: 9,
-            borderRadius: "50%",
+            width: 10,
+            height: 10,
+            borderColor: "white",
+            borderWidth: 1.5,
             zIndex: 10,
           }}
         />
@@ -70,6 +71,14 @@ export default function AgentNodeContent({
         position={position}
         id={handleId}
         className="handle-wrapper"
+        style={{
+          background: "#3b82f6",
+          width: 10,
+          height: 10,
+          borderColor: "white",
+          borderWidth: 1.5,
+          zIndex: 10,
+        }}
       >
         <button
           className="handle-button"

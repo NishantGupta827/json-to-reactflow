@@ -22,6 +22,7 @@ import {
   Edge,
   EdgeMouseHandler,
   NodeProps,
+  MarkerType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -96,6 +97,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 
   const normalizedEdges: Edge[] = flowJson.edges.map((ele) => ({
     ...ele,
+    type: "smoothstep",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 25,
+      height: 25,
+    },
   }));
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
@@ -422,6 +429,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
                       modalData.type === "target"
                         ? modalData.handleId
                         : undefined,
+                    type: "smoothstep",
+                    markerEnd: {
+                      type: MarkerType.ArrowClosed,
+                      width: 25,
+                      height: 25,
+                    },
                   },
                 ]);
 
