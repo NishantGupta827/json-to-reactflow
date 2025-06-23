@@ -18,7 +18,6 @@ import {
   useReactFlow,
   useNodesInitialized,
   NodeMouseHandler,
-  Panel,
   Edge,
   EdgeMouseHandler,
   NodeProps,
@@ -26,30 +25,21 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
-import { ParseBackground } from "./background/BackGround";
-import { DnDProvider, useDnD } from "./componentSidebar/DnD";
-import Sidebar from "./componentSidebar/SideBar";
 import { Export, Import } from "./controls/ImportExport";
-import { BackgroundConfig, FlowJson } from "@/types/flowJson";
+import { FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
-import AgentNode from "./node/GenericRevisedNode";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import { SideBarJson } from "@/types/sidebar";
-import { EdgeSideBarHeader, NodeSideBarHeader } from "./rightSidebar/header";
-import { NodeSideBarFooter } from "./rightSidebar/footer";
-import { EdgeSideBarContent, NodeSideBarContent } from "./rightSidebar/content";
-import { ArrowDown, FlaskConical } from "lucide-react";
-import { Button } from "./ui/button";
-import CustomEdge from "./edge/GenericEdge";
-import { ConvertAgentPayload } from "@/testJson/AgentNode";
+import { SideBarHeader } from "./rightSidebar/header";
+import { FlaskConical } from "lucide-react";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
 import { AgentConfig } from "@/types/agent";
+import NodeContent from "./rightSidebar/node";
+import { TestForIsland } from "./controls/IslandTesting";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
-  sidebarJson: SideBarJson;
   agentJson: AgentConfig;
 }
 
@@ -59,17 +49,15 @@ export interface BasicFlowProps {
 
 const proOptions = { hideAttribution: true };
 
-const BasicFlow: React.FC<BasicFlowProps> = ({
-  flowJson,
-  sidebarJson,
-  agentJson,
-}) => {
+const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   const { control, background } = flowJson;
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
     enableShortcuts: true,
   });
+
+  const reactflow = useReactFlow();
 
   const [modalData, setModalData] = useState<{
     nodeId: string;
@@ -84,7 +72,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     ),
   };
 
-  const [sidebarActive, setSidebarActive] = useState(false);
   const [currNode, setCurrNode] = useState<Node | null>(null);
   const [currEdge, setCurrEdge] = useState<Edge | null>(null);
 
@@ -140,7 +127,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
-  const [_] = useDnD();
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -213,7 +199,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     node: Node
   ) => {
     event.stopPropagation();
-    setSidebarActive(true);
     setCurrNode(node);
     setCurrEdge(null);
     console.log("Double clicked node:", node);
@@ -224,7 +209,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     edge: Edge
   ) => {
     event.stopPropagation();
-    setSidebarActive(true);
     setCurrNode(null);
     setCurrEdge(edge);
     console.log("Edge Clicked:", edge);
@@ -262,65 +246,36 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     [nodes, edges, setNodes, setEdges]
   );
 
-  const closeSideBar = () => {
-    setSidebarActive(false);
-    setCurrNode(null);
-    setCurrEdge(null);
-  };
-
-  const saveSideBar = () => {
-    console.log(currNode);
-    setNodes((nds) =>
-      nds.map((node) => {
-        if (node.id === currNode?.id) {
-          return {
-            ...currNode,
-          };
-        }
-        return node;
-      })
-    ),
-      closeSideBar();
-  };
-
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const test = () => {
     console.log("clicked");
-    console.log(text);
-    console.log(JSON.parse(text));
-    const newNode: Node = {
-      id: `node_${count}`,
-      type: "custom",
-      position: { x: 100, y: 100 },
-      data: ConvertAgentPayload(JSON.parse(text)),
-    };
-
-    setCount((prev) => {
-      return prev + 1;
-    });
-    console.log(count);
-
-    setNodes((nds) => {
-      const updated = nds.concat(newNode);
-      return updated;
-    });
-    setText("");
-    setOpen(false);
   };
+
+  function TestForIsland() {
+    const node = nodes.find((ele) => ele.id == "node_1");
+    const visited = new Set();
+    const arr: string[] = [node!.id];
+    while (arr.length != 0) {
+      const id = arr.pop();
+      visited.add(id);
+      const conns = reactflow.getNodeConnections({
+        nodeId: id as string,
+      });
+      conns.forEach((ele) => {
+        const initial = visited.size;
+        visited.add(ele.target);
+        const final = visited.size;
+        if (initial != final) {
+          arr.push(ele.target);
+        }
+      });
+    }
+    return visited.size == nodes.length;
+  }
 
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex" }}>
-      {/* <div
-        style={{
-          width: "250px",
-          transition: "width 0.3s ease",
-          overflow: "hidden",
-          borderRight: "1px solid #ccc",
-        }}
-      >
-        <Sidebar json={sidebarJson} />
-      </div> */}
       <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
@@ -340,8 +295,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           // edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
-          <Background bgColor="#f4f7fc" />
-          {/* {...ParseBackground(background as BackgroundConfig)} /> */}
           {control && (
             <Controls>
               {flowJson.export && <DownloadButton />}
@@ -353,7 +306,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               </ControlButton>
 
               <ControlButton>
-                <FlaskConical onClick={() => setOpen(true)} />
+                <FlaskConical onClick={() => console.log(TestForIsland())} />
               </ControlButton>
               <Import />
               <Export />
@@ -387,21 +340,39 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               </div>
             </div>
           )}
-          <Panel position="bottom-right" className="flex gap-x-2">
-            <Button variant="outline">Playground</Button>
-            <Button variant="default" className="bg-purple-600">
-              Publish{" "}
-              <span className="ml-1">
-                <ArrowDown height={16} width={16} />
-              </span>
-            </Button>
-          </Panel>
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}
               onSelect={(newNode) => {
                 const newId = `node_${Date.now()}`;
                 const position = { x: 300, y: 300 };
+                const existing_pos = nodes.find(
+                  (ele) => ele.id == modalData.nodeId
+                )?.position;
+
+                console.log(modalData.handleId);
+                console.log(modalData.nodeId);
+
+                switch (modalData.handleId) {
+                  case `${modalData.nodeId}-right`:
+                    position.x = (existing_pos?.x as number) + 400;
+                    position.y = existing_pos?.y as number;
+                    break;
+                  case `${modalData.nodeId}-left`:
+                    position.x = (existing_pos?.x as number) - 400;
+                    position.y = existing_pos?.y as number;
+                    break;
+                  case `${modalData.nodeId}-top`:
+                    position.y = (existing_pos?.y as number) - 100;
+                    position.x = existing_pos?.x as number;
+                    break;
+                  case `${modalData.nodeId}-bottom`:
+                    position.y = (existing_pos?.y as number) + 200;
+                    position.x = existing_pos?.x as number;
+                    break;
+                  default:
+                    break;
+                }
 
                 setNodes((nds) => [
                   ...nds,
@@ -444,60 +415,38 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           )}
         </ReactFlow>
       </div>
-      {sidebarActive ? (
-        <div
-          style={{
-            width: "350px",
-            transition: "width 0.3s ease",
-            overflow: "hidden",
-            borderRight: "1px solid #ccc",
-          }}
-        >
-          {currNode && (
-            <div className="flex flex-col h-screen">
-              <NodeSideBarHeader
-                title={currNode.data.title as string}
-                bgColor={currNode.data.color as string}
-                closeSideBar={closeSideBar}
-              />
-              <NodeSideBarContent
-                currNode={currNode as Node}
-                setCurrNode={setCurrNode}
-              />
-              <NodeSideBarFooter
-                closeSideBar={closeSideBar}
-                saveSideBar={saveSideBar}
-              />
-            </div>
-          )}
-          {currEdge && (
-            <div className="flex flex-col h-screen p-2 m-2">
-              <EdgeSideBarHeader closeSideBar={closeSideBar} />
-              <EdgeSideBarContent
-                currEdge={currEdge}
-                setCurrEdge={setCurrEdge}
-              />
-              <NodeSideBarFooter
-                closeSideBar={closeSideBar}
-                saveSideBar={saveSideBar}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div
-          style={{
-            width: "350px",
-            transition: "width 0.3s ease",
-            overflow: "hidden",
-            borderRight: "1px solid #ccc",
-            height: "100vh",
-            overflowY: "auto",
-          }}
-        >
-          <Default data={agentJson} />
-        </div>
-      )}
+      <div
+        style={{
+          width: "350px",
+          transition: "width 0.3s ease",
+          overflow: "hidden",
+          borderRight: "1px solid #ccc",
+          height: "100vh",
+          overflowY: "auto",
+        }}
+      >
+        {!currNode ? (
+          <>
+            <Default data={agentJson} />
+          </>
+        ) : (
+          <div
+            style={{ height: "100%", overflowY: "auto" }}
+            className="max-w-sm w-full border rounded-lg p-4 bg-white shadow-sm"
+          >
+            <SideBarHeader
+              icon={
+                currNode.data.icon == ""
+                  ? "zap"
+                  : (currNode.data.icon as string)
+              }
+              title={currNode.data.title as string}
+              onClose={setCurrNode}
+            />
+            <NodeContent data={currNode} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -505,19 +454,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 export default BasicFlow;
 
 export const flowWrapper: React.FC<BasicFlowProps> = ({
-  sidebarJson,
   flowJson,
   agentJson,
 }) => {
   return (
     <ReactFlowProvider>
-      <DnDProvider>
-        <BasicFlow
-          sidebarJson={sidebarJson}
-          flowJson={flowJson}
-          agentJson={agentJson}
-        />
-      </DnDProvider>
+      <BasicFlow flowJson={flowJson} agentJson={agentJson} />
     </ReactFlowProvider>
   );
 };

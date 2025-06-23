@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AgentConfig } from "@/types/agent";
 import { SideBarHeader } from "./header";
-import { Badge, Bot, Circle } from "lucide-react";
 import CustomSelect from "./select";
 import { SideBarFooter } from "./footer";
 
@@ -155,7 +154,7 @@ export function Default({ data }: AgentProps) {
       style={{ height: "100%", overflowY: "auto" }}
       className="max-w-sm w-full border rounded-lg p-4 bg-white shadow-sm"
     >
-      <SideBarHeader icon={"AGENT"} title={data.title} />
+      <SideBarHeader icon={"bot"} title={data.title} />
       <AgentStatus data={data} />
       <ModelConfig data={data} edit={edit} />
       <SideBarFooter edit={edit} setEdit={setEdit} />
