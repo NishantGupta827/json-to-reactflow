@@ -43,10 +43,13 @@ import CustomEdge from "./edge/GenericEdge";
 import { ConvertAgentPayload } from "@/testJson/AgentNode";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
+import { Default } from "./rightSidebar/agent";
+import { AgentConfig } from "@/types/agent";
 
 export interface BasicFlowProps {
   flowJson: FlowJson;
   sidebarJson: SideBarJson;
+  agentJson: AgentConfig;
 }
 
 // const edgeTypes = {
@@ -55,7 +58,11 @@ export interface BasicFlowProps {
 
 const proOptions = { hideAttribution: true };
 
-const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
+const BasicFlow: React.FC<BasicFlowProps> = ({
+  flowJson,
+  sidebarJson,
+  agentJson,
+}) => {
   const { control, background } = flowJson;
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
@@ -297,7 +304,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
 
   return (
     <div style={{ width: "100%", height: "100vh", display: "flex" }}>
-      <div
+      {/* <div
         style={{
           width: "250px",
           transition: "width 0.3s ease",
@@ -306,7 +313,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
         }}
       >
         <Sidebar json={sidebarJson} />
-      </div>
+      </div> */}
       <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
@@ -326,7 +333,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           // edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
-          <Background {...ParseBackground(background as BackgroundConfig)} />
+          <Background bgColor="#f4f7fc" />
+          {/* {...ParseBackground(background as BackgroundConfig)} /> */}
           {control && (
             <Controls>
               {flowJson.export && <DownloadButton />}
@@ -423,7 +431,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
           )}
         </ReactFlow>
       </div>
-      {sidebarActive && (
+      {sidebarActive ? (
         <div
           style={{
             width: "350px",
@@ -450,7 +458,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             </div>
           )}
           {currEdge && (
-            <div className="flex flex-col h-screen">
+            <div className="flex flex-col h-screen p-2 m-2">
               <EdgeSideBarHeader closeSideBar={closeSideBar} />
               <EdgeSideBarContent
                 currEdge={currEdge}
@@ -463,6 +471,19 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, sidebarJson }) => {
             </div>
           )}
         </div>
+      ) : (
+        <div
+          style={{
+            width: "350px",
+            transition: "width 0.3s ease",
+            overflow: "hidden",
+            borderRight: "1px solid #ccc",
+            height: "100vh",
+            overflowY: "auto",
+          }}
+        >
+          <Default data={agentJson} />
+        </div>
       )}
     </div>
   );
@@ -473,11 +494,16 @@ export default BasicFlow;
 export const flowWrapper: React.FC<BasicFlowProps> = ({
   sidebarJson,
   flowJson,
+  agentJson,
 }) => {
   return (
     <ReactFlowProvider>
       <DnDProvider>
-        <BasicFlow sidebarJson={sidebarJson} flowJson={flowJson} />
+        <BasicFlow
+          sidebarJson={sidebarJson}
+          flowJson={flowJson}
+          agentJson={agentJson}
+        />
       </DnDProvider>
     </ReactFlowProvider>
   );
