@@ -25,19 +25,10 @@ export default function NodeContent({ data }: NodeContentProps) {
     },
   ];
 
-  function isNodeSideBarData(input: unknown): input is NodeSideBarData {
-    return (
-      typeof input === "object" &&
-      input !== null &&
-      "title" in input &&
-      "placeholder" in input
-    );
-  }
-
   const info = [
     ...basicInfo,
-    ...(data.data.inputs && isNodeSideBarData(data.data.inputs)
-      ? [data.data.inputs]
+    ...(data.data.inputs && typeof data.data.inputs === typeof basicInfo
+      ? (data.data.inputs as [])
       : []),
   ];
 

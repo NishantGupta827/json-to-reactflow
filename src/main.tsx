@@ -11,7 +11,7 @@ import { ServiceJson } from "./testJson/ServiceJson.ts";
 const props: BasicFlowProps = {
   serviceJson: ServiceJson,
   agentJson: agentJson,
-  nodeOptions: nodeOptionsJson
+  nodeOptions: nodeOptionsJson,
 };
 
 createRoot(document.getElementById("root")!).render(

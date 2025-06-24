@@ -36,7 +36,7 @@ export function ServiceToFlow(data: ServiceStep[]): FlowJson {
         y: 0,
       },
       data: {
-        title: ele.tool,
+        title: ele.tool == "ability" ? ele.action : ele.tool,
         description: ele.description,
         inputs: inputs,
         icon: "zap",

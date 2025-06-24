@@ -14,8 +14,6 @@ export function getLayoutedElements(
   }).setDefaultEdgeLabel(() => ({}));
   const isHorizontal = direction === "LR";
 
-  dagreGraph.setGraph({ rankdir: direction });
-
   let max_width = 0;
   let max_height = 0;
 
@@ -50,26 +48,6 @@ export function getLayoutedElements(
 
   dagre.layout(dagreGraph);
 
-  // console.log(dagreGraph.edges());
-
-  let curr = 0;
-
-  const layoutedEdges = dagreGraph.edges().map((ele) => {
-    const handles: string[] = ele.name?.split("###") as [];
-    // console.log(handles);
-    const edge: Edge = edges.filter((e) => {
-      return e.sourceHandle == handles[0] && e.targetHandle == handles[1];
-    })[0];
-    // console.log(edge);
-    curr += 1;
-    return {
-      ...edge,
-      data: {
-        workflowStepNo: curr,
-      },
-    };
-  });
-
   const layoutedNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
@@ -83,5 +61,5 @@ export function getLayoutedElements(
     };
   });
 
-  return { nodes: layoutedNodes, edges: layoutedEdges };
+  return { nodes: layoutedNodes, edges: edges };
 }
