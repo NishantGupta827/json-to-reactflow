@@ -6,10 +6,12 @@ import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { flowJson } from "./testJson/FlowJson.ts";
 import { agentJson } from "./testJson/AgentJson.ts";
+import { ServiceToFlow } from "./util/ServiceToFlow.ts";
+import { ServiceJson } from "./testJson/ServiceJson.ts";
 // import '@contentstack/venus-components/build/main.css';
 
 const props: BasicFlowProps = {
-  flowJson: flowJson,
+  flowJson: ServiceToFlow(ServiceJson),
   agentJson: agentJson,
 };
 
