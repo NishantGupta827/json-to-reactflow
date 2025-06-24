@@ -50,7 +50,8 @@ export interface BasicFlowProps {
 const proOptions = { hideAttribution: true };
 
 const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
-  const { control, background } = flowJson;
+  console.log(flowJson);
+
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
@@ -184,8 +185,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   const getCurrentFlowJSON = useCallback(() => {
     // Memoize to prevent re-creation
     return {
-      export: flowJson.export,
-      background: background,
+      //export: flowJson.export,
+      //background: background,
       nodes: nodes.map(({ id, position, data, type }) => ({
         id,
         position,
@@ -199,7 +200,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
         label,
       })),
     };
-  }, [flowJson.export, background, nodes, edges]);
+  }, [nodes, edges]);
 
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
@@ -275,9 +276,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           nodeTypes={nodeTypes}
           proOptions={proOptions}
         >
-          {control && (
+          {
             <Controls>
-              {flowJson.export && <DownloadButton />}
+              {<DownloadButton />}
               <ControlButton
                 onClick={() => console.log(getCurrentFlowJSON())}
                 style={{ zIndex: "1000" }}
@@ -291,7 +292,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
               <Import />
               <Export />
             </Controls>
-          )}
+          }
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}

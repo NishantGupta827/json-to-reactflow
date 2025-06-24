@@ -1,7 +1,7 @@
 import { Node } from "@xyflow/react";
 import "./RightSidebar.css";
 
-type NodeSideBarData = {
+export type NodeSideBarData = {
   title: string;
   type: string;
   placeholder: string;

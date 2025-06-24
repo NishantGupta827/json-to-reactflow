@@ -1,15 +1,6 @@
 import { FlowJson } from "../types/flowJson";
 
 export const flowJson: FlowJson = {
-  export: true,
-  control: true,
-  minimap: true,
-  background: {
-    color: "#000000",
-    bgcolor: "#ffffff",
-    variant: "cross",
-    size: 1,
-  },
   nodes: [
     {
       id: "node_1",
@@ -351,5 +342,5 @@ export const flowJson: FlowJson = {
       target: "node_4",
       targetHandle: "node_4-top",
     },
-  ],  
+  ],
 };
