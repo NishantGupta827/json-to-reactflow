@@ -4,8 +4,8 @@ import { LucideProps } from "lucide-react";
 import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
 import { Plus } from "lucide-react";
 import { ButtonHandle } from "../ui/ButtonHandle";
-import { nodeOptionsJson } from "@/testJson/NodeOptions";
 import "./AgentNode.css";
+import { NodeOptionsJson } from "../BasicFlow";
 
 type AgentNodeProps = {
   data: any;
@@ -141,9 +141,11 @@ type Category = "tools" | "agents" | "automations" | "triggers";
 export function NodeSelectionModal({
   onClose,
   onSelect,
+  nodeOptionsJson,
 }: {
   onClose: () => void;
   onSelect: (node: any) => void;
+  nodeOptionsJson: NodeOptionsJson;
 }) {
   const [category, setCategory] = useState<Category>("tools");
   const nodes = nodeOptionsJson[category];
@@ -203,3 +205,4 @@ export function NodeSelectionModal({
     </div>
   );
 }
+

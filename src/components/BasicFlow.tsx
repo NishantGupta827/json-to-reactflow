@@ -4,7 +4,7 @@ import React, {
   useRef,
   useState,
   useMemo,
-} from "react"; // Import useMemo
+} from "react";
 import {
   ReactFlow,
   Controls,
@@ -30,28 +30,56 @@ import {
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
 import { Export, Import } from "./controls/ImportExport";
-import { FlowJson } from "@/types/flowJson";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import useUndoRedo from "@/hooks/useUndoRedo";
 import { FlaskConical } from "lucide-react";
-// import CustomEdge from "./edge/GenericEdge";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
 import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
 import { SideBarHeader } from "./rightSidebar/header";
+import { ServiceStep } from "@/types/service";
+import { ServiceToFlow } from "@/util/ServiceToFlow";
+import { useFlowJson } from "@/hooks/useFlowJson";
 
 export interface BasicFlowProps {
-  flowJson: FlowJson;
+  serviceJson: ServiceStep[];
   agentJson: AgentConfig;
+  nodeOptions: NodeOptionsJson;
 }
+
+export type NodeCategory = "tools" | "agents" | "automations" | "triggers";
+
+export interface NodeData {
+  title: string;
+  description: string;
+  inputs: string[];
+  outputs: string[];
+}
+
+export interface NodeDefinition {
+  id: string;
+  data: NodeData;
+}
+
+export interface NodeOption {
+  id: string;
+  label: string;
+  node: NodeDefinition;
+}
+
+export type NodeOptionsJson = {
+  [K in NodeCategory]: NodeOption[];
+};
 
 const proOptions = { hideAttribution: true };
 
-const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
-  console.log(flowJson);
-
+const BasicFlow: React.FC<BasicFlowProps> = ({
+  serviceJson,
+  agentJson,
+  nodeOptions,
+}) => {
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
     maxHistorySize: 100,
@@ -77,6 +105,26 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
 
   const [currNode, setCurrNode] = useState<Node | null>(null);
   const [, setCurrEdge] = useState<Edge | null>(null);
+  const [labelModal, setLabelModal] = useState<{
+    edge: Edge;
+    label: string;
+  } | null>(null);
+
+  const onEdgeDoubleClick: EdgeMouseHandler = (
+    event: React.MouseEvent,
+    edge: Edge
+  ) => {
+    event.stopPropagation();
+    setLabelModal({
+      edge,
+      label: typeof edge.label === "string" ? edge.label : "",
+    });
+  };
+
+  const flowJson = ServiceToFlow(serviceJson);
+  // useEffect(() => {
+  //   console.log("flowJson", JSON.stringify(flowJson));
+  // }, [flowJson]);
 
   const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
     ...ele,
@@ -140,7 +188,18 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((eds) => {
-        const updated = addEdge(params, eds);
+        const updated = addEdge(
+          {
+            ...params,
+            type: "smoothstep",
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 25,
+              height: 25,
+            },
+          },
+          eds
+        );
         takeSnapshot();
         setTimeout(() => TestForIsland(), 0);
         return updated;
@@ -182,26 +241,17 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
     console.log("Edge Clicked:", edge);
   };
 
-  const getCurrentFlowJSON = useCallback(() => {
-    // Memoize to prevent re-creation
-    return {
-      //export: flowJson.export,
-      //background: background,
-      nodes: nodes.map(({ id, position, data, type }) => ({
-        id,
-        position,
-        data,
-        type,
-      })),
-      edges: edges.map(({ id, source, target, label }) => ({
-        id,
-        source,
-        target,
-        label,
-      })),
-    };
-  }, [nodes, edges]);
+  const getFlowJson = useFlowJson();
 
+  const handleExport = () => {
+    const updatedFlowJson = getFlowJson();
+
+    if (!updatedFlowJson.nodes.length) {
+      alert("Flow not loaded yet.");
+      return;
+    }
+    console.log("Exported Flow:", updatedFlowJson);
+  };
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
       const { nodes: layoutedNodes, edges: layoutedEdges } =
@@ -271,6 +321,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           onDragOver={onDragOver}
           onNodeDoubleClick={onNodeDoubleClick}
           onEdgeClick={onEdgeClick}
+          onEdgeDoubleClick={onEdgeDoubleClick}
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
@@ -279,16 +330,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           {
             <Controls>
               {<DownloadButton />}
-              <ControlButton
-                onClick={() => console.log(getCurrentFlowJSON())}
-                style={{ zIndex: "1000" }}
-              >
-                js
-              </ControlButton>
-
               <ControlButton>
                 <FlaskConical onClick={() => console.log(TestForIsland())} />
               </ControlButton>
+              <ControlButton onClick={handleExport}>e</ControlButton>
               <Import />
               <Export />
             </Controls>
@@ -296,34 +341,40 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}
+              nodeOptionsJson={nodeOptions}
               onSelect={(newNode) => {
-                const newId = `node_${Date.now()}`;
+                const rawTitle = newNode.data.title || "node";
+                const baseId = rawTitle.toLowerCase().replace(/\s+/g, "_");
+
+                // Ensure unique ID
+                const existingIds = nodes.map((n) => n.id);
+                let newId = baseId;
+                let counter = 1;
+                while (existingIds.includes(newId)) {
+                  newId = `${baseId}_${counter++}`;
+                }
+
                 const position = { x: 300, y: 300 };
                 const existing_pos = nodes.find(
-                  (ele) => ele.id == modalData.nodeId
+                  (ele) => ele.id === modalData.nodeId
                 )?.position;
-
-                // console.log(modalData.handleId);
-                // console.log(modalData.nodeId);
 
                 switch (modalData.handleId) {
                   case `${modalData.nodeId}-right`:
-                    position.x = (existing_pos?.x as number) + 400;
-                    position.y = existing_pos?.y as number;
+                    position.x = (existing_pos?.x ?? 0) + 400;
+                    position.y = existing_pos?.y ?? 0;
                     break;
                   case `${modalData.nodeId}-left`:
-                    position.x = (existing_pos?.x as number) - 400;
-                    position.y = existing_pos?.y as number;
+                    position.x = (existing_pos?.x ?? 0) - 400;
+                    position.y = existing_pos?.y ?? 0;
                     break;
                   case `${modalData.nodeId}-top`:
-                    position.y = (existing_pos?.y as number) - 100;
-                    position.x = existing_pos?.x as number;
+                    position.y = (existing_pos?.y ?? 0) - 100;
+                    position.x = existing_pos?.x ?? 0;
                     break;
                   case `${modalData.nodeId}-bottom`:
-                    position.y = (existing_pos?.y as number) + 200;
-                    position.x = existing_pos?.x as number;
-                    break;
-                  default:
+                    position.y = (existing_pos?.y ?? 0) + 200;
+                    position.x = existing_pos?.x ?? 0;
                     break;
                 }
 
@@ -369,6 +420,46 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
               }}
             />
           )}
+          {labelModal && (
+            <div className="edge-label-modal-overlay">
+              <div className="edge-label-modal">
+                <h3 className="edge-label-modal-title">Edit Edge Label</h3>
+                <input
+                  type="text"
+                  className="edge-label-input"
+                  value={labelModal.label}
+                  onChange={(e) =>
+                    setLabelModal(
+                      (prev) => prev && { ...prev, label: e.target.value }
+                    )
+                  }
+                />
+                <div className="edge-label-modal-actions">
+                  <button
+                    className="edge-label-save"
+                    onClick={() => {
+                      setEdges((edges) =>
+                        edges.map((ed) =>
+                          ed.id === labelModal.edge.id
+                            ? { ...ed, label: labelModal.label }
+                            : ed
+                        )
+                      );
+                      setLabelModal(null);
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="edge-label-cancel"
+                    onClick={() => setLabelModal(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </ReactFlow>
       </div>
       <div
@@ -410,12 +501,17 @@ const BasicFlow: React.FC<BasicFlowProps> = ({ flowJson, agentJson }) => {
 export default BasicFlow;
 
 export const flowWrapper: React.FC<BasicFlowProps> = ({
-  flowJson,
+  serviceJson,
   agentJson,
+  nodeOptions,
 }) => {
   return (
     <ReactFlowProvider>
-      <BasicFlow flowJson={flowJson} agentJson={agentJson} />
+      <BasicFlow
+        serviceJson={serviceJson}
+        agentJson={agentJson}
+        nodeOptions={nodeOptions}
+      />
     </ReactFlowProvider>
   );
 };

@@ -4,15 +4,14 @@ import "@fontsource/inter/400.css";
 import "./index.css";
 import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
-import { flowJson } from "./testJson/FlowJson.ts";
 import { agentJson } from "./testJson/AgentJson.ts";
-import { ServiceToFlow } from "./util/ServiceToFlow.ts";
+import { nodeOptionsJson } from "./testJson/NodeOptions.ts";
 import { ServiceJson } from "./testJson/ServiceJson.ts";
-// import '@contentstack/venus-components/build/main.css';
 
 const props: BasicFlowProps = {
-  flowJson: ServiceToFlow(ServiceJson),
+  serviceJson: ServiceJson,
   agentJson: agentJson,
+  nodeOptions: nodeOptionsJson
 };
 
 createRoot(document.getElementById("root")!).render(
