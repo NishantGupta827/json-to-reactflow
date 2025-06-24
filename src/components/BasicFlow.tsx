@@ -40,8 +40,8 @@ import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
 import { SideBarHeader } from "./rightSidebar/header";
 import { ServiceStep } from "@/types/service";
-import { ServiceToFlow } from "@/util/ServiceToFlow";
 import { useFlowJson } from "@/hooks/useFlowJson";
+import { ServiceToFlow } from "@/utils/ServiceToFlow";
 
 export interface BasicFlowProps {
   serviceJson: ServiceStep[];
