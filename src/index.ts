@@ -6,6 +6,7 @@ import "./components/rightSidebar/RightSidebar.css";
 
 export { App as JsonToReactflow } from "./App";
 export type { BasicFlowProps } from "./components/BasicFlow";
-export type ServiceSteps = import("@/types/service").ServiceStep[];
+// export type ServiceSteps = import("@/types/service").ServiceStep[];
+export type { FlowJson } from "@/types/flowJson";
 export type { NodeOptionsJson } from "./components/BasicFlow";
 export type { AgentConfig } from "@/types/agent";

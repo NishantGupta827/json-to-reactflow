@@ -6,10 +6,10 @@ import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { agentJson } from "./testJson/AgentJson.ts";
 import { nodeOptionsJson } from "./testJson/NodeOptions.ts";
-import { ServiceJson } from "./testJson/ServiceJson.ts";
+import { updatdServiceJson } from "./testJson/ServiceJson.ts";
 
 const props: BasicFlowProps = {
-  serviceJson: ServiceJson,
+  serviceJson: updatdServiceJson,
   agentJson: agentJson,
   nodeOptions: nodeOptionsJson,
 };

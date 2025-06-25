@@ -1,7 +1,7 @@
 {
   "name": "json-to-reactflow",
   "private": false,
-  "version": "2.2.2",
+  "version": "2.2.5",
   "type": "module",
   "description": "Library to convert any json into a customisable diagram using react-flow",
   "main": "dist/index.umd.js",
@@ -9,9 +9,9 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.umd.js"
     },
     "./styles": "./dist/index.css"
   },
@@ -32,21 +32,25 @@
   "dependencies": {
     "@dagrejs/dagre": "^1.1.4",
     "@fontsource/inter": "^5.2.5",
-    "@xyflow/react": "^12.6.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "html-to-image": "1.11.11",
     "html2canvas": "^1.4.1",
     "i": "^0.3.7",
     "json-edit-react": "^1.26.2",
-    "lucide-react": "^0.511.0",
     "npm": "^11.4.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "vite-plugin-dts": "^4.5.4",
     "vite-plugin-static-copy": "^3.0.0"
   },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@xyflow/react": "^12.6.4",
+    "lucide-react": "^0.511.0"
+  },
   "devDependencies": {
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-static-copy": "^3.0.0",
     "@eslint/js": "^9.25.0",
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.2",

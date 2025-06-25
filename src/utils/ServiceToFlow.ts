@@ -1,12 +1,12 @@
 import { NodeSideBarData } from "@/components/rightSidebar/node";
 import { FlowJson } from "@/types/flowJson";
 import { ServiceStep } from "@/types/service";
-import { Edge, type Node } from "@xyflow/react";
+import { type Edge, type Node } from "@xyflow/react";
 
 export function ServiceToFlow(data: ServiceStep[]): FlowJson {
   console.log(data);
   const nodes: Node[] = [];
-  const arr: (string | undefined)[][] = [];
+  const arr: { source: string; target: string; label?: string }[] = [];
   const stepMap = new Map<string, number>();
 
   data.forEach((ele) => {
@@ -27,7 +27,13 @@ export function ServiceToFlow(data: ServiceStep[]): FlowJson {
     }
 
     stepMap.set(ele.id, ele.step_no);
-    ele.target_id?.forEach((e) => arr.push([ele.id, e]));
+    ele.target_id.forEach((target) => 
+      arr.push({
+        source: ele.id,
+        target: target.id,
+        label: target.label,
+      })
+    );
 
     const temp: Node = {
       id: ele.id,
@@ -36,7 +42,7 @@ export function ServiceToFlow(data: ServiceStep[]): FlowJson {
         y: 0,
       },
       data: {
-        title: ele.tool == "ability" ? ele.action : ele.tool,
+        title: ele.title,
         description: ele.description,
         inputs: inputs,
         icon: "zap",
@@ -51,14 +57,14 @@ export function ServiceToFlow(data: ServiceStep[]): FlowJson {
   let count = 1;
   const HandleMap = new Map<string, string[]>();
   arr.forEach((ele) => {
-    if (!ele[1] && !ele[0]) {
+    if (!ele.target && !ele.source) {
       return;
     }
 
-    const sourceStep = stepMap.get(ele[0] as string);
-    const targetStep = stepMap.get(ele[1] as string);
+    const sourceStep = stepMap.get(ele.source);
+    const targetStep = stepMap.get(ele.target);
 
-    const LR1 = HandleMap.get(ele[0] as string)?.includes("right")
+    const LR1 = HandleMap.get(ele.source)?.includes("right")
       ? "left"
       : "right";
 
@@ -68,16 +74,17 @@ export function ServiceToFlow(data: ServiceStep[]): FlowJson {
 
     const temp = {
       id: `e${count}`,
-      source: ele[0] as string,
-      sourceHandle: `${ele[0]}-${pos1}`,
-      target: ele[1] as string,
-      targetHandle: `${ele[1]}-${pos2}`,
+      source: ele.source,
+      sourceHandle: `${ele.source}-${pos1}`,
+      target: ele.target,
+      targetHandle: `${ele.target}-${pos2}`,
+      label: ele.label,
     };
     count += 1;
 
-    const check = HandleMap.get(ele[0] as string);
-    HandleMap.set(ele[0] as string, check ? [...check, pos1] : [pos1]);
-    HandleMap.set(ele[1] as string, check ? [...check, pos2] : [pos2]);
+    const check = HandleMap.get(ele.source);
+    HandleMap.set(ele.source, check ? [...check, pos1] : [pos1]);
+    HandleMap.set(ele.target, check ? [...check, pos2] : [pos2]);
 
     edges.push(temp);
   });

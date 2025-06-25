@@ -39,12 +39,12 @@ import { Default } from "./rightSidebar/agent";
 import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
 import { SideBarHeader } from "./rightSidebar/header";
-import { ServiceStep } from "@/types/service";
 import { useFlowJson } from "@/hooks/useFlowJson";
-import { ServiceToFlow } from "@/utils/ServiceToFlow";
+// import { ServiceToFlow } from "@/utils/ServiceToFlow";
+import { FlowJson } from "@/types/flowJson";
 
 export interface BasicFlowProps {
-  serviceJson: ServiceStep[];
+  serviceJson: FlowJson;
   agentJson: AgentConfig;
   nodeOptions: NodeOptionsJson;
 }
@@ -121,12 +121,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     });
   };
 
-  const flowJson = ServiceToFlow(serviceJson);
+  // const flowJson = serviceJson
   // useEffect(() => {
   //   console.log("flowJson", JSON.stringify(flowJson));
   // }, [flowJson]);
 
-  const normalizedNodes: Node[] = flowJson.nodes.map((ele) => ({
+  const normalizedNodes: Node[] = serviceJson.nodes.map((ele) => ({
     ...ele,
     type: ele.type ?? "custom",
     position: ele.position ?? { x: 0, y: 0 },
@@ -136,7 +136,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     },
   }));
 
-  const normalizedEdges: Edge[] = flowJson.edges.map((ele) => ({
+  const normalizedEdges: Edge[] = serviceJson.edges.map((ele) => ({
     ...ele,
     type: "smoothstep",
     markerEnd: {
@@ -308,7 +308,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   }
 
   return (
-    <div style={{ width: "100%", height: "100vh", display: "flex" }}>
+    <div style={{ width: "100%", height: "100%", display: "flex" }}>
       <div style={{ flex: 1 }} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
@@ -506,12 +506,14 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
   nodeOptions,
 }) => {
   return (
-    <ReactFlowProvider>
-      <BasicFlow
-        serviceJson={serviceJson}
-        agentJson={agentJson}
-        nodeOptions={nodeOptions}
-      />
-    </ReactFlowProvider>
+    <div>
+      <ReactFlowProvider>
+        <BasicFlow
+          serviceJson={serviceJson}
+          agentJson={agentJson}
+          nodeOptions={nodeOptions}
+        />
+      </ReactFlowProvider>
+    </div>
   );
 };

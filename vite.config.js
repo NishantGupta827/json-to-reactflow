@@ -4,6 +4,10 @@ import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import { viteStaticCopy } from "vite-plugin-static-copy";
+import { readFileSync } from 'fs';
+// Read package.json to get peer dependencies
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const peerDeps = Object.keys(packageJson.peerDependencies || {});
 export default defineConfig({
     build: {
         // Specifies that the output of the build will be a library.
@@ -17,12 +21,13 @@ export default defineConfig({
             fileName: (format) => `index.${format}.js`,
         },
         rollupOptions: {
-            external: ["react", "react-dom", "@xyflow/react"],
+            external: peerDeps,
             output: {
                 globals: {
                     react: "React",
                     "react-dom": "ReactDOM",
                     "@xyflow/react": "ReactFlow",
+                    "lucide-react": "LucideReact",
                 },
             },
         },
