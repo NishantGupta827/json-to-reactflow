@@ -1,7 +1,7 @@
 .right-sidebar {
   overflow-y: auto;
   max-width: 24rem;
-  width: 90%;
+  width: 100%;
   border: 1px solid #e5e7eb;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -10,7 +10,7 @@
   font-family: "Segoe UI", sans-serif;
   font-size: 14px;
   overflow-x: hidden;
-
+  height: 100%;
 }
 
 .sidebar-section {

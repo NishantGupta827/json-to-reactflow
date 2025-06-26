@@ -12,6 +12,11 @@ const props: BasicFlowProps = {
   serviceJson: updatdServiceJson,
   agentJson: agentJson,
   nodeOptions: nodeOptionsJson,
+  onFlowChange: (data) => {
+    console.log('Flow updated:', data);
+    console.log('Nodes count:', data.nodes.length);
+    console.log('Edges count:', data.edges.length);
+  },
 };
 
 createRoot(document.getElementById("root")!).render(

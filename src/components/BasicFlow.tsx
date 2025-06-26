@@ -26,6 +26,7 @@ import {
   EdgeMouseHandler,
   NodeProps,
   MarkerType,
+  type EdgeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
@@ -42,14 +43,20 @@ import { SideBarHeader } from "./rightSidebar/header";
 import { useFlowJson } from "@/hooks/useFlowJson";
 // import { ServiceToFlow } from "@/utils/ServiceToFlow";
 import { FlowJson } from "@/types/flowJson";
+import CustomEdge from "./CustomEdge";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
   agentJson: AgentConfig;
   nodeOptions: NodeOptionsJson;
+  onFlowChange?: (data: { nodes: Node[]; edges: Edge[] }) => void;
 }
 
 export type NodeCategory = "tools" | "agents" | "automations" | "triggers";
+
+const edgeTypes: EdgeTypes = {
+  custom: CustomEdge,
+};
 
 export interface NodeData {
   title: string;
@@ -79,6 +86,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   serviceJson,
   agentJson,
   nodeOptions,
+  onFlowChange,
 }) => {
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
@@ -138,7 +146,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 
   const normalizedEdges: Edge[] = serviceJson.edges.map((ele) => ({
     ...ele,
-    type: "smoothstep",
+    type: "custom",
     markerEnd: {
       type: MarkerType.ArrowClosed,
       width: 25,
@@ -148,6 +156,13 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 
   const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
+
+  // Call onFlowChange whenever nodes or edges change
+  useEffect(() => {
+    if (onFlowChange) {
+      onFlowChange({ nodes, edges });
+    }
+  }, [nodes, edges, onFlowChange]);
 
   const nodesInitialized = useNodesInitialized();
   const [initial, setInitial] = useState(true);
@@ -325,6 +340,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           fitView
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
           {
@@ -504,6 +520,7 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
   serviceJson,
   agentJson,
   nodeOptions,
+  onFlowChange,
 }) => {
   return (
     <div>
@@ -512,6 +529,7 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
           serviceJson={serviceJson}
           agentJson={agentJson}
           nodeOptions={nodeOptions}
+          onFlowChange={onFlowChange}
         />
       </ReactFlowProvider>
     </div>
