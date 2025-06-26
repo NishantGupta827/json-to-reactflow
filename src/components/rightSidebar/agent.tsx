@@ -1,11 +1,250 @@
 import { useEffect, useRef, useState } from "react";
-import { AgentConfig } from "@/types/agent";
+import { AgentConfig, Option } from "@/types/agent";
 import { SideBarHeader } from "./header";
 import CustomSelect from "./select";
 import { SideBarFooter } from "./footer";
 import "./RightSidebar.css";
+import ToggleSwitch from "./toggleSwitch";
+import { Trash } from "lucide-react";
 
-export default function AgentStatus({ data }: { data: AgentConfig }) {
+export function InputSchemaComponent({
+  data,
+  edit,
+}: {
+  data: AgentConfig;
+  edit: boolean;
+}) {
+  const [input, setInput] = useState<inputChange[]>(
+    data.input_schema.map((ele) => ({
+      id: ele.id,
+      name: ele.name,
+      desc: ele.description,
+      data: ele.type,
+      mandatory: ele.required,
+      action: false,
+      deleted: false,
+    }))
+  );
+
+  type inputChange = {
+    id: string;
+    name: string;
+    desc: string;
+    data: string;
+    mandatory: boolean;
+    action: boolean;
+    deleted: boolean;
+  };
+
+  useEffect(() => {
+    console.log("Input state changed:", input);
+  }, [input]);
+
+  useEffect(() => {
+    data.input_schema = [];
+    input.forEach((ele) => {
+      if (!ele.deleted) {
+        data.input_schema.push({
+          id: ele.id,
+          name: ele.name,
+          description: ele.desc,
+          type: ele.data,
+          isArray: ele.data != "enum" ? false : true,
+          required: ele.mandatory,
+          enumValues: [],
+          nestedProperties: [],
+        });
+      }
+    });
+  }, [edit]);
+
+  return (
+    <div className="sidebar-section">
+      <h4 className="section-label" style={{ marginBottom: "1em" }}>
+        Input Schema
+      </h4>
+      <div className="schema-table-container">
+        <table className="schema-table">
+          <tbody>
+            <tr className="schema-table-row">
+              <td className="property-name-column">Property Name</td>
+              <td className="description-column">Description</td>
+              <td className="data-type-column">Data Type</td>
+              <td className="mandatory-column">Mandatory</td>
+              <td className="actions-column"></td>
+            </tr>
+            {input.map((ele, id) => {
+              const updated = [...input];
+
+              return (
+                !updated[id].deleted && (
+                  <tr key={id} className="schema-table-row">
+                    <td className="property-name-column">
+                      <input
+                        value={ele.name}
+                        placeholder="Enter property name"
+                        disabled={!edit}
+                        onChange={(e) => {
+                          updated[id].name = e.target.value;
+                          setInput(updated);
+                        }}
+                      />
+                    </td>
+                    <td className="description-column">
+                      <input
+                        value={ele.desc}
+                        placeholder="Enter description"
+                        disabled={!edit}
+                        onChange={(e) => {
+                          const updated = [...input];
+                          updated[id].desc = e.target.value;
+                          setInput(updated);
+                        }}
+                      />
+                    </td>
+                    <td className="data-type-column">
+                      <CustomSelect
+                        options={[
+                          { label: "String", value: "string" },
+                          { label: "Number", value: "number" },
+                          { label: "Boolean", value: "boolean" },
+                          { label: "Object", value: "object" },
+                          { label: "Select", value: "select" },
+                        ]}
+                        value={{
+                          label: ele.data,
+                          value: ele.data,
+                        }}
+                        onChange={(selected) => {
+                          updated[id].data = selected?.value || "";
+                          setInput(updated);
+                        }}
+                        disabled={!edit}
+                      />
+                    </td>
+                    <td className="mandatory-column">
+                      <ToggleSwitch
+                        disabled={!edit}
+                        checked={ele.mandatory}
+                        onChange={(checked) => {
+                          updated[id].mandatory = checked;
+                          setInput(updated);
+                        }}
+                      />
+                    </td>
+                    <td className="actions-column">
+                      <Trash
+                        onClick={() => {
+                          if (edit) {
+                            updated[id].deleted = true;
+                            setInput(updated);
+                          }
+                        }}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      />
+                    </td>
+                  </tr>
+                )
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    // useEffect(() => console.log(input), input);
+
+    // return (
+    //   <div className="schema-container">
+    //     <table className="schema-table">
+    //       <th className="schema-table-header">
+    //         <td className="property-name-column">Property Name</td>
+    //         <td className="description-column">Description</td>
+    //         <td className="data-type-column">Data Type</td>
+    //         <td className="mandatory-column">Mandatory</td>
+    //         <td className="actions-column"></td>
+    //       </th>
+
+    //       {data.input_schema.map((ele, id) => {
+    //         const temp: inputChange = {
+    //           name: ele.name,
+    //           desc: ele.description,
+    //           data: ele.type,
+    //           mandatory: ele.required,
+    //           action: false,
+    //         };
+
+    //         setInput(() => [...input, temp]);
+
+    //         return (
+    //           <tr
+    //             key={id}
+    //             className="schema-table-row"
+    //             style={{
+    //               marginBottom: "10px",
+    //               backgroundColor: "#ffffff",
+    //               padding: "10px",
+    //               borderRadius: "4px",
+    //             }}
+    //           >
+    //             <td className="property-name-column">
+    //               <input
+    //                 value={ele.name}
+    //                 placeholder="Enter property name"
+    //                 disabled={!edit}
+    //                 onChange={(e) => (temp.name = e.target.value)}
+    //               />
+    //             </td>
+    //             <td className="description-column">
+    //               <input
+    //                 value={temp.name}
+    //                 placeholder="Enter property name"
+    //                 disabled={edit}
+    //                 onChange={(e) => (temp.name = e.target.value)}
+    //               />
+    //             </td>
+    //             <td className="data-type-column">
+    //               <CustomSelect
+    //                 options={[
+    //                   { label: "String", value: "string" },
+    //                   { label: "Number", value: "number" },
+    //                   { label: "Boolean", value: "boolean" },
+    //                   { label: "Object", value: "object" },
+    //                   { label: "Enum", value: "enum" },
+    //                 ]}
+    //                 value={{
+    //                   label: temp.data,
+    //                   value: temp.data,
+    //                 }}
+    //                 onChange={setType}
+    //                 disabled={false}
+    //               />
+    //             </td>
+    //             <td className="mandatory-column">
+    //               <div className="toggle-switch">
+    //                 <ToggleSwitch
+    //                   checked={temp.mandatory}
+    //                   onChange={(e) => {
+    //                     temp.mandatory = e;
+    //                   }}
+    //                 />
+    //               </div>
+    //             </td>
+
+    //             <td className="actions-column">
+    //               {/* Optional: delete or edit icon */}
+    //             </td>
+    //           </tr>
+    //         );
+    //       })}
+    //     </table>
+    //   </div>
+  );
+}
+
+export function AgentStatus({ data }: { data: AgentConfig }) {
   const color = data.active ? "#0d6a37" : "#6b7280";
   const label = data.active ? "Active" : "Inactive";
 
@@ -130,6 +369,7 @@ export function Default({ data }: AgentProps) {
       <SideBarHeader icon={"bot"} title={data.title} />
       <AgentStatus data={data} />
       <ModelConfig data={data} edit={edit} />
+      <InputSchemaComponent data={data} edit={edit} />
       <SideBarFooter edit={edit} setEdit={setEdit} />
     </div>
   );

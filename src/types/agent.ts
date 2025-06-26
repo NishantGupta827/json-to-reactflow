@@ -11,7 +11,16 @@ export type agentPayload = {
 
   brandkit: { enabled: boolean; knowledge_vault: boolean };
   description: string;
-  input_schema: string; //need to check
+  input_schema: {
+    id: string;
+    name: string;
+    description: string;
+    type: string; // boolean, select, textarea, string
+    isArray: boolean;
+    required: boolean;
+    enumvalues: string[];
+  }[];
+  //string; //need to check
   // Jsonify in this format [{\"id\":\"tf8hoamcoap\",\"name\":\"Search Query\",\"description\":\"\",\"type\":\"string\",\"isArray\":false,\"required\":true,\"nestedProperties\":[],\"enumValues\":[]}]
 
   model: string;
@@ -42,11 +51,11 @@ export interface InputSchemaItem {
   id: string;
   name: string;
   description: string;
-  type: string;
+  type: string; // boolean, select, textarea, string
   isArray: boolean;
   required: boolean;
-  nestedProperties: any[]; // could be further typed if needed
-  enumValues: any[]; // same here
+  enumValues: string[];
+  nestedProperties: any[];
 }
 
 export interface ModelOptions {
@@ -76,7 +85,7 @@ export interface AgentConfig {
   model_id: string;
   provider: string;
   role_setting: string;
-  input_schema: string; // JSON string; optionally parsed into InputSchemaItem[]
+  input_schema: InputSchemaItem[]; // JSON string; optionally parsed into InputSchemaItem[]
   brandkit: Brandkit;
   provider_options: Option[];
   response_types: Option[];
