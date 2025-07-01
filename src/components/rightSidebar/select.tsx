@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./RightSidebar.css";
+import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 
 interface Option {
   label: string;
@@ -12,6 +13,7 @@ interface CustomSelectProps {
   onChange: (option: Option) => void;
   placeholder?: string;
   disabled: boolean;
+  modal: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -20,6 +22,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   onChange,
   disabled,
   placeholder = "Select an option",
+  modal,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -60,7 +63,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   }, []);
 
   return (
-    <div className="custom-select-wrapper" ref={dropdownRef}>
+    <div
+      className="custom-select-wrapper"
+      ref={dropdownRef}
+      style={modal ? {} : { position: "relative" }}
+    >
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         disabled={disabled}

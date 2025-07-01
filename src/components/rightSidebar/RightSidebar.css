@@ -15,6 +15,7 @@
 
 .sidebar-section {
   margin-bottom: 0.5rem;
+  width: 90%;
 }
 
 .status-card {
@@ -225,9 +226,8 @@
 
 /* Custom Select Wrapper */
 .custom-select-wrapper {
-  position: relative;
   display: inline-block;
-  width: 90%;
+  width: 100%;
   background-color: #f7f7f7;
 }
 
