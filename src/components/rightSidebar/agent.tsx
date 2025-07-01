@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AgentConfig, Option } from "@/types/agent";
+import { AgentConfig } from "@/types/agent";
 import { SideBarHeader } from "./header";
 import CustomSelect from "./select";
 import { SideBarFooter } from "./footer";

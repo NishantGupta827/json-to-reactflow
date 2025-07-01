@@ -281,7 +281,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   );
 
   function TestForIsland() {
-    const startingNode = nodes.find((ele) => ele.id === "node_1");
+    const startingNode = nodes.find((ele) => ele.data.id === "node_1");
     if (!startingNode) {
       console.error("Starting node not found");
       return;

@@ -24,6 +24,28 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [dropDirectionUp, setDropDirectionUp] = useState(false);
+
+  useEffect(() => {
+    const checkSpace = () => {
+      if (!dropdownRef.current) return;
+
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const dropdownHeight = 160; // match max-height: 10rem (160px)
+
+      setDropDirectionUp(spaceBelow < dropdownHeight);
+    };
+
+    if (isOpen) {
+      checkSpace();
+    }
+
+    window.addEventListener("resize", checkSpace);
+    return () => window.removeEventListener("resize", checkSpace);
+  }, [isOpen]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -34,8 +56,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -53,9 +74,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       {isOpen && (
-        <ul className="custom-select-dropdown">
+        <div
+          className={`custom-select-dropdown ${dropDirectionUp ? "up" : ""}`}
+        >
           {options.map((option) => (
-            <li
+            <div
               key={option.value}
               onClick={() => {
                 onChange(option);
@@ -66,9 +89,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
               }`}
             >
               {option.label}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
