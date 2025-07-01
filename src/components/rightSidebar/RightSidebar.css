@@ -15,6 +15,7 @@
 
 .sidebar-section {
   margin-bottom: 0.5rem;
+  width: 90%;
 }
 
 .status-card {
@@ -225,6 +226,7 @@
 
 /* Custom Select Wrapper */
 .custom-select-wrapper {
+  display: inline-block;
   width: 100%;
   background-color: #f7f7f7;
 }
@@ -271,8 +273,15 @@
   overflow-y: auto;
 }
 
+.custom-select-dropdown.up {
+  bottom: 100%;
+  top: auto;
+  margin-bottom: 0.25rem;
+}
+
 /* Option Styles */
 .custom-select-option {
+  list-style-type: none;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   cursor: pointer;

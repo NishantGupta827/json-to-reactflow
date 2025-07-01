@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./RightSidebar.css";
+import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 
 interface Option {
   label: string;
@@ -12,6 +13,7 @@ interface CustomSelectProps {
   onChange: (option: Option) => void;
   placeholder?: string;
   disabled: boolean;
+  modal: boolean;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -20,9 +22,32 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   onChange,
   disabled,
   placeholder = "Select an option",
+  modal,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [dropDirectionUp, setDropDirectionUp] = useState(false);
+
+  useEffect(() => {
+    const checkSpace = () => {
+      if (!dropdownRef.current) return;
+
+      const rect = dropdownRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const dropdownHeight = 160; // match max-height: 10rem (160px)
+
+      setDropDirectionUp(spaceBelow < dropdownHeight);
+    };
+
+    if (isOpen) {
+      checkSpace();
+    }
+
+    window.addEventListener("resize", checkSpace);
+    return () => window.removeEventListener("resize", checkSpace);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,12 +59,15 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <div className="custom-select-wrapper" ref={dropdownRef}>
+    <div
+      className="custom-select-wrapper"
+      ref={dropdownRef}
+      style={modal ? {} : { position: "relative" }}
+    >
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         disabled={disabled}
@@ -53,9 +81,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       </button>
 
       {isOpen && (
-        <ul className="custom-select-dropdown">
+        <div
+          className={`custom-select-dropdown ${dropDirectionUp ? "up" : ""}`}
+        >
           {options.map((option) => (
-            <li
+            <div
               key={option.value}
               onClick={() => {
                 onChange(option);
@@ -66,9 +96,9 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
               }`}
             >
               {option.label}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

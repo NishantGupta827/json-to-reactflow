@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AgentConfig, Option } from "@/types/agent";
+import { AgentConfig } from "@/types/agent";
 import { SideBarHeader } from "./header";
 import CustomSelect from "./select";
 import { SideBarFooter } from "./footer";
@@ -10,9 +10,11 @@ import { Trash } from "lucide-react";
 export function InputSchemaComponent({
   data,
   edit,
+  modal,
 }: {
   data: AgentConfig;
   edit: boolean;
+  modal: boolean;
 }) {
   const [input, setInput] = useState<inputChange[]>(
     data.input_schema.map((ele) => ({
@@ -112,7 +114,9 @@ export function InputSchemaComponent({
                           { label: "Select", value: "select" },
                         ]}
                         value={{
-                          label: ele.data,
+                          label:
+                            ele.data.charAt(0).toUpperCase() +
+                            ele.data.substring(1).toLowerCase(),
                           value: ele.data,
                         }}
                         onChange={(selected) => {
@@ -120,6 +124,7 @@ export function InputSchemaComponent({
                           setInput(updated);
                         }}
                         disabled={!edit}
+                        modal={modal}
                       />
                     </td>
                     <td className="mandatory-column">
@@ -153,94 +158,6 @@ export function InputSchemaComponent({
         </table>
       </div>
     </div>
-
-    // useEffect(() => console.log(input), input);
-
-    // return (
-    //   <div className="schema-container">
-    //     <table className="schema-table">
-    //       <th className="schema-table-header">
-    //         <td className="property-name-column">Property Name</td>
-    //         <td className="description-column">Description</td>
-    //         <td className="data-type-column">Data Type</td>
-    //         <td className="mandatory-column">Mandatory</td>
-    //         <td className="actions-column"></td>
-    //       </th>
-
-    //       {data.input_schema.map((ele, id) => {
-    //         const temp: inputChange = {
-    //           name: ele.name,
-    //           desc: ele.description,
-    //           data: ele.type,
-    //           mandatory: ele.required,
-    //           action: false,
-    //         };
-
-    //         setInput(() => [...input, temp]);
-
-    //         return (
-    //           <tr
-    //             key={id}
-    //             className="schema-table-row"
-    //             style={{
-    //               marginBottom: "10px",
-    //               backgroundColor: "#ffffff",
-    //               padding: "10px",
-    //               borderRadius: "4px",
-    //             }}
-    //           >
-    //             <td className="property-name-column">
-    //               <input
-    //                 value={ele.name}
-    //                 placeholder="Enter property name"
-    //                 disabled={!edit}
-    //                 onChange={(e) => (temp.name = e.target.value)}
-    //               />
-    //             </td>
-    //             <td className="description-column">
-    //               <input
-    //                 value={temp.name}
-    //                 placeholder="Enter property name"
-    //                 disabled={edit}
-    //                 onChange={(e) => (temp.name = e.target.value)}
-    //               />
-    //             </td>
-    //             <td className="data-type-column">
-    //               <CustomSelect
-    //                 options={[
-    //                   { label: "String", value: "string" },
-    //                   { label: "Number", value: "number" },
-    //                   { label: "Boolean", value: "boolean" },
-    //                   { label: "Object", value: "object" },
-    //                   { label: "Enum", value: "enum" },
-    //                 ]}
-    //                 value={{
-    //                   label: temp.data,
-    //                   value: temp.data,
-    //                 }}
-    //                 onChange={setType}
-    //                 disabled={false}
-    //               />
-    //             </td>
-    //             <td className="mandatory-column">
-    //               <div className="toggle-switch">
-    //                 <ToggleSwitch
-    //                   checked={temp.mandatory}
-    //                   onChange={(e) => {
-    //                     temp.mandatory = e;
-    //                   }}
-    //                 />
-    //               </div>
-    //             </td>
-
-    //             <td className="actions-column">
-    //               {/* Optional: delete or edit icon */}
-    //             </td>
-    //           </tr>
-    //         );
-    //       })}
-    //     </table>
-    //   </div>
   );
 }
 
@@ -277,9 +194,10 @@ export function AgentStatus({ data }: { data: AgentConfig }) {
 type ConfigProps = {
   data: AgentConfig;
   edit: boolean;
+  modal: boolean;
 };
 
-function ModelConfig({ data, edit }: ConfigProps) {
+function ModelConfig({ data, edit, modal }: ConfigProps) {
   const intial_provider = data.provider_options.find(
     (ele) => ele.value == data.provider
   );
@@ -319,6 +237,7 @@ function ModelConfig({ data, edit }: ConfigProps) {
           value={provider ?? null}
           onChange={setProvider}
           disabled={!edit}
+          modal={modal}
         />
       </div>
 
@@ -329,6 +248,7 @@ function ModelConfig({ data, edit }: ConfigProps) {
           value={model ?? null}
           onChange={setModel}
           disabled={!edit}
+          modal={modal}
         />
       </div>
 
@@ -359,17 +279,18 @@ function ModelConfig({ data, edit }: ConfigProps) {
 
 type AgentProps = {
   data: AgentConfig;
+  modal: boolean;
 };
 
-export function Default({ data }: AgentProps) {
+export function Default({ data, modal }: AgentProps) {
   const [edit, setEdit] = useState(false);
 
   return (
     <div className="right-sidebar">
       <SideBarHeader icon={"bot"} title={data.title} />
       <AgentStatus data={data} />
-      <ModelConfig data={data} edit={edit} />
-      <InputSchemaComponent data={data} edit={edit} />
+      <ModelConfig data={data} edit={edit} modal={modal} />
+      <InputSchemaComponent data={data} edit={edit} modal={modal} />
       <SideBarFooter edit={edit} setEdit={setEdit} />
     </div>
   );

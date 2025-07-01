@@ -43,7 +43,7 @@ import { SideBarHeader } from "./rightSidebar/header";
 import { useFlowJson } from "@/hooks/useFlowJson";
 // import { ServiceToFlow } from "@/utils/ServiceToFlow";
 import { FlowJson } from "@/types/flowJson";
-import CustomEdge from "./CustomEdge";
+import CustomEdge from "./edge/CustomEdge";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -277,11 +277,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
         fitView({ padding: 0.2, duration: 500 });
       }, 0);
     },
-    [nodes, edges, setNodes, setEdges, fitView] // Added fitView to dependencies
+    [nodes, edges, setNodes, setEdges, fitView]
   );
 
   function TestForIsland() {
-    const startingNode = nodes.find((ele) => ele.id === "node_1");
+    const startingNode = nodes.find((ele) => ele.data.id === "node_1");
     if (!startingNode) {
       console.error("Starting node not found");
       return;
@@ -338,6 +338,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           onEdgeClick={onEdgeClick}
           onEdgeDoubleClick={onEdgeDoubleClick}
           fitView
+          fitViewOptions={{ duration: 0 }}
           style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
@@ -490,7 +491,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
       >
         {!currNode ? (
           <>
-            <Default data={agentJson} />
+            <Default data={agentJson} modal={labelModal ? true : false} />
           </>
         ) : (
           <div
