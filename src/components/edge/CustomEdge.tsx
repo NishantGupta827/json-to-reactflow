@@ -49,7 +49,7 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string }>>> = ({
               color: "#374151",
               pointerEvents: "all",
               cursor: "default",
-              width: "20%",
+              width: "25%",
               textAlign: "center",
             }}
             className="edge-label-renderer__custom-edge nodrag nopan"

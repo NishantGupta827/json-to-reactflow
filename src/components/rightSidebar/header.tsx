@@ -10,8 +10,18 @@ type SideBarProps = {
 };
 
 export function SideBarHeader({ icon, title, onClose }: SideBarProps) {
+  // Helper function to convert kebab-case to PascalCase for Lucide icons
+  const convertIconName = (iconName: string): string => {
+    return iconName
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+  };
+
+  // Convert icon name and get the component
+  const convertedIconName = convertIconName(icon);
   const IconComponent = LucideIcons[
-    icon as keyof typeof LucideIcons
+    convertedIconName as keyof typeof LucideIcons
   ] as ForwardRefExoticComponent<
     LucideIcons.LucideProps & RefAttributes<SVGSVGElement>
   >;

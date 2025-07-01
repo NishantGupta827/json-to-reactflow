@@ -93,18 +93,25 @@ export default function AgentNodeContent({
     );
   };
 
+  const convertIconName = (iconName: string): string => {
+    return iconName
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+  };
+
   let IconComponent: ForwardRefExoticComponent<
     LucideProps & RefAttributes<SVGSVGElement>
   > = LucideIcons.Zap;
 
-  if (
-    data.icon &&
-    typeof data.icon === "string" &&
-    LucideIcons[data.icon as keyof typeof LucideIcons]
-  ) {
-    IconComponent = LucideIcons[
-      data.icon as keyof typeof LucideIcons
-    ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
+  if (data.icon && typeof data.icon === "string") {
+    const convertedIconName = convertIconName(data.icon);
+    
+    if (LucideIcons[convertedIconName as keyof typeof LucideIcons]) {
+      IconComponent = LucideIcons[
+        convertedIconName as keyof typeof LucideIcons
+      ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
+    }
   }
 
   return (
