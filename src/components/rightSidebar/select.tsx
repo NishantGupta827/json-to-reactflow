@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./RightSidebar.css";
-import { position } from "html2canvas/dist/types/css/property-descriptors/position";
 
 interface Option {
   label: string;

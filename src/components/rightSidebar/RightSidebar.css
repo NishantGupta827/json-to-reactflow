@@ -76,8 +76,17 @@
   color: #111827;
 }
 
+.no-auth-message {
+  background-color: #fef3c7;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #f59e0b;
+  font-size: 14px;
+  color: #92400e;
+  font-style: italic;
+}
+
 .description-area {
-  width: 91%;
   background-color: #f3f4f6;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
@@ -86,6 +95,7 @@
   overflow: hidden;
   font-size: 14px;
   line-height: 1.5;
+  width: 100%;
 }
 
 .description-area:focus {
@@ -271,6 +281,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   max-height: 10rem;
   overflow-y: auto;
+}
+
+/* Ensure dropdowns stay below modals */
+.edge-label-modal-overlay ~ * .custom-select-dropdown {
+  z-index: 1;
 }
 
 .custom-select-dropdown.up {

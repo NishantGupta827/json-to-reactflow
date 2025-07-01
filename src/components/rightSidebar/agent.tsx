@@ -16,6 +16,7 @@ export function InputSchemaComponent({
   edit: boolean;
   modal: boolean;
 }) {
+  
   const [input, setInput] = useState<inputChange[]>(
     data.input_schema.map((ele) => ({
       id: ele.id,
@@ -39,6 +40,8 @@ export function InputSchemaComponent({
   };
 
   useEffect(() => {
+    console.log("data: ", data);
+    console.log("data.input_schema: ", data.input_schema);
     console.log("Input state changed:", input);
   }, [input]);
 
@@ -208,6 +211,15 @@ function ModelConfig({ data, edit, modal }: ConfigProps) {
 
   const intial_model = modelOpts.find((ele) => ele.value == data.model_id);
   const [model, setModel] = useState(intial_model);
+  
+  // Filter auth options based on current provider
+  const filteredAuthOptions = (data.auth_options || [])
+    .filter((auth: any) => auth.group_name === provider?.value)
+    .map((auth: any) => ({ label: auth.title, value: auth.id }));
+  
+  const initialAuth = filteredAuthOptions.find((auth) => auth.value === data.auth);
+  const [selectedAuth, setSelectedAuth] = useState(initialAuth);
+  
   const [value, setValue] = useState(data.description);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -224,6 +236,25 @@ function ModelConfig({ data, edit, modal }: ConfigProps) {
     const newModelOpts = data.model_options[provider.value] || [];
     setModelOpts(newModelOpts);
     setModel(newModelOpts[0]);
+    
+    // Update auth options when provider changes
+    const newFilteredAuthOptions = (data.auth_options || [])
+      .filter((auth: any) => auth.group_name === provider.value)
+      .map((auth: any) => ({ label: auth.title, value: auth.id }));
+    
+    // Check if current auth is still valid for new provider
+    const currentAuthStillValid = newFilteredAuthOptions.find(
+      (auth) => auth.value === data.auth
+    );
+    
+    if (currentAuthStillValid) {
+      setSelectedAuth(currentAuthStillValid);
+    } else {
+      // Reset auth if current selection is not valid for new provider
+      const firstOption = newFilteredAuthOptions[0] || null;
+      setSelectedAuth(firstOption);
+      data.auth = firstOption?.value || "";
+    }
   }, [provider]);
 
   return (
@@ -246,17 +277,33 @@ function ModelConfig({ data, edit, modal }: ConfigProps) {
         <CustomSelect
           options={modelOpts}
           value={model ?? null}
-          onChange={setModel}
+          onChange={(newModel) => {
+            setModel(newModel);
+            data.model_id = newModel?.value || "";
+          }}
           disabled={!edit}
           modal={modal}
         />
       </div>
 
       <div className="select-wrapper">
-        <span className="config-label">API Key</span>
-        <div className="api-key-box">
-          {data.auth ? data.auth : "No API key provided"}
-        </div>
+        <span className="config-label">Authentication Method</span>
+        {filteredAuthOptions.length > 0 ? (
+          <CustomSelect
+            options={filteredAuthOptions}
+            value={selectedAuth ?? null}
+            onChange={(newAuth) => {
+              setSelectedAuth(newAuth);
+              data.auth = newAuth?.value || "";
+            }}
+            disabled={!edit}
+            modal={modal}
+          />
+        ) : (
+          <div className="no-auth-message">
+            No authentication method set up for this provider
+          </div>
+        )}
       </div>
 
       <div>

@@ -5,6 +5,7 @@ import React, {
   useState,
   useMemo,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   ReactFlow,
   Controls,
@@ -437,7 +438,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               }}
             />
           )}
-          {labelModal && (
+          {labelModal && createPortal(
             <div className="edge-label-modal-overlay">
               <div className="edge-label-modal">
                 <h3 className="edge-label-modal-title">Edit Edge Label</h3>
@@ -475,7 +476,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </ReactFlow>
       </div>

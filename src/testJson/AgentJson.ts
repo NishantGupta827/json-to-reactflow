@@ -2,6 +2,23 @@ import { AgentConfig } from "@/types/agent";
 
 export const agentJson: AgentConfig = {
   _id: "684a702ed041112e9dc3e1cd",
+  auth_options: [
+    {
+      id: "cd25eb9fe1f146d586d6832bdad24c07",
+      title: "Contentstack OAuth #1",
+      group_name: "contentstack",
+    },
+    {
+      id: "05acc1b033ce4253ae4da0925154ca70",
+      title: "Gemini #1",
+      group_name: "gemini",
+    },
+    {
+      id: "acf809afbb5841bbb79f6ba9406d3139",
+      title: "Gemini #2",
+      group_name: "gemini",
+    },
+  ],
   id: "9c92eab88cd04c608cb3d750415ff457",
   title: "test",
   //description: "he",

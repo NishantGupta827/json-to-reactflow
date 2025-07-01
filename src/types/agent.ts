@@ -42,6 +42,12 @@ export interface Option {
   value: string;
 }
 
+export interface AuthOption {
+  id: string;
+  title: string;
+  group_name: string;
+}
+
 export interface Brandkit {
   enabled: boolean;
   knowledge_vault: boolean;
@@ -90,4 +96,5 @@ export interface AgentConfig {
   provider_options: Option[];
   response_types: Option[];
   model_options: Record<string, Option[]>;
+  auth_options: AuthOption[];
 }
