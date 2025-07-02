@@ -1,17 +1,17 @@
+import { useReactFlow } from "@xyflow/react";
 import { ZoomIn, ZoomOut } from "lucide-react";
 
-export function ZoomInButton() {
-  return (
-    <div>
-      <ZoomIn />
-    </div>
-  );
-}
+export function ZoomControl() {
+  const { zoomIn, zoomOut } = useReactFlow();
 
-export function ZoomOutButton() {
   return (
-    <div>
-      <ZoomOut />
-    </div>
+    <>
+      <div onClick={() => zoomIn({ duration: 500 })}>
+        <ZoomIn />
+      </div>
+      <div onClick={() => zoomOut({ duration: 500 })}>
+        <ZoomOut />
+      </div>
+    </>
   );
 }

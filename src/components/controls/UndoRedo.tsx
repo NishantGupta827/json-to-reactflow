@@ -1,17 +1,19 @@
 import { RedoIcon, UndoIcon } from "lucide-react";
 
-export function Undo() {
-  return (
-    <div>
-      <UndoIcon />
-    </div>
-  );
-}
+type undoRedoProps = {
+  undo: () => void;
+  redo: () => void;
+};
 
-export function Redo() {
+export function UndoRedo({ undo, redo }: undoRedoProps) {
   return (
-    <div>
-      <RedoIcon />
-    </div>
+    <>
+      <div onClick={undo}>
+        <UndoIcon />
+      </div>
+      <div onClick={redo}>
+        <RedoIcon />
+      </div>
+    </>
   );
 }

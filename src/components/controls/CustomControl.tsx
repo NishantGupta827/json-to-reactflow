@@ -1,11 +1,16 @@
 import { CSSProperties } from "react";
 import ControlAddButton from "./AddButton";
-import { Redo, Undo } from "./UndoRedo";
+import { UndoRedo } from "./UndoRedo";
 import MaximiseButton from "./Maximise";
-import { ZoomInButton, ZoomOutButton } from "./ZoomControl";
+import { ZoomControl } from "./ZoomControl";
 import ClearButton from "./Clear";
 
-export function CustomControls() {
+type CustomControlProps = {
+  undo: () => void;
+  redo: () => void;
+};
+
+export function CustomControls({ undo, redo }: CustomControlProps) {
   const style: CSSProperties = {
     position: "absolute",
     zIndex: 10,
@@ -23,12 +28,10 @@ export function CustomControls() {
   return (
     <div style={style}>
       <ControlAddButton />
-      <Undo />
-      <Redo />
+      <UndoRedo undo={undo} redo={redo} />
       <ClearButton />
       <MaximiseButton />
-      <ZoomInButton />
-      <ZoomOutButton />
+      <ZoomControl />
     </div>
   );
 }

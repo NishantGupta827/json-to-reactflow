@@ -1,12 +1,5 @@
 import { SquarePlus } from "lucide-react";
-import {
-  ComponentType,
-  JSX,
-  MouseEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import * as LucideIcons from "lucide-react";
 import SearchableMenu from "./SearchMenu";
 
