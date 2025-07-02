@@ -61,7 +61,7 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
               fontFamily: "Inter, sans-serif",
               pointerEvents: "all",
               cursor: "default",
-              width: "20%",
+              width: "fit-content",
               textAlign: "center",
               color: " #3b82f6",
               background: background,

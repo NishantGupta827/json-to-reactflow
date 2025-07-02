@@ -79,7 +79,7 @@ export interface AgentConfig {
   description: string;
   active: boolean;
   project_id: string;
-  abilities: any[]; // Replace with specific type if needed
+  abilities: (string | { id: string; title: string; type: string; [key: string]: any })[]; // Can be strings or objects with at least id, title, and type
   auth: string;
   response_type: string;
   randomness: number;

@@ -302,3 +302,85 @@ SOFTWARE.
 ```
 
 ---
+
+## Usage
+
+### Basic Usage
+
+```jsx
+import { JsonToReactflow } from 'json-to-reactflow';
+
+function App() {
+  return (
+    <JsonToReactflow
+      serviceJson={yourServiceData}
+      agentJson={yourAgentData}
+      nodeOptions={yourNodeOptions}
+      onFlowChange={(data) => console.log('Flow updated:', data)}
+    />
+  );
+}
+```
+
+### Fixing "React Flow parent container needs width and height" Error
+
+If you encounter the error about parent container dimensions when using this package, you can fix it by providing explicit dimensions:
+
+```jsx
+import { JsonToReactflow } from 'json-to-reactflow';
+
+function App() {
+  return (
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <JsonToReactflow
+        serviceJson={yourServiceData}
+        agentJson={yourAgentData}
+        nodeOptions={yourNodeOptions}
+        height="100vh"
+        width="100%"
+        onFlowChange={(data) => console.log('Flow updated:', data)}
+      />
+    </div>
+  );
+}
+```
+
+### Custom Container
+
+```jsx
+import { JsonToReactflow } from 'json-to-reactflow';
+
+function App() {
+  return (
+    <div className="my-flow-container">
+      <JsonToReactflow
+        serviceJson={yourServiceData}
+        agentJson={yourAgentData}
+        nodeOptions={yourNodeOptions}
+        height="600px"
+        width="800px"
+        onFlowChange={(data) => console.log('Flow updated:', data)}
+      />
+    </div>
+  );
+}
+```
+
+## Props
+
+- `serviceJson`: FlowJson - The flow data structure
+- `agentJson`: AgentConfig - Agent configuration data  
+- `nodeOptions`: NodeOptionsJson - Available node types and options
+- `onFlowChange?: (data: { nodes: Node[]; edges: Edge[] }) => void` - Callback when flow changes
+- `height?: string | number` - Container height (default: "100vh")
+- `width?: string | number` - Container width (default: "100%")
+
+## Features
+
+- Interactive ReactFlow diagram
+- Collapsible sidebar with agent configuration
+- Node editing capabilities
+- Flow export/import functionality
+- Responsive design
+
+---
