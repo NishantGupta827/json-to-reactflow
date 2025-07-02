@@ -45,6 +45,7 @@ import { useFlowJson } from "@/hooks/useFlowJson";
 // import { ServiceToFlow } from "@/utils/ServiceToFlow";
 import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
+import { CustomControls } from "./controls/CustomControl";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -345,17 +346,23 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           edgeTypes={edgeTypes}
           proOptions={proOptions}
         >
-          {
-            <Controls>
-              {<DownloadButton />}
+          <CustomControls />
+          {/* {
+            <Controls
+              style={{
+                position: "absolute",
+                left: "50%",
+                transform: "translate(-50%, 0%)",
+              }}
+            > */}
+          {/* {<DownloadButton />}
               <ControlButton>
                 <FlaskConical onClick={() => console.log(TestForIsland())} />
               </ControlButton>
               <ControlButton onClick={handleExport}>e</ControlButton>
               <Import />
-              <Export />
-            </Controls>
-          }
+              <Export /> */}
+          {/* </Controls> }*/}
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}
@@ -438,47 +445,48 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               }}
             />
           )}
-          {labelModal && createPortal(
-            <div className="edge-label-modal-overlay">
-              <div className="edge-label-modal">
-                <h3 className="edge-label-modal-title">Edit Edge Label</h3>
-                <input
-                  type="text"
-                  className="edge-label-input"
-                  value={labelModal.label}
-                  onChange={(e) =>
-                    setLabelModal(
-                      (prev) => prev && { ...prev, label: e.target.value }
-                    )
-                  }
-                />
-                <div className="edge-label-modal-actions">
-                  <button
-                    className="edge-label-save"
-                    onClick={() => {
-                      setEdges((edges) =>
-                        edges.map((ed) =>
-                          ed.id === labelModal.edge.id
-                            ? { ...ed, label: labelModal.label }
-                            : ed
-                        )
-                      );
-                      setLabelModal(null);
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="edge-label-cancel"
-                    onClick={() => setLabelModal(null)}
-                  >
-                    Cancel
-                  </button>
+          {labelModal &&
+            createPortal(
+              <div className="edge-label-modal-overlay">
+                <div className="edge-label-modal">
+                  <h3 className="edge-label-modal-title">Edit Edge Label</h3>
+                  <input
+                    type="text"
+                    className="edge-label-input"
+                    value={labelModal.label}
+                    onChange={(e) =>
+                      setLabelModal(
+                        (prev) => prev && { ...prev, label: e.target.value }
+                      )
+                    }
+                  />
+                  <div className="edge-label-modal-actions">
+                    <button
+                      className="edge-label-save"
+                      onClick={() => {
+                        setEdges((edges) =>
+                          edges.map((ed) =>
+                            ed.id === labelModal.edge.id
+                              ? { ...ed, label: labelModal.label }
+                              : ed
+                          )
+                        );
+                        setLabelModal(null);
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="edge-label-cancel"
+                      onClick={() => setLabelModal(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>,
-            document.body
-          )}
+              </div>,
+              document.body
+            )}
         </ReactFlow>
       </div>
       <div
