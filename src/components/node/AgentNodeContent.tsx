@@ -49,9 +49,9 @@ export default function AgentNodeContent({
           position={position}
           id={handleId}
           style={{
-            background: "#3b82f6",
-            width: 10,
-            height: 10,
+            background: "#6E6B86",
+            width: 9,
+            height: 9,
             borderColor: "white",
             borderWidth: 1.5,
             zIndex: 10,
@@ -67,9 +67,9 @@ export default function AgentNodeContent({
         id={handleId}
         className="handle-wrapper"
         style={{
-          background: "#3b82f6",
-          width: 10,
-          height: 10,
+          background: "#6E6B86",
+          width: 9,
+          height: 9,
           borderColor: "white",
           borderWidth: 1.5,
           zIndex: 10,
@@ -100,6 +100,35 @@ export default function AgentNodeContent({
       .join('');
   };
 
+  const colorCombinations = [
+    {
+      icon: '#FFAE0A', // Mango
+    background: '#FFF4E6'
+    },
+    {
+      icon: '#0469E3', // Aqua
+      background: '#E6F3FF'
+    },
+    {
+      icon: '#007A52', // Spinach
+      background: '#E6F7F1' 
+    }
+  ];
+
+  const getColorFromId = (nodeId: string): { icon: string; background: string } => {
+    let hash = 0;
+    for (let i = 0; i < nodeId.length; i++) {
+      const char = nodeId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    const colorIndex = Math.abs(hash) % colorCombinations.length;
+    return colorCombinations[colorIndex];
+  };
+
+  const { icon: iconColor, background: iconBackgroundColor } = getColorFromId(id);
+
   let IconComponent: ForwardRefExoticComponent<
     LucideProps & RefAttributes<SVGSVGElement>
   > = LucideIcons.Zap;
@@ -118,8 +147,14 @@ export default function AgentNodeContent({
     <div className="agent-node-container">
       <div className={`${data.isIsland ? "island-node" : "agent-node-card"}`}>
         <div className="agent-node-header">
-          <div className="agent-node-icon-box">
-            <IconComponent className="agent-node-icon" />
+          <div 
+            className="agent-node-icon-box"
+            style={{ backgroundColor: iconBackgroundColor }}
+          >
+            <IconComponent 
+              className="agent-node-icon" 
+              style={{ color: iconColor }}
+            />
           </div>
           <div className="agent-node-text">
             <div className="agent-node-title">{data.title}</div>

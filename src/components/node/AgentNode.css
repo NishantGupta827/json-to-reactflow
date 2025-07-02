@@ -21,26 +21,28 @@
 
 .agent-node-header {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .agent-node-icon-box {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #d3d3d3;
-  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f8ff;
-  margin-right: 8px;
-  padding: 6px;
+  flex-shrink: 0;
 }
 
 .agent-node-icon {
-  color: #3b82f6;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+}
+
+.agent-node-text {
+  width: 100%;
 }
 
 .agent-node-title {

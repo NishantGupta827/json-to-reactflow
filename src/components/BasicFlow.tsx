@@ -5,7 +5,6 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import { createPortal } from "react-dom";
 import {
   ReactFlow,
   Controls,
@@ -28,16 +27,18 @@ import {
   NodeProps,
   MarkerType,
   type EdgeTypes,
+  Panel,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import DownloadButton from "./controls/DownloadButton";
 import { Export, Import } from "./controls/ImportExport";
 import { getLayoutedElements } from "@/utils/layoutUtil";
 import useUndoRedo from "@/hooks/useUndoRedo";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, Menu, X } from "lucide-react";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
+import { EdgeSidebar } from "./rightSidebar/edge";
 import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
 import { SideBarHeader } from "./rightSidebar/header";
@@ -51,6 +52,8 @@ export interface BasicFlowProps {
   agentJson: AgentConfig;
   nodeOptions: NodeOptionsJson;
   onFlowChange?: (data: { nodes: Node[]; edges: Edge[] }) => void;
+  height?: string | number;
+  width?: string | number;
 }
 
 export type NodeCategory = "tools" | "agents" | "automations" | "triggers";
@@ -88,6 +91,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   agentJson,
   nodeOptions,
   onFlowChange,
+  height = "100vh",
+  width = "100%",
 }) => {
   const { fitView } = useReactFlow();
   const { takeSnapshot } = useUndoRedo({
@@ -96,6 +101,42 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   });
 
   const reactflow = useReactFlow();
+
+  // State to maintain agent data changes
+  const [currentAgentData, setCurrentAgentData] =
+    useState<AgentConfig>(agentJson);
+
+  // State to control sidebar visibility
+  const [showDefaultSidebar, setShowDefaultSidebar] = useState<boolean>(true);
+
+  // State to track agent data from abilities when showing ability agent details
+  const [abilityAgentData, setAbilityAgentData] = useState<AgentConfig | null>(
+    null
+  );
+
+  // Sync state with prop changes
+  useEffect(() => {
+    setCurrentAgentData(agentJson);
+  }, [agentJson]);
+
+  // Callback to handle agent data updates
+  const handleAgentDataChange = useCallback((updatedData: AgentConfig) => {
+    setCurrentAgentData(updatedData);
+    console.log("Agent data updated:", updatedData);
+
+    // Log agent instructions specifically
+    console.log("Agent Instructions - Parent Update:", {
+      agentTitle: updatedData.title,
+      roleSetting: updatedData.role_setting,
+      provider: updatedData.provider,
+      modelId: updatedData.model_id,
+    });
+  }, []);
+
+  // Handle closing the default sidebar
+  // const handleCloseDefaultSidebar = useCallback(() => {
+  //   setShowDefaultSidebar(false);
+  // }, []);
 
   const [modalData, setModalData] = useState<{
     nodeId: string;
@@ -113,21 +154,18 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   }, [setModalData]);
 
   const [currNode, setCurrNode] = useState<Node | null>(null);
-  const [, setCurrEdge] = useState<Edge | null>(null);
-  const [labelModal, setLabelModal] = useState<{
-    edge: Edge;
-    label: string;
-  } | null>(null);
+  const [currEdge, setCurrEdge] = useState<Edge | null>(null);
 
   const onEdgeDoubleClick: EdgeMouseHandler = (
     event: React.MouseEvent,
     edge: Edge
   ) => {
     event.stopPropagation();
-    setLabelModal({
-      edge,
-      label: typeof edge.label === "string" ? edge.label : "",
-    });
+    setCurrEdge(edge);
+    setCurrNode(null); // Clear node selection when edge is selected
+    setAbilityAgentData(null); // Clear ability agent data
+    setShowDefaultSidebar(true); // Ensure sidebar is visible
+    console.log("Double clicked edge:", edge);
   };
 
   // const flowJson = serviceJson
@@ -242,7 +280,47 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     node: Node
   ) => {
     event.stopPropagation();
-    setCurrNode(node);
+
+    // Check if this is an agent node
+    if (node.data.type === "agent") {
+      // Find the agent in the abilities array
+      const agentAbility = currentAgentData.abilities.find((ability) => {
+        const abilityTitle =
+          typeof ability === "string" ? ability : ability.title;
+        return (
+          abilityTitle === node.data.title ||
+          (typeof ability !== "string" && ability.id === node.data.id)
+        );
+      });
+
+      if (
+        agentAbility &&
+        typeof agentAbility !== "string" &&
+        agentAbility.fullAgentData
+      ) {
+        // Set the ability agent data to show in the default sidebar
+        setAbilityAgentData(agentAbility.fullAgentData);
+        setCurrNode(null); // Clear current node to show default sidebar
+        setShowDefaultSidebar(true); // Ensure sidebar is visible
+        console.log(
+          "Double clicked agent node, showing ability agent data:",
+          agentAbility.fullAgentData
+        );
+      } else {
+        console.log(
+          "Agent ability not found or no fullAgentData:",
+          node.data.title
+        );
+        // Fallback to regular node handling
+        setCurrNode(node);
+        setAbilityAgentData(null);
+      }
+    } else {
+      // Regular node handling
+      setCurrNode(node);
+      setAbilityAgentData(null);
+    }
+
     setCurrEdge(null);
     console.log("Double clicked node:", node);
   };
@@ -324,8 +402,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex" }}>
-      <div style={{ flex: 1 }} ref={reactFlowWrapper}>
+    <div style={{ width, height, display: "flex", minHeight: "500px" }}>
+      <div style={{ flex: 1, height: "100%" }} ref={reactFlowWrapper}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -352,6 +430,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
                 <FlaskConical onClick={() => console.log(TestForIsland())} />
               </ControlButton>
               <ControlButton onClick={handleExport}>e</ControlButton>
+              <ControlButton
+                onClick={() => {
+                  setShowDefaultSidebar(!showDefaultSidebar);
+                  if (!showDefaultSidebar) {
+                    setAbilityAgentData(null); // Clear ability agent data when hiding sidebar
+                  }
+                }}
+              >
+                <Menu />
+              </ControlButton>
               <Import />
               <Export />
             </Controls>
@@ -438,80 +526,82 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
               }}
             />
           )}
-          {labelModal && createPortal(
-            <div className="edge-label-modal-overlay">
-              <div className="edge-label-modal">
-                <h3 className="edge-label-modal-title">Edit Edge Label</h3>
-                <input
-                  type="text"
-                  className="edge-label-input"
-                  value={labelModal.label}
-                  onChange={(e) =>
-                    setLabelModal(
-                      (prev) => prev && { ...prev, label: e.target.value }
-                    )
-                  }
-                />
-                <div className="edge-label-modal-actions">
-                  <button
-                    className="edge-label-save"
-                    onClick={() => {
+          {showDefaultSidebar && (
+            <Panel position="top-right" style={{ margin: 0, padding: 0 }}>
+              <div className="reactflow-sidebar-panel">
+                {/* Close button for sidebar */}
+                <div
+                  className="sidebar-close-button"
+                  onClick={() => {
+                    // If there's a current node, just clear it and show default sidebar
+                    if (currNode) {
+                      setCurrNode(null);
+                      setAbilityAgentData(null);
+                    } else if (currEdge) {
+                      // If there's a current edge, clear it and show default sidebar
+                      setCurrEdge(null);
+                      setAbilityAgentData(null);
+                    } else if (abilityAgentData) {
+                      // If showing agent details from double-click, clear ability data and show original default
+                      setAbilityAgentData(null);
+                    } else {
+                      // Only hide entire sidebar if we're showing original default content
+                      setShowDefaultSidebar(false);
+                      setAbilityAgentData(null);
+                    }
+                  }}
+                >
+                  <X size={16} />
+                </div>
+
+                {!currNode && !currEdge ? (
+                  <Default
+                    data={abilityAgentData || currentAgentData} // Use ability agent data if available, otherwise use main agent data
+                    modal={false}
+                    onDataChange={
+                      abilityAgentData ? undefined : handleAgentDataChange
+                    } // Only allow changes to main agent data, not ability agent data
+                  />
+                ) : currEdge ? (
+                  <EdgeSidebar
+                    edge={currEdge}
+                    nodes={nodes}
+                    onClose={() => {
+                      setCurrEdge(null);
+                      setAbilityAgentData(null);
+                    }}
+                    onSave={(updatedEdge) => {
                       setEdges((edges) =>
                         edges.map((ed) =>
-                          ed.id === labelModal.edge.id
-                            ? { ...ed, label: labelModal.label }
-                            : ed
+                          ed.id === updatedEdge.id ? updatedEdge : ed
                         )
                       );
-                      setLabelModal(null);
+                      setCurrEdge(null);
                     }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="edge-label-cancel"
-                    onClick={() => setLabelModal(null)}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                  />
+                ) : currNode ? (
+                  <div className="custom-box">
+                    <SideBarHeader
+                      icon={
+                        currNode.data.icon == ""
+                          ? "zap"
+                          : (currNode.data.icon as string)
+                      }
+                      title={currNode.data.title as string}
+                      onClose={() => {
+                        // Only clear node state, keep sidebar visible to show default content
+                        setCurrNode(null);
+                        setAbilityAgentData(null);
+                        // DON'T call setShowDefaultSidebar(false) here
+                      }}
+                    />
+                    <NodeContent data={currNode} />
+                  </div>
+                ) : null}
               </div>
-            </div>,
-            document.body
+            </Panel>
           )}
         </ReactFlow>
-      </div>
-      <div
-        style={{
-          width: "350px",
-          transition: "width 0.3s ease",
-          overflow: "hidden",
-          borderRight: "1px solid #ccc",
-          height: "100vh",
-          overflowY: "auto",
-        }}
-      >
-        {!currNode ? (
-          <>
-            <Default data={agentJson} modal={labelModal ? true : false} />
-          </>
-        ) : (
-          <div
-            style={{ height: "100%", overflowY: "auto" }}
-            className="custom-box"
-          >
-            <SideBarHeader
-              icon={
-                currNode.data.icon == ""
-                  ? "zap"
-                  : (currNode.data.icon as string)
-              }
-              title={currNode.data.title as string}
-              onClose={setCurrNode}
-            />
-            <NodeContent data={currNode} />
-          </div>
-        )}
       </div>
     </div>
   );
@@ -524,15 +614,27 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
   agentJson,
   nodeOptions,
   onFlowChange,
+  height = "100vh",
+  width = "100%",
 }) => {
   return (
-    <div>
+    <div
+      style={{
+        width,
+        height,
+        minHeight: "500px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
       <ReactFlowProvider>
         <BasicFlow
           serviceJson={serviceJson}
           agentJson={agentJson}
           nodeOptions={nodeOptions}
           onFlowChange={onFlowChange}
+          height={height}
+          width={width}
         />
       </ReactFlowProvider>
     </div>
