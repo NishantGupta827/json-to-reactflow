@@ -28,12 +28,13 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
     targetPosition,
   });
 
-  const displayLabel = data?.label || label;
+  const displayLabel = data?.label;
+  const outcomeLabel = label;
 
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} />
-      {displayLabel && (
+      {displayLabel && outcomeLabel && (
         <EdgeLabelRenderer>
           <div
             style={{
@@ -42,8 +43,7 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
               borderRadius: "8px",
               border: "#DDE3EE solid 2px",
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-              fontSize: "12px",
-              fontWeight: "500",
+              fontSize: "14px",
               fontFamily: "Inter, sans-serif",
               pointerEvents: "all",
               cursor: "default",
@@ -54,7 +54,14 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
             }}
             className="edge-label-renderer__custom-edge nodrag nopan"
           >
-            {displayLabel}
+            <span
+              style={{
+                fontWeight: "1000",
+              }}
+            >
+              <b>{displayLabel + "? - "}</b>
+            </span>
+            <span style={{ fontWeight: "50" }}> {outcomeLabel}</span>
           </div>
         </EdgeLabelRenderer>
       )}

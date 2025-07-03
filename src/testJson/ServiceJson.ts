@@ -82,9 +82,9 @@ export const updatdServiceJson: FlowJson = {
         y: 0,
       },
       data: {
-        title: "Parse Query Parameters",
+        title: "Parse Request & Determine Event Type",
         description:
-          "Extracts 'notify' and 'event' values from the incoming HTTP request query string.",
+          "Parses query parameters (notify, event) and determines the event type, defaulting to 'uncategorized' if not specified.",
         inputs: [],
         icon: "search",
         isIsland: false,
@@ -118,13 +118,12 @@ export const updatdServiceJson: FlowJson = {
       data: {
         title: "Check for 'Event Type' Taxonomy",
         description:
-          "Determines if a taxonomy named 'Event Type' already exists in the Contentstack stack.",
+          "Determines if a taxonomy named 'Event Type' already exists.",
         inputs: [
           {
             title: "Condition",
             type: "div",
-            placeholder:
-              "Check if 'Event Type' taxonomy exists in the fetched taxonomies.",
+            placeholder: "Is 'Event Type' taxonomy found in the list?",
           },
         ],
         icon: "git-branch",
@@ -172,9 +171,9 @@ export const updatdServiceJson: FlowJson = {
         y: 0,
       },
       data: {
-        title: "Build Sub-Agent Payload",
+        title: "Build Log Payload",
         description:
-          "Constructs the payload (type, content, term_id) required by the 'Contentstack Object Creator' sub-agent.",
+          "Constructs the structured payload for the Contentstack Object Creator, including log type, content, and the created term ID.",
         inputs: [],
         icon: "file-text",
         isIsland: false,
@@ -191,9 +190,9 @@ export const updatdServiceJson: FlowJson = {
       data: {
         title: "Contentstack Object Creator",
         description:
-          "Creates and publishes a Contentstack entry or asset based on input type and data. Acts as a reusable sub-agent for logging or event tracking purposes.",
+          "Creates and publishes a Contentstack entry or asset based on input type and data.",
         inputs: [],
-        icon: "send",
+        icon: "upload",
         isIsland: false,
         type: "agent",
       },
@@ -206,11 +205,11 @@ export const updatdServiceJson: FlowJson = {
         y: 0,
       },
       data: {
-        title: "Return Final Structured Response",
+        title: "Return Structured Response",
         description:
-          "Generates the final JSON response with status, log type, Contentstack ID, term ID, and a message.",
+          "Returns the final structured response, including status, log type, Contentstack ID, and message.",
         inputs: [],
-        icon: "message-square",
+        icon: "send",
         isIsland: false,
         type: "logic",
       },
@@ -224,6 +223,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "trigger_1-bottom",
       target: "step_2",
       targetHandle: "step_2-top",
+      label: "success",
+      data: {
+        label: "Request received",
+      },
     },
     {
       id: "e2",
@@ -231,6 +234,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_2-bottom",
       target: "step_3",
       targetHandle: "step_3-top",
+      label: "success",
+      data: {
+        label: "Parameters parsed",
+      },
     },
     {
       id: "e3",
@@ -238,6 +245,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_3-bottom",
       target: "step_4",
       targetHandle: "step_4-top",
+      label: "success",
+      data: {
+        label: "Taxonomies fetched",
+      },
     },
     {
       id: "e4",
@@ -245,7 +256,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_4-bottom",
       target: "step_6",
       targetHandle: "step_6-top",
-      label: "Found",
+      label: "yes",
+      data: {
+        label: "Taxonomy 'Event Type' exists?",
+      },
     },
     {
       id: "e5",
@@ -253,7 +267,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_4-bottom",
       target: "step_5",
       targetHandle: "step_5-top",
-      label: "Not Found",
+      label: "no",
+      data: {
+        label: "Taxonomy 'Event Type' exists?",
+      },
     },
     {
       id: "e6",
@@ -261,6 +278,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_5-bottom",
       target: "step_6",
       targetHandle: "step_6-top",
+      label: "success",
+      data: {
+        label: "Taxonomy created",
+      },
     },
     {
       id: "e7",
@@ -268,6 +289,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_6-bottom",
       target: "step_7",
       targetHandle: "step_7-top",
+      label: "success",
+      data: {
+        label: "Term created",
+      },
     },
     {
       id: "e8",
@@ -275,6 +300,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_7-bottom",
       target: "step_8",
       targetHandle: "step_8-top",
+      label: "success",
+      data: {
+        label: "Payload built",
+      },
     },
     {
       id: "e9",
@@ -282,6 +311,10 @@ export const updatdServiceJson: FlowJson = {
       sourceHandle: "step_8-bottom",
       target: "step_9",
       targetHandle: "step_9-top",
+      label: "success",
+      data: {
+        label: "Contentstack object created",
+      },
     },
   ],
 };
