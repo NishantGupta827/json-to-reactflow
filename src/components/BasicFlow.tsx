@@ -43,7 +43,7 @@ import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
-import { useFlowJson } from "@/hooks/useFlowJson";
+// import { useFlowJson } from "@/hooks/useFlowJson";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -284,10 +284,15 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     edge: Edge
   ) => {
     event.stopPropagation();
+    
+    // Show sidebar if it's hidden
+    if (!showDefaultSidebar) {
+      setShowDefaultSidebar(true);
+    }
+    
     setCurrEdge(edge);
     setCurrNode(null); // Clear node selection when edge is selected
     setAbilityAgentData(null); // Clear ability agent data
-    setShowDefaultSidebar(true); // Ensure sidebar is visible
     console.log("Double clicked edge:", edge);
   };
 
@@ -422,6 +427,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     node: Node
   ) => {
     event.stopPropagation();
+    
+    // Show sidebar if it's hidden
+    if (!showDefaultSidebar) {
+      setShowDefaultSidebar(true);
+    }
+    
     setNodes((nodes) =>
       nodes.map((n) =>
         n.id === node.id
@@ -487,26 +498,21 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     setCurrEdge(null);
   };
 
-  const onEdgeClick: EdgeMouseHandler = (
-    event: React.MouseEvent,
-    edge: Edge
-  ) => {
-    event.stopPropagation();
-    setCurrNode(null);
-    setCurrEdge(edge);
-  };
+  // const onEdgeClick: EdgeMouseHandler = (
+  //   event: React.MouseEvent,
+  //   edge: Edge
+  // ) => {
+  //   event.stopPropagation();
+    
+  //   // Show sidebar if it's hidden
+  //   if (!showDefaultSidebar) {
+  //     setShowDefaultSidebar(true);
+  //   }
+    
+  //   setCurrNode(null);
+  //   setCurrEdge(edge);
+  // };
 
-  const getFlowJson = useFlowJson();
-
-  const handleExport = () => {
-    const updatedFlowJson = getFlowJson();
-
-    if (!updatedFlowJson.nodes.length) {
-      alert("Flow not loaded yet.");
-      return;
-    }
-    console.log("Exported Flow:", updatedFlowJson);
-  };
 
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
@@ -575,9 +581,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           onNodeDragStart={handleDragStart}
           onNodeDragStop={handleDragStop}
           onDragOver={onDragOver}
-          onNodeDoubleClick={onNodeDoubleClick}
-          onEdgeClick={onEdgeClick}
-          onEdgeDoubleClick={onEdgeDoubleClick}
+          onNodeClick={onNodeDoubleClick}
+          // onEdgeClick={onEdgeClick}
+          onEdgeClick={onEdgeDoubleClick}
           fitView
           fitViewOptions={{ duration: 0 }}
           style={{ backgroundColor: "#F7F9FB" }}

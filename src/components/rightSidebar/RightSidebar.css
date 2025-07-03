@@ -126,6 +126,7 @@
 .sidebar-section {
   padding-left: 1rem;
   margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
   width: 95%;
 }
 
@@ -169,7 +170,7 @@
 }
 
 .config-label {
-  font-weight: 500;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   display: inline-block;
   color: #374151;
@@ -184,7 +185,7 @@
   font-weight: 600;
   font-size: 16px;
   color: #111827;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .api-key-box {
@@ -282,11 +283,12 @@
 .agent-setup-header {
   text-align: center;
   padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
+  padding-bottom: 2rem;
   padding-right: 1.5rem;
   padding-left: 1.5rem;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .agent-icon-container {
@@ -299,7 +301,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #f3f4f6;
+  /* background-color: #f3f4f6; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -398,7 +400,7 @@
 .performance-description {
   color: #6b7280;
   font-size: 14px;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .performance-stats {

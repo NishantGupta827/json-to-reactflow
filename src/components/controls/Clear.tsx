@@ -1,8 +1,10 @@
 import { useReactFlow } from "@xyflow/react";
 import { BrushCleaning } from "lucide-react";
+import { useState } from "react";
 
 export default function ClearButton() {
   const { setNodes, setEdges } = useReactFlow();
+  const [hovered, setHovered] = useState(false);
 
   const handleClick = () => {
     setEdges(() => []);
@@ -11,6 +13,8 @@ export default function ClearButton() {
   return (
     <div
       onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -18,6 +22,8 @@ export default function ClearButton() {
         width: "32px",
         height: "32px",
         cursor: "pointer",
+        backgroundColor: hovered ? "#f3f4f6" : "transparent",
+        transition: "background-color 0.2s ease",
       }}
     >
       <BrushCleaning strokeWidth={1} />

@@ -47,11 +47,12 @@ export function CustomControls({
     transform: "translateX(-50%)",
     display: "flex",
     gap: "0.5rem",
-    borderRadius: "15px",
-    border: "0.3px solid",
+    borderRadius: "8px",
+    // border: "0.3px solid",
     background: "#ffffff",
     padding: "10px",
-    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+    boxShadow: "rgba(0, 0, 0, 0.12) 0px 5px 15px",
+    
   };
 
   return (

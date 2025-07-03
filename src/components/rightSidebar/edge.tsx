@@ -56,7 +56,7 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
         </button> */}
       </div>
 
-      <div className="agent-setup-header">
+      {/* <div className="agent-setup-header">
         <div className="agent-icon-container">
           <div className="agent-bot-icon">🔗</div>
         </div>
@@ -64,7 +64,7 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
         <p className="agent-setup-description">
           Configure the connection logic and conditions that determine when this path should be followed.
         </p>
-      </div>
+      </div> */}
 
       <div className="sidebar-section">
         <div className="select-wrapper">
