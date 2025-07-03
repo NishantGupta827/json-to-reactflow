@@ -9,6 +9,7 @@ import { Trash } from "lucide-react";
 import { ConvertAgentInstructions } from "@/testJson/AgentNode";
 import { AgentPerformance } from "./performance";
 import { ConnectedAbilities } from "./connectedApps";
+import AgentIconUrl from "@/assets/agent-icon.svg";
 
 export function InputSchemaComponent({
   data,
@@ -478,12 +479,13 @@ export function Default({ data, modal, onDataChange }: AgentProps) {
 
       <div className="agent-setup-header">
         <div className="agent-icon-container">
-          <div className="agent-bot-icon">🤖</div>
+          <div className="agent-bot-icon">
+            <img src={AgentIconUrl} alt="Agent" style={{ width: '80px', height: '80px' }} />
+          </div>
         </div>
         <h2 className="agent-setup-title">{data.title}</h2>
         <p className="agent-setup-description">
-          You haven't set up any AI agents yet. Build one to automate actions,
-          respond intelligently, or collaborate across tools.
+          {data.description}
         </p>
       </div>
 
