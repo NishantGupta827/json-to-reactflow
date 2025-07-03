@@ -3,6 +3,7 @@ import { useState } from "react";
 
 export default function MaximiseButton() {
   const [curr, setCurr] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   const enterFullScreen = () => {
     setCurr(true);
@@ -17,6 +18,8 @@ export default function MaximiseButton() {
   return (
     <div
       onClick={!curr ? enterFullScreen : exitFullScreen}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -24,6 +27,8 @@ export default function MaximiseButton() {
         width: "32px",
         height: "32px",
         cursor: "pointer",
+        backgroundColor: hovered ? "#f3f4f6" : "transparent",
+        transition: "background-color 0.2s ease",
       }}
     >
       {!curr ? <Maximize strokeWidth={1} /> : <Minimize strokeWidth={1} />}

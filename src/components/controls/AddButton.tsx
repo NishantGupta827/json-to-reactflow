@@ -176,6 +176,7 @@ export default function ControlAddButton({
   setAddMenuFocus,
 }: controlAddButtonProps) {
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [option, setOption] = useState<
     {
       label: string;
@@ -272,6 +273,8 @@ export default function ControlAddButton({
       <div
         ref={menuRef}
         onClick={handleClick}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -279,7 +282,8 @@ export default function ControlAddButton({
           width: "32px",
           height: "32px",
           cursor: "pointer",
-          backgroundColor: open && addMenuFocus ? "#f0f1fb" : "#ffffff",
+          backgroundColor: open && addMenuFocus ? "#f0f1fb" : hovered ? "#f3f4f6" : "#ffffff",
+          transition: "background-color 0.2s ease",
         }}
       >
         <SquarePlus strokeWidth={1} fill="#ffffff" />
