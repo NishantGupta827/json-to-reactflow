@@ -34,6 +34,7 @@ export default function SearchableMenu({
         backgroundColor: "#fff",
         border: "1px solid #ccc",
         borderRadius: "6px",
+        boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px;",
       }}
     >
       <input
@@ -41,6 +42,7 @@ export default function SearchableMenu({
         placeholder="Search..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        onMouseDown={(e) => e.stopPropagation()}
         style={{
           width: "100%",
           padding: "6px 8px",
@@ -60,6 +62,7 @@ export default function SearchableMenu({
           filtered.map((opt, id) => (
             <div
               key={`${opt.value}_${id}`}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={() => onSelect(opt)}
               style={{
                 padding: "6px 10px",

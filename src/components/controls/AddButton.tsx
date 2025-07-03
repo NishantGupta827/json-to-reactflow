@@ -2,6 +2,7 @@ import { SquarePlus } from "lucide-react";
 import { JSX, useEffect, useRef, useState } from "react";
 import * as LucideIcons from "lucide-react";
 import SearchableMenu from "./SearchMenu";
+import { useReactFlow } from "@xyflow/react";
 
 type subcomponentProps = {
   icon: string;
@@ -164,8 +165,9 @@ function SubComponent({
 export default function ControlAddButton() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-
   const [type, setType] = useState("agents");
+
+  const { addNodes, getNodes, getViewport } = useReactFlow();
 
   const handleClick = () => {
     setOpen(true);
@@ -193,6 +195,38 @@ export default function ControlAddButton() {
     setOpenSub(true);
   };
 
+  const searchMenuClick = (ele: { label: string; value: any }) => {
+    const viewport = getViewport();
+    const nodes = getNodes();
+    const baseId = ele.label.toLowerCase().replace(/\s+/g, "_");
+    const existingIds = nodes.map((n) => n.id);
+    let newId = baseId;
+    let counter = 1;
+    while (existingIds.includes(newId)) {
+      newId = `${baseId}_${counter++}`;
+    }
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const centerX = (width / 2 - viewport.x) / viewport.zoom;
+    const centerY = (height / 2 - viewport.y) / viewport.zoom;
+
+    const position = { x: centerX, y: centerY };
+
+    const payload = {
+      id: newId,
+      position,
+      data: {
+        ...ele.value,
+        isIsland: false,
+      },
+      type: "custom",
+    };
+
+    addNodes(payload);
+  };
+
   const [openSub, setOpenSub] = useState(false);
 
   return (
@@ -209,7 +243,7 @@ export default function ControlAddButton() {
           cursor: "pointer",
         }}
       >
-        <SquarePlus />
+        <SquarePlus strokeWidth={1} />
       </div>
 
       {open && (
@@ -224,8 +258,8 @@ export default function ControlAddButton() {
               border: "1px solid #ccc",
               padding: "8px",
               borderRadius: "6px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              zIndex: 9999,
+              boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px;",
+              zIndex: 3000,
             }}
           >
             <SubComponent
@@ -259,16 +293,11 @@ export default function ControlAddButton() {
                 bottom: "50px",
                 padding: "8px",
                 borderRadius: "6px",
-                zIndex: 9999,
+                zIndex: 2000,
                 border: "1px",
               }}
             >
-              <SearchableMenu
-                options={options}
-                onSelect={(value) => {
-                  console.log(value);
-                }}
-              />
+              <SearchableMenu options={options} onSelect={searchMenuClick} />
             </div>
           )}
         </>

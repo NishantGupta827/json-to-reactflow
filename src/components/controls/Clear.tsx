@@ -9,8 +9,18 @@ export default function ClearButton() {
     setNodes(() => []);
   };
   return (
-    <div onClick={handleClick}>
-      <BrushCleaning />
+    <div
+      onClick={handleClick}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "32px",
+        height: "32px",
+        cursor: "pointer",
+      }}
+    >
+      <BrushCleaning strokeWidth={1} />
     </div>
   );
 }

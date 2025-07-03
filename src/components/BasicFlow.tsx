@@ -26,6 +26,7 @@ import {
   MarkerType,
   type EdgeTypes,
   Panel,
+  Background,
 } from "@xyflow/react";
 import equal from "fast-deep-equal";
 import "@xyflow/react/dist/style.css";
@@ -552,7 +553,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           proOptions={proOptions}
+          minZoom={0.1}
         >
+          <Background bgColor="#f6f7fc" color="#dee3ed" size={3} />
           <CustomControls undo={undo} redo={redo} />
           {modalData && (
             <NodeSelectionModal
