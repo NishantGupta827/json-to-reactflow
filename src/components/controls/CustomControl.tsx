@@ -10,6 +10,8 @@ import { Minus } from "lucide-react";
 type CustomControlProps = {
   undo: () => void;
   redo: () => void;
+  addMenuFocus: boolean;
+  setAddMenuFocus: React.Dispatch<React.SetStateAction<boolean>>;
   onToggleSettings: () => void;
 };
 
@@ -30,7 +32,13 @@ function Divider() {
   );
 }
 
-export function CustomControls({ undo, redo, onToggleSettings }: CustomControlProps) {
+export function CustomControls({
+  undo,
+  redo,
+  onToggleSettings,
+  addMenuFocus,
+  setAddMenuFocus,
+}: CustomControlProps) {
   const style: CSSProperties = {
     position: "absolute",
     zIndex: 3000,
@@ -48,7 +56,10 @@ export function CustomControls({ undo, redo, onToggleSettings }: CustomControlPr
 
   return (
     <div style={style}>
-      <ControlAddButton />
+      <ControlAddButton
+        addMenuFocus={addMenuFocus}
+        setAddMenuFocus={setAddMenuFocus}
+      />
       <Divider />
       <UndoRedo undo={undo} redo={redo} />
       <Divider />

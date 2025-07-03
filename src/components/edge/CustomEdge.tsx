@@ -30,41 +30,27 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
 
   const displayLabel = data?.label || label;
 
-  const [hovered, setHovered] = useState(false);
-
-  const focus = data?.focus;
-
-  const border = focus
-    ? "2px solid #3b82f6"
-    : hovered
-    ? "1px solid #3b82f6"
-    : "";
-
-  const background = focus ? "#d8e1f4" : hovered ? "transparent" : "#ffffff";
-
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} />
       {displayLabel && (
         <EdgeLabelRenderer>
           <div
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               padding: "6px 10px",
               borderRadius: "8px",
-              border: border,
+              border: "#DDE3EE solid 2px",
               boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
               fontSize: "12px",
               fontWeight: "500",
               fontFamily: "Inter, sans-serif",
               pointerEvents: "all",
               cursor: "default",
-              width: "fit-content",
+              width: "200px",
               textAlign: "center",
-              color: " #3b82f6",
-              background: background,
+              color: " #000000",
+              background: "#ffffff",
             }}
             className="edge-label-renderer__custom-edge nodrag nopan"
           >
