@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import {
   ReactFlow,
-  Controls,
   applyEdgeChanges,
   applyNodeChanges,
   useNodesState,
@@ -17,7 +16,6 @@ import {
   type Node,
   type NodeChange,
   type EdgeChange,
-  ControlButton,
   ReactFlowProvider,
   useReactFlow,
   useNodesInitialized,
@@ -28,13 +26,11 @@ import {
   MarkerType,
   type EdgeTypes,
   Panel,
+  Background,
 } from "@xyflow/react";
+import equal from "fast-deep-equal";
 import "@xyflow/react/dist/style.css";
-import DownloadButton from "./controls/DownloadButton";
-import { Export, Import } from "./controls/ImportExport";
 import { getLayoutedElements } from "@/utils/layoutUtil";
-import useUndoRedo from "@/hooks/useUndoRedo";
-import { FlaskConical, Menu, X } from "lucide-react";
 import { NodeSelectionModal } from "./node/AgentNodeContent";
 import AgentNodeWrapper from "./node/GenericRevisedNode";
 import { Default } from "./rightSidebar/agent";
@@ -46,6 +42,8 @@ import { useFlowJson } from "@/hooks/useFlowJson";
 // import { ServiceToFlow } from "@/utils/ServiceToFlow";
 import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
+import { CustomControls } from "./controls/CustomControl";
+import { X } from "lucide-react";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -95,10 +93,126 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   width = "100%",
 }) => {
   const { fitView } = useReactFlow();
-  const { takeSnapshot } = useUndoRedo({
-    maxHistorySize: 100,
-    enableShortcuts: true,
+
+  type HistorySnapshot = {
+    nodes: Partial<Node>[];
+    edges: Partial<Edge>[];
+  };
+
+  const [history, setHistory] = useState<HistorySnapshot[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+
+  const sanitizeNode = (node: Node): Partial<Node> => ({
+    id: node.id,
+    type: node.type,
+    position: node.position,
+    data: node.data,
   });
+
+  const sanitizeEdge = (edge: Edge): Partial<Edge> => ({
+    id: edge.id,
+    type: edge.type,
+    label: edge.label,
+    source: edge.source,
+    sourceHandle: edge.sourceHandle,
+    target: edge.target,
+    targetHandle: edge.targetHandle,
+    markerEnd: edge.markerEnd,
+  });
+
+  const changeSourceRef = useRef<"drag" | "manual" | null>(null);
+
+  const updateHistory = (
+    nodes: Node[],
+    edges: Edge[],
+    history: HistorySnapshot[],
+    setHistory: React.Dispatch<React.SetStateAction<HistorySnapshot[]>>,
+    historyIndex: number,
+    setHistoryIndex: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    const sanitizedSnapshot: HistorySnapshot = {
+      nodes: nodes.map(sanitizeNode),
+      edges: edges.map(sanitizeEdge),
+    };
+
+    const lastSnapshot = history[historyIndex];
+
+    if (!equal(sanitizedSnapshot, lastSnapshot)) {
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push(sanitizedSnapshot);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    }
+  };
+
+  const undo = () => {
+    if (historyIndex > 1) {
+      const prev = history[historyIndex - 1];
+
+      const restoredNodes = prev.nodes.map((partialNode) => {
+        const fullNode = nodes.find((n) => n.id === partialNode.id);
+        // Ensure we always return a fully defined node
+        return {
+          ...fullNode,
+          ...partialNode,
+          id: partialNode.id!, // non-null assertion since history should always have an id
+          position: partialNode.position
+            ? partialNode.position
+            : fullNode?.position, // same as above
+          data: partialNode.data!, // same
+        } as Node;
+      });
+
+      const restoredEdges = prev.edges.map((partialEdge) => {
+        const fullEdge = edges.find((e) => e.id === partialEdge.id);
+        return {
+          ...fullEdge,
+          ...partialEdge,
+          id: partialEdge.id!, // required
+          source: partialEdge.source!, // required
+          target: partialEdge.target!, // required
+        } as Edge;
+      });
+
+      setNodes(restoredNodes);
+      setEdges(restoredEdges);
+      setHistoryIndex(historyIndex - 1);
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      const next = history[historyIndex + 1];
+
+      const restoredNodes = next.nodes.map((partialNode) => {
+        const fullNode = nodes.find((n) => n.id === partialNode.id);
+        return {
+          ...fullNode,
+          ...partialNode,
+          id: partialNode.id!, // non-null assertion since history should always have an id
+          position: partialNode.position
+            ? partialNode.position
+            : fullNode?.position, // same as above
+          data: partialNode.data!, // same
+        } as Node;
+      });
+
+      const restoredEdges = next.edges.map((partialEdge) => {
+        const fullEdge = edges.find((e) => e.id === partialEdge.id);
+        return {
+          ...fullEdge,
+          ...partialEdge,
+          id: partialEdge.id!, // required
+          source: partialEdge.source!, // required
+          target: partialEdge.target!, // required
+        } as Edge;
+      });
+
+      setNodes(restoredNodes);
+      setEdges(restoredEdges);
+      setHistoryIndex(historyIndex + 1);
+    }
+  };
 
   const reactflow = useReactFlow();
 
@@ -196,6 +310,22 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   const [nodes, setNodes] = useNodesState(normalizedNodes);
   const [edges, setEdges] = useEdgesState(normalizedEdges);
 
+  useEffect(() => {
+    if (
+      changeSourceRef.current === "manual" ||
+      changeSourceRef.current === null
+    ) {
+      updateHistory(
+        nodes,
+        edges,
+        history,
+        setHistory,
+        historyIndex,
+        setHistoryIndex
+      );
+    }
+  }, [nodes, edges]);
+
   // Call onFlowChange whenever nodes or edges change
   useEffect(() => {
     if (onFlowChange) {
@@ -217,24 +347,28 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     (changes: NodeChange[]) => {
       setNodes((nds) => {
         const updated = applyNodeChanges(changes, nds);
-        takeSnapshot();
         setTimeout(() => TestForIsland(), 0);
+        if (changeSourceRef.current != "drag") {
+          changeSourceRef.current = "manual";
+        }
         return updated;
       });
     },
-    [takeSnapshot]
+    [changeSourceRef]
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((eds) => {
         const updated = applyEdgeChanges(changes, eds);
-        takeSnapshot();
         setTimeout(() => TestForIsland(), 0);
+        if (changeSourceRef.current != "drag") {
+          changeSourceRef.current = "manual";
+        }
         return updated;
       });
     },
-    [setEdges, takeSnapshot]
+    [setEdges, changeSourceRef]
   );
 
   const reactFlowWrapper = useRef(null);
@@ -254,21 +388,20 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           },
           eds
         );
-        takeSnapshot();
         setTimeout(() => TestForIsland(), 0);
         return updated;
       });
     },
-    [setEdges, takeSnapshot]
+    [setEdges]
   );
 
   const handleDragStart = useCallback(() => {
-    takeSnapshot(); // take snapshot before move
-  }, [takeSnapshot]); // Added takeSnapshot to dependencies
+    changeSourceRef.current = "drag";
+  }, [changeSourceRef]);
 
   const handleDragStop = useCallback(() => {
-    takeSnapshot(); // optionally snapshot again after move
-  }, [takeSnapshot]); // Added takeSnapshot to dependencies
+    changeSourceRef.current = null;
+  }, [changeSourceRef]);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
@@ -322,7 +455,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     }
 
     setCurrEdge(null);
-    console.log("Double clicked node:", node);
   };
 
   const onEdgeClick: EdgeMouseHandler = (
@@ -332,7 +464,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     event.stopPropagation();
     setCurrNode(null);
     setCurrEdge(edge);
-    console.log("Edge Clicked:", edge);
   };
 
   const getFlowJson = useFlowJson();
@@ -422,28 +553,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           proOptions={proOptions}
+          minZoom={0.1}
         >
-          {
-            <Controls>
-              {<DownloadButton />}
-              <ControlButton>
-                <FlaskConical onClick={() => console.log(TestForIsland())} />
-              </ControlButton>
-              <ControlButton onClick={handleExport}>e</ControlButton>
-              <ControlButton
-                onClick={() => {
-                  setShowDefaultSidebar(!showDefaultSidebar);
-                  if (!showDefaultSidebar) {
-                    setAbilityAgentData(null); // Clear ability agent data when hiding sidebar
-                  }
-                }}
-              >
-                <Menu />
-              </ControlButton>
-              <Import />
-              <Export />
-            </Controls>
-          }
+          <Background bgColor="#f6f7fc" color="#dee3ed" size={3} />
+          <CustomControls undo={undo} redo={redo} />
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}
