@@ -178,7 +178,7 @@ export default function AgentNodeContent({
   );
 }
 
-type Category = "tools" | "agents" | "automations" | "triggers";
+type Category = "all" | "agents" | "automations" | "tools" | "triggers";
 
 export function NodeSelectionModal({
   onClose,
@@ -189,58 +189,166 @@ export function NodeSelectionModal({
   onSelect: (node: any) => void;
   nodeOptionsJson: NodeOptionsJson;
 }) {
-  const [category, setCategory] = useState<Category>("tools");
-  const nodes = nodeOptionsJson[category];
+  const [category, setCategory] = useState<Category>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedNode, setSelectedNode] = useState<any>(null);
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+
+  // Get all nodes or filtered by category
+  const getAllNodes = () => {
+    const allCategories: (keyof NodeOptionsJson)[] = ["agents", "automations", "tools", "triggers"];
+    if (category === "all") {
+      return allCategories.flatMap(cat => nodeOptionsJson[cat] || []);
+    }
+    return nodeOptionsJson[category as keyof NodeOptionsJson] || [];
+  };
+
+  // Filter nodes by search term
+  const filteredNodes = getAllNodes().filter(item =>
+    item.node.data.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.node.data.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Group nodes by category for display
+  const groupedNodes = filteredNodes.reduce((acc, item) => {
+    const cat = Object.keys(nodeOptionsJson).find(key => 
+      nodeOptionsJson[key as keyof NodeOptionsJson]?.includes(item)
+    ) as keyof NodeOptionsJson;
+    
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(item);
+    return acc;
+  }, {} as Record<string, typeof filteredNodes>);
+
+  const categoryIcons = {
+    all: LucideIcons.Home,
+    agents: LucideIcons.Bot, 
+    automations: LucideIcons.Settings,
+    tools: LucideIcons.Wrench,
+    triggers: LucideIcons.Zap
+  };
+
+  const handleInsert = () => {
+    if (selectedNode) {
+      onSelect(selectedNode);
+      onClose();
+    }
+  };
+
+  const toggleCategory = (categoryName: string) => {
+    const newCollapsed = new Set(collapsedCategories);
+    if (newCollapsed.has(categoryName)) {
+      newCollapsed.delete(categoryName);
+    } else {
+      newCollapsed.add(categoryName);
+    }
+    setCollapsedCategories(newCollapsed);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-sidebar">
-          {(["tools", "agents", "automations", "triggers"] as Category[]).map(
-            (cat) => (
-              <button
-                key={cat}
-                className={`modal-category-btn ${
-                  category === cat ? "active" : ""
-                }`}
-                onClick={() => setCategory(cat)}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            )
-          )}
+      <div className="node-selection-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Full Width Header */}
+        <div className="modal-header">
+          <h2>Choose next step</h2>
+          <button className="modal-close-btn" onClick={onClose}>
+            <LucideIcons.X size={16} />
+          </button>
         </div>
 
-        <div className="modal-main">
-          <div className="modal-header">
-            <h2>Select next step</h2>
-            <button className="close-btn" onClick={onClose}>
-              x
-            </button>
+        {/* Two Column Layout */}
+        <div className="modal-content">
+          {/* Left Section - Categories */}
+          <div className="modal-sidebar">
+            {(["all", "agents", "automations", "tools", "triggers"] as Category[]).map(
+              (cat) => {
+                const IconComponent = categoryIcons[cat];
+                return (
+                  <button
+                    key={cat}
+                    className={`modal-category-btn ${
+                      category === cat ? "active" : ""
+                    }`}
+                    onClick={() => setCategory(cat)}
+                  >
+                    <IconComponent size={16} className="category-icon" />
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                );
+              }
+            )}
           </div>
 
-          <div className="modal-subheader">
-            <input
-              className="search-input"
-              placeholder="Search apps..."
-              type="text"
-            />
-            <button className="browse-btn">Browse</button>
-          </div>
-
-          <div className="modal-grid">
-            {nodes.map((item) => (
-              <div
-                key={item.id}
-                className="modal-node-card"
-                onClick={() => onSelect(item.node)}
-              >
-                <div className="node-title">{item.node.data.title}</div>
-                <div className="node-description">
-                  {item.node.data.description}
-                </div>
+          {/* Right Section - Search + Content + Footer */}
+          <div className="modal-right-section">
+            <div className="modal-search-section">
+              <div className="search-container">
+                <input
+                  className="modal-search-input"
+                  placeholder="Search in across various abilities..."
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button className="search-btn">
+                  <LucideIcons.Search size={16} />
+                </button>
               </div>
-            ))}
+            </div>
+
+            <div className="modal-main">
+              {Object.entries(groupedNodes).map(([categoryName, nodes]) => {
+                const IconComponent = categoryIcons[categoryName as keyof typeof categoryIcons];
+                const isCollapsed = collapsedCategories.has(categoryName);
+                return (
+                  <div key={categoryName} className="category-section">
+                    <div 
+                      className="category-title-container"
+                      onClick={() => toggleCategory(categoryName)}
+                    >
+                      <h3 className="category-title">
+                        {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+                      </h3>
+                      <LucideIcons.ChevronDown 
+                        size={16} 
+                        className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}
+                      />
+                    </div>
+                    {!isCollapsed && (
+                      <div className="nodes-grid">
+                        {nodes.map((item) => (
+                          <div
+                            key={item.id}
+                            className={`node-card ${selectedNode?.id === item.id ? 'selected' : ''}`}
+                            onClick={() => setSelectedNode(item.node)}
+                          >
+                            <div className="node-icon">
+                              <IconComponent size={20} />
+                            </div>
+                            <div className="node-info">
+                              <div className="node-title">{item.node.data.title}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="modal-footer">
+              <button className="modal-btn cancel-btn" onClick={onClose}>
+                Cancel
+              </button>
+              <button 
+                className={`modal-btn insert-btn ${!selectedNode ? 'disabled' : ''}`} 
+                onClick={handleInsert}
+                disabled={!selectedNode}
+              >
+                Insert
+              </button>
+            </div>
           </div>
         </div>
       </div>

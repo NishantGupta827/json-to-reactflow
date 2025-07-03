@@ -4,11 +4,13 @@ import { UndoRedo } from "./UndoRedo";
 import MaximiseButton from "./Maximise";
 import { ZoomControl } from "./ZoomControl";
 import ClearButton from "./Clear";
+import SettingsButton from "./SettingsButton";
 import { Minus } from "lucide-react";
 
 type CustomControlProps = {
   undo: () => void;
   redo: () => void;
+  onToggleSettings: () => void;
 };
 
 function Divider() {
@@ -28,7 +30,7 @@ function Divider() {
   );
 }
 
-export function CustomControls({ undo, redo }: CustomControlProps) {
+export function CustomControls({ undo, redo, onToggleSettings }: CustomControlProps) {
   const style: CSSProperties = {
     position: "absolute",
     zIndex: 3000,
@@ -52,6 +54,8 @@ export function CustomControls({ undo, redo }: CustomControlProps) {
       <Divider />
       <ClearButton />
       <MaximiseButton />
+      <Divider />
+      <SettingsButton onToggle={onToggleSettings} />
       <Divider />
       <ZoomControl />
     </div>

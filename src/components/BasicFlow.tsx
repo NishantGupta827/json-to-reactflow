@@ -556,7 +556,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           minZoom={0.1}
         >
           <Background bgColor="#f6f7fc" color="#dee3ed" size={3} />
-          <CustomControls undo={undo} redo={redo} />
+          <CustomControls 
+            undo={undo} 
+            redo={redo} 
+            onToggleSettings={() => {
+              setShowDefaultSidebar(!showDefaultSidebar);
+              if (!showDefaultSidebar) {
+                setAbilityAgentData(null); // Clear ability agent data when showing sidebar
+              }
+            }}
+          />
           {modalData && (
             <NodeSelectionModal
               onClose={() => setModalData(null)}
