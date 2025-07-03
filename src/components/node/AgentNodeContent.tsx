@@ -25,7 +25,6 @@ export default function AgentNodeContent({
   edges,
   onHandleClick,
 }: AgentNodeProps) {
-
   const isConnected = (handleId: string, type: "source" | "target") => {
     return edges.some((edge) => {
       return type === "source"
@@ -95,39 +94,42 @@ export default function AgentNodeContent({
 
   const convertIconName = (iconName: string): string => {
     return iconName
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join("");
   };
 
   const colorCombinations = [
     {
-      icon: '#FFAE0A', // Mango
-    background: '#FFF4E6'
+      icon: "#FFAE0A", // Mango
+      background: "#FFF4E6",
     },
     {
-      icon: '#0469E3', // Aqua
-      background: '#E6F3FF'
+      icon: "#0469E3", // Aqua
+      background: "#E6F3FF",
     },
     {
-      icon: '#007A52', // Spinach
-      background: '#E6F7F1' 
-    }
+      icon: "#007A52", // Spinach
+      background: "#E6F7F1",
+    },
   ];
 
-  const getColorFromId = (nodeId: string): { icon: string; background: string } => {
+  const getColorFromId = (
+    nodeId: string
+  ): { icon: string; background: string } => {
     let hash = 0;
     for (let i = 0; i < nodeId.length; i++) {
       const char = nodeId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
-    
+
     const colorIndex = Math.abs(hash) % colorCombinations.length;
     return colorCombinations[colorIndex];
   };
 
-  const { icon: iconColor, background: iconBackgroundColor } = getColorFromId(id);
+  const { icon: iconColor, background: iconBackgroundColor } =
+    getColorFromId(id);
 
   let IconComponent: ForwardRefExoticComponent<
     LucideProps & RefAttributes<SVGSVGElement>
@@ -135,24 +137,29 @@ export default function AgentNodeContent({
 
   if (data.icon && typeof data.icon === "string") {
     const convertedIconName = convertIconName(data.icon);
-    
+
     if (LucideIcons[convertedIconName as keyof typeof LucideIcons]) {
       IconComponent = LucideIcons[
         convertedIconName as keyof typeof LucideIcons
-      ] as ForwardRefExoticComponent<LucideProps & RefAttributes<SVGSVGElement>>;
+      ] as ForwardRefExoticComponent<
+        LucideProps & RefAttributes<SVGSVGElement>
+      >;
     }
   }
 
   return (
     <div className="agent-node-container">
-      <div className={`${data.isIsland ? "island-node" : "agent-node-card"}`}>
+      <div
+        className={`${data.isIsland ? "island-node" : "agent-node-card"}`}
+        style={data.style}
+      >
         <div className="agent-node-header">
-          <div 
+          <div
             className="agent-node-icon-box"
             style={{ backgroundColor: iconBackgroundColor }}
           >
-            <IconComponent 
-              className="agent-node-icon" 
+            <IconComponent
+              className="agent-node-icon"
               style={{ color: iconColor }}
             />
           </div>
@@ -355,4 +362,3 @@ export function NodeSelectionModal({
     </div>
   );
 }
-

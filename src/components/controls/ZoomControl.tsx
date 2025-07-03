@@ -1,15 +1,14 @@
-import { useReactFlow, useStore } from "@xyflow/react";
+import { useReactFlow } from "@xyflow/react";
 import { ZoomIn, ZoomOut } from "lucide-react";
-import { useEffect } from "react";
 
 export function ZoomControl() {
   const { zoomIn, zoomOut } = useReactFlow();
-  const zoomSelector = (s: { transform: any[] }) => s.transform[2];
-  const showContent = useStore(zoomSelector);
+  // const zoomSelector = (s: { transform: any[] }) => s.transform[2];
+  // const showContent = useStore(zoomSelector);
 
-  useEffect(() => {
-    console.log("new zoom is : ", showContent);
-  }, [showContent]);
+  // useEffect(() => {
+  //   console.log("new zoom is : ", showContent);
+  // }, [showContent]);
 
   return (
     <>

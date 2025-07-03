@@ -147,27 +147,34 @@ function SubComponent({
         marginBottom: bottom ? "0px" : "8px",
         padding: "5px",
         border: "solid 1px transparent",
+        userSelect: "none",
         ...style,
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        handleClick(type);
       }}
     >
       <div style={{ flex: "1" }}>{icons[icon]}</div>
       <div style={{ flex: "3", textAlign: "center" }}>
         <span>{text}</span>
       </div>
-      <div
-        style={{ flex: "1", textAlign: "right", cursor: "pointer" }}
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          handleClick(type);
-        }}
-      >
+      <div style={{ flex: "1", textAlign: "right", cursor: "pointer" }}>
         <LucideIcons.ChevronRight strokeWidth={1} />
       </div>
     </div>
   );
 }
 
-export default function ControlAddButton() {
+type controlAddButtonProps = {
+  addMenuFocus: boolean;
+  setAddMenuFocus: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function ControlAddButton({
+  addMenuFocus,
+  setAddMenuFocus,
+}: controlAddButtonProps) {
   const [open, setOpen] = useState(false);
   const [option, setOption] = useState<
     {
@@ -182,6 +189,7 @@ export default function ControlAddButton() {
 
   const handleClick = () => {
     setOpen(true);
+    setAddMenuFocus(true);
   };
 
   useEffect(() => {
@@ -189,11 +197,21 @@ export default function ControlAddButton() {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
         setOpenSub(false);
+        setAddMenuFocus(false);
+        setType("");
       }
     };
     document.addEventListener("mousedown", handleMouseDown);
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
+
+  useEffect(() => {
+    if (!addMenuFocus) {
+      setType("");
+      setOpen(false);
+      setOpenSub(false);
+    }
+  }, [addMenuFocus]);
 
   useEffect(() => {
     const temp = nodeOptionsJson[type];
@@ -207,7 +225,7 @@ export default function ControlAddButton() {
     }));
 
     setOption(options);
-  });
+  }, [type]);
 
   const handleSubComponentClick = (ele: string) => {
     console.log("clicked");
@@ -261,13 +279,13 @@ export default function ControlAddButton() {
           width: "32px",
           height: "32px",
           cursor: "pointer",
-          backgroundColor: open ? "#f0f1fb" : "#ffffff",
+          backgroundColor: open && addMenuFocus ? "#f0f1fb" : "#ffffff",
         }}
       >
         <SquarePlus strokeWidth={1} fill="#ffffff" />
       </div>
 
-      {open && (
+      {open && addMenuFocus && (
         <>
           <div
             style={{
@@ -279,7 +297,7 @@ export default function ControlAddButton() {
               border: "1px solid #ccc",
               padding: "8px",
               borderRadius: "6px",
-              boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px;",
+              boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px",
               zIndex: 3000,
             }}
           >

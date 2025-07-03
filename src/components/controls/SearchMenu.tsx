@@ -34,7 +34,7 @@ export default function SearchableMenu({
         backgroundColor: "#fff",
         border: "1px solid #ccc",
         borderRadius: "6px",
-        boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px;",
+        boxShadow: "rgba(0, 0, 0, 0.15) 2px 2px 6px",
       }}
     >
       <input

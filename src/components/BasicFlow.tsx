@@ -43,6 +43,7 @@ import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
+import { useFlowJson } from "@/hooks/useFlowJson";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -101,12 +102,16 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   const [history, setHistory] = useState<HistorySnapshot[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  const sanitizeNode = (node: Node): Partial<Node> => ({
-    id: node.id,
-    type: node.type,
-    position: node.position,
-    data: node.data,
-  });
+  const sanitizeNode = (node: Node): Partial<Node> => {
+    const { style, ...restData } = node.data;
+
+    return {
+      id: node.id,
+      type: node.type,
+      position: node.position,
+      data: restData,
+    };
+  };
 
   const sanitizeEdge = (edge: Edge): Partial<Edge> => ({
     id: edge.id,
@@ -147,6 +152,9 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   const undo = () => {
     if (historyIndex > 1) {
       const prev = history[historyIndex - 1];
+
+      setCurrNode(null);
+      setAbilityAgentData(null);
 
       const restoredNodes = prev.nodes.map((partialNode) => {
         const fullNode = nodes.find((n) => n.id === partialNode.id);
@@ -268,6 +276,8 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
 
   const [currNode, setCurrNode] = useState<Node | null>(null);
   const [currEdge, setCurrEdge] = useState<Edge | null>(null);
+
+  const [addMenuFocus, setAddMenuFocus] = useState(false);
 
   const onEdgeDoubleClick: EdgeMouseHandler = (
     event: React.MouseEvent,
@@ -412,6 +422,27 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     node: Node
   ) => {
     event.stopPropagation();
+    setNodes((nodes) =>
+      nodes.map((n) =>
+        n.id === node.id
+          ? {
+              ...n,
+              data: {
+                ...n.data,
+                style: {
+                  borderColor: "#6C5CE7",
+                },
+              },
+            }
+          : {
+              ...n,
+              data: {
+                ...n.data,
+                style: {},
+              },
+            }
+      )
+    );
 
     // Check if this is an agent node
     if (node.data.type === "agent") {
@@ -465,6 +496,18 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     setCurrEdge(edge);
   };
 
+  const getFlowJson = useFlowJson();
+
+  const handleExport = () => {
+    const updatedFlowJson = getFlowJson();
+
+    if (!updatedFlowJson.nodes.length) {
+      alert("Flow not loaded yet.");
+      return;
+    }
+    console.log("Exported Flow:", updatedFlowJson);
+  };
+
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
       const { nodes: layoutedNodes, edges: layoutedEdges } =
@@ -479,7 +522,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   );
 
   function TestForIsland() {
-    const startingNode = nodes.find((ele) => ele.data.id === "node_1");
+    const startingNode = nodes.find((ele) => ele.data.type === "trigger");
     if (!startingNode) {
       console.error("Starting node not found");
       return;
@@ -542,11 +585,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           edgeTypes={edgeTypes}
           proOptions={proOptions}
           minZoom={0.1}
+          onPaneClick={() => setAddMenuFocus(false)}
         >
           <Background bgColor="#f6f7fc" color="#dee3ed" size={3} />
-          <CustomControls 
-            undo={undo} 
-            redo={redo} 
+          <CustomControls
+            undo={undo}
+            redo={redo}
+            addMenuFocus={addMenuFocus}
+            setAddMenuFocus={setAddMenuFocus}
             onToggleSettings={() => {
               setShowDefaultSidebar(!showDefaultSidebar);
               if (!showDefaultSidebar) {
