@@ -38,8 +38,7 @@ import { EdgeSidebar } from "./rightSidebar/edge";
 import { AgentConfig } from "@/types/agent";
 import NodeContent from "./rightSidebar/node";
 import { SideBarHeader } from "./rightSidebar/header";
-import { useFlowJson } from "@/hooks/useFlowJson";
-// import { ServiceToFlow } from "@/utils/ServiceToFlow";
+// import { ServiceToFlow } from "@/utils/ServiceToFlow"
 import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
@@ -466,17 +465,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     setCurrEdge(edge);
   };
 
-  const getFlowJson = useFlowJson();
-
-  const handleExport = () => {
-    const updatedFlowJson = getFlowJson();
-
-    if (!updatedFlowJson.nodes.length) {
-      alert("Flow not loaded yet.");
-      return;
-    }
-    console.log("Exported Flow:", updatedFlowJson);
-  };
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
       const { nodes: layoutedNodes, edges: layoutedEdges } =

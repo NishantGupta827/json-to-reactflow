@@ -315,7 +315,7 @@ function ModelConfig({ data, edit, modal, onDataChange }: ConfigProps) {
     return (
       <div className="sidebar-section">
         <h4 className="section-label">AI Setup</h4>
-        <div style={{ padding: '1rem', background: '#f3f4f6', borderRadius: '0.375rem', color: '#6b7280', fontStyle: 'italic' }}>
+        <div className="config-not-available">
           Configuration options not available for this agent view.
         </div>
         
