@@ -43,7 +43,7 @@ import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
-import { useFlowJson } from "@/hooks/useFlowJson";
+// import { useFlowJson } from "@/hooks/useFlowJson";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
@@ -496,17 +496,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     setCurrEdge(edge);
   };
 
-  const getFlowJson = useFlowJson();
-
-  const handleExport = () => {
-    const updatedFlowJson = getFlowJson();
-
-    if (!updatedFlowJson.nodes.length) {
-      alert("Flow not loaded yet.");
-      return;
-    }
-    console.log("Exported Flow:", updatedFlowJson);
-  };
 
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
