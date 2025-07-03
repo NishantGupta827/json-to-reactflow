@@ -7,9 +7,9 @@ export function ZoomControl() {
   const zoomSelector = (s: { transform: any[] }) => s.transform[2];
   const showContent = useStore(zoomSelector);
 
-  //   useEffect(() => {
-  //     console.log("new zoom is : ", showContent);
-  //   }, [showContent]);
+  useEffect(() => {
+    console.log("new zoom is : ", showContent);
+  }, [showContent]);
 
   return (
     <>

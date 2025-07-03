@@ -9,6 +9,7 @@ type subcomponentProps = {
   text: string;
   bottom: boolean;
   type: string;
+  style: React.CSSProperties;
   handleClick: (arg0: string) => void;
 };
 
@@ -135,6 +136,7 @@ function SubComponent({
   bottom,
   type,
   handleClick,
+  style,
 }: subcomponentProps) {
   return (
     <div
@@ -143,6 +145,9 @@ function SubComponent({
         alignItems: "center",
         gap: "8px",
         marginBottom: bottom ? "0px" : "8px",
+        padding: "5px",
+        border: "solid 1px transparent",
+        ...style,
       }}
     >
       <div style={{ flex: "1" }}>{icons[icon]}</div>
@@ -156,7 +161,7 @@ function SubComponent({
           handleClick(type);
         }}
       >
-        <LucideIcons.ArrowRight strokeWidth={1} />
+        <LucideIcons.ChevronRight strokeWidth={1} />
       </div>
     </div>
   );
@@ -164,8 +169,14 @@ function SubComponent({
 
 export default function ControlAddButton() {
   const [open, setOpen] = useState(false);
+  const [option, setOption] = useState<
+    {
+      label: string;
+      value: any;
+    }[]
+  >([]);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [type, setType] = useState("agents");
+  const [type, setType] = useState("");
 
   const { addNodes, getNodes, getViewport } = useReactFlow();
 
@@ -184,10 +195,19 @@ export default function ControlAddButton() {
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, []);
 
-  const options = Object.entries(nodeOptionsJson[type]).map(([key, value]) => ({
-    label: key,
-    value: value,
-  }));
+  useEffect(() => {
+    const temp = nodeOptionsJson[type];
+    if (!temp) {
+      return;
+    }
+
+    const options = Object.entries(temp).map(([key, value]) => ({
+      label: key,
+      value: value,
+    }));
+
+    setOption(options);
+  });
 
   const handleSubComponentClick = (ele: string) => {
     console.log("clicked");
@@ -241,9 +261,10 @@ export default function ControlAddButton() {
           width: "32px",
           height: "32px",
           cursor: "pointer",
+          backgroundColor: open ? "#f0f1fb" : "#ffffff",
         }}
       >
-        <SquarePlus strokeWidth={1} />
+        <SquarePlus strokeWidth={1} fill="#ffffff" />
       </div>
 
       {open && (
@@ -252,8 +273,8 @@ export default function ControlAddButton() {
             style={{
               position: "fixed",
               bottom: "55px",
-              left: "-120px",
-              width: "150px",
+              left: "-145px",
+              width: "175px",
               backgroundColor: "white",
               border: "1px solid #ccc",
               padding: "8px",
@@ -267,6 +288,17 @@ export default function ControlAddButton() {
               text={"AI agent"}
               type="agents"
               bottom={false}
+              style={
+                type == "agents"
+                  ? {
+                      color: "#5D50BF",
+                      backgroundColor: "#6C5CE70D",
+                      borderColor: "#5D50BF",
+                    }
+                  : {
+                      borderColor: "transparent",
+                    }
+              }
               handleClick={handleSubComponentClick}
             />
             <SubComponent
@@ -274,6 +306,17 @@ export default function ControlAddButton() {
               text={"Automation"}
               bottom={false}
               type="automations"
+              style={
+                type == "automations"
+                  ? {
+                      color: "#5D50BF",
+                      backgroundColor: "#6C5CE70D",
+                      borderColor: "#5D50BF",
+                    }
+                  : {
+                      borderColor: "transparent",
+                    }
+              }
               handleClick={handleSubComponentClick}
             />
             <SubComponent
@@ -281,6 +324,17 @@ export default function ControlAddButton() {
               text={"Tool"}
               bottom={true}
               type={"tools"}
+              style={
+                type == "tools"
+                  ? {
+                      color: "#5D50BF",
+                      backgroundColor: "#6C5CE70D",
+                      borderColor: "#5D50BF",
+                    }
+                  : {
+                      borderColor: "transparent",
+                    }
+              }
               handleClick={handleSubComponentClick}
             />
           </div>
@@ -297,7 +351,7 @@ export default function ControlAddButton() {
                 border: "1px",
               }}
             >
-              <SearchableMenu options={options} onSelect={searchMenuClick} />
+              <SearchableMenu options={option} onSelect={searchMenuClick} />
             </div>
           )}
         </>
