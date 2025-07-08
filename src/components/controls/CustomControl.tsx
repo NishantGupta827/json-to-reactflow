@@ -14,26 +14,7 @@ type CustomControlProps = {
   addMenuFocus: boolean;
   setAddMenuFocus: React.Dispatch<React.SetStateAction<boolean>>;
   onToggleSettings: () => void;
-  backendAbilityRes: BackendAbilityRes[];
-};
-
-const convertBackendRes = (backendRes: BackendAbilityRes[]) => {
-  const result: Record<string, Record<string, any>> = {};
-  backendRes.forEach((ele) => {
-    if (ele.type == "action") {
-      ele.type = "tools";
-    }
-    if (!result[ele.type]) {
-      result[ele.type] = {};
-    }
-
-    result[ele.type][ele.title] = {
-      title: ele.title,
-      description: ele.description,
-    };
-  });
-  console.log(result);
-  return result;
+  backendAbilityRes: Record<string, Record<string, any>>;
 };
 
 function Divider() {
@@ -76,14 +57,12 @@ export function CustomControls({
     boxShadow: "rgba(0, 0, 0, 0.12) 0px 5px 15px",
   };
 
-  const option = convertBackendRes(backendAbilityRes);
-
   return (
     <div style={style}>
       <ControlAddButton
         addMenuFocus={addMenuFocus}
         setAddMenuFocus={setAddMenuFocus}
-        res={option}
+        res={backendAbilityRes}
       />
       <Divider />
       <UndoRedo undo={undo} redo={redo} />

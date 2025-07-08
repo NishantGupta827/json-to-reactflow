@@ -44,11 +44,12 @@ import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
 import { BackendAbilityRes } from "@/testJson/BackendResponse";
+import { title } from "process";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
   agentJson: AgentConfig;
-  backendRes: BackendAbilityRes[];
+  backendRes: Record<string, Record<string, any>>;
   onFlowChange?: (data: { nodes: Node[]; edges: Edge[] }) => void;
   height?: string | number;
   width?: string | number;
@@ -84,35 +85,75 @@ export type NodeOptionsJson = {
 
 const proOptions = { hideAttribution: true };
 
-const convertBackendRes = (backendRes: BackendAbilityRes[]) => {
+const convertBackendRes = (backendRes: Record<string, Record<string, any>>) => {
   const result: NodeOptionsJson = {
     tools: [],
     agents: [],
     automations: [],
     triggers: [],
   };
-  backendRes.forEach((ele) => {
-    const temp: NodeOption = {
-      id: ele.id,
-      label: ele.title,
-      node: {
-        id: ele.connector_id,
-        data: {
-          title: ele.title,
-          description: ele.description,
-          inputs: [],
-          outputs: [],
+  const tools: NodeOption[] = [];
+  if (backendRes.tools) {
+    Object.values(backendRes.tools).map((ele: any) => {
+      const temp: NodeOption = {
+        id: `${ele.title}`,
+        label: ele.title,
+        node: {
+          id: `${ele.title}`,
+          data: {
+            title: ele.title,
+            description: ele.description,
+            inputs: [],
+            outputs: [],
+          },
         },
-      },
-    };
-    if (ele.type == "action") {
-      result.tools.push(temp);
-    } else if (ele.type == "agent") {
-      result.agents.push(temp);
-    } else if (ele.type == "automation") {
-      result.automations.push(temp);
-    }
-  });
+      };
+      tools.push(temp);
+    });
+  }
+
+  const agents: NodeOption[] = [];
+  if (backendRes.agent) {
+    Object.values(backendRes.agent).map((ele: any) => {
+      const temp: NodeOption = {
+        id: `${ele.title}`,
+        label: ele.title,
+        node: {
+          id: `${ele.title}`,
+          data: {
+            title: ele.title,
+            description: ele.description,
+            inputs: [],
+            outputs: [],
+          },
+        },
+      };
+      agents.push(temp);
+    });
+  }
+
+  const automations: NodeOption[] = [];
+  if (backendRes.automations) {
+    backendRes.automations.forEach((ele: any) => {
+      const temp: NodeOption = {
+        id: `${ele.title}`,
+        label: ele.title,
+        node: {
+          id: `${ele.title}`,
+          data: {
+            title: ele.title,
+            description: ele.description,
+            inputs: [],
+            outputs: [],
+          },
+        },
+      };
+      automations.push(temp);
+    });
+  }
+  result.tools = tools;
+  result.agents = agents;
+  result.automations = automations;
   console.log(result);
   return result;
 };
