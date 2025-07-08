@@ -9,25 +9,43 @@ type EdgeSidebarProps = {
   onSave: (updatedEdge: Edge) => void;
 };
 
-export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) {
+export function EdgeSidebar({
+  edge,
+  nodes,
+  onClose,
+  onSave,
+}: EdgeSidebarProps) {
   // Find the source node to get its title and logic expression
-  const sourceNode = nodes.find(node => node.id === edge.source);
+  const sourceNode = nodes.find((node) => node.id === edge.source);
   const sourceNodeTitle: string = String(sourceNode?.data?.title || "");
-  const edgeLabel: string = typeof edge.label === 'string' ? edge.label : "";
-  
+  const edgeLabel: string = typeof edge.label === "string" ? edge.label : "";
+
   // Format: "Source Node Title - Edge Label"
-  const formattedConnectionText: string = edgeLabel 
-    ? `${sourceNodeTitle} - ${edgeLabel}` 
+  const formattedConnectionText: string = `${
+    edge.data?.label ? edge.data?.label + " - " : ""
+  } ${edge.label ? edge.label : ""}`;
+
+  const sourceNodeCondition: string = edgeLabel
+    ? `${sourceNodeTitle} - ${edgeLabel}`
     : sourceNodeTitle;
 
-  // Get logic expression from source node's inputs (condition)
-  const sourceNodeInputs = sourceNode?.data?.inputs;
-  const sourceNodeCondition: string = (Array.isArray(sourceNodeInputs) && sourceNodeInputs[0]?.placeholder) 
-    ? String(sourceNodeInputs[0].placeholder)
-    : "";
+  // const formattedConnectionText: string = edgeLabel
+  //   ? `${sourceNodeTitle} - ${edgeLabel}`
+  //   : sourceNodeTitle;
 
-  const [connectionText, setConnectionText] = useState<string>(formattedConnectionText || "");
-  const [logicExpression, setLogicExpression] = useState<string>(sourceNodeCondition || "");
+  // // Get logic expression from source node's inputs (condition)
+  // const sourceNodeInputs = sourceNode?.data?.inputs;
+  // const sourceNodeCondition: string =
+  //   Array.isArray(sourceNodeInputs) && sourceNodeInputs[0]?.placeholder
+  //     ? String(sourceNodeInputs[0].placeholder)
+  //     : "";
+
+  const [connectionText, setConnectionText] = useState<string>(
+    formattedConnectionText || ""
+  );
+  const [logicExpression, setLogicExpression] = useState<string>(
+    sourceNodeCondition || ""
+  );
 
   // Update state when edge changes (for when user double-clicks different edge)
   useEffect(() => {
@@ -36,13 +54,18 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
   }, [edge.id, formattedConnectionText, sourceNodeCondition]); // Update when edge changes
 
   const handleSave = () => {
+    console.log("working?");
+    console.log(connectionText);
+    const temp = connectionText.split("-");
+    console.log(temp);
     const updatedEdge = {
       ...edge,
-      label: edgeLabel, // Keep original edge label
+      label: temp.length >= 2 ? temp[1] : " ", // Keep original edge label
       data: {
         ...edge.data,
         logicExpression,
-      }
+        label: temp.length >= 1 ? temp[0] : " ",
+      },
     };
     onSave(updatedEdge);
   };
@@ -50,21 +73,10 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
   return (
     <div className="right-sidebar">
       <div className="agent-title-section">
-        <h1 className="agent-main-title">Condition : {edgeLabel || "New Connection"}</h1>
-        {/* <button className="agent-close-button" onClick={onClose}>
-          <X size={20} />
-        </button> */}
+        <h1 className="agent-main-title">
+          Condition : {edgeLabel || "New Connection"}
+        </h1>
       </div>
-
-      {/* <div className="agent-setup-header">
-        <div className="agent-icon-container">
-          <div className="agent-bot-icon">🔗</div>
-        </div>
-        <h2 className="agent-setup-title">Connection Configuration</h2>
-        <p className="agent-setup-description">
-          Configure the connection logic and conditions that determine when this path should be followed.
-        </p>
-      </div> */}
 
       <div className="sidebar-section">
         <div className="select-wrapper">
@@ -76,9 +88,15 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
             className="description-area"
             style={{ height: "40px", resize: "none" }}
             placeholder="Enter connection text..."
-            readOnly
+            // readOnly
           />
-          <p style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "0.25rem" }}>
+          <p
+            style={{
+              fontSize: "0.8rem",
+              color: "#6b7280",
+              marginTop: "0.25rem",
+            }}
+          >
             This text will appear on the connection line between nodes
           </p>
         </div>
@@ -105,4 +123,4 @@ export function EdgeSidebar({ edge, nodes, onClose, onSave }: EdgeSidebarProps) 
       </div>
     </div>
   );
-} 
+}

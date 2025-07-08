@@ -43,9 +43,6 @@ import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
-import { BackendAbilityRes } from "@/testJson/BackendResponse";
-import { title } from "process";
-
 export interface BasicFlowProps {
   serviceJson: FlowJson;
   agentJson: AgentConfig;
@@ -752,7 +749,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
                       modalData.type === "target"
                         ? modalData.handleId
                         : undefined,
-                    type: "smoothstep",
+                    type: "custom",
                     markerEnd: {
                       type: MarkerType.ArrowClosed,
                       width: 25,
