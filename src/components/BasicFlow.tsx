@@ -43,12 +43,12 @@ import { FlowJson } from "@/types/flowJson";
 import CustomEdge from "./edge/CustomEdge";
 import { CustomControls } from "./controls/CustomControl";
 import { X } from "lucide-react";
-// import { useFlowJson } from "@/hooks/useFlowJson";
+import { BackendAbilityRes } from "@/testJson/BackendResponse";
 
 export interface BasicFlowProps {
   serviceJson: FlowJson;
   agentJson: AgentConfig;
-  nodeOptions: NodeOptionsJson;
+  backendRes: BackendAbilityRes[];
   onFlowChange?: (data: { nodes: Node[]; edges: Edge[] }) => void;
   height?: string | number;
   width?: string | number;
@@ -84,15 +84,50 @@ export type NodeOptionsJson = {
 
 const proOptions = { hideAttribution: true };
 
+const convertBackendRes = (backendRes: BackendAbilityRes[]) => {
+  const result: NodeOptionsJson = {
+    tools: [],
+    agents: [],
+    automations: [],
+    triggers: [],
+  };
+  backendRes.forEach((ele) => {
+    const temp: NodeOption = {
+      id: ele.id,
+      label: ele.title,
+      node: {
+        id: ele.connector_id,
+        data: {
+          title: ele.title,
+          description: ele.description,
+          inputs: [],
+          outputs: [],
+        },
+      },
+    };
+    if (ele.type == "action") {
+      result.tools.push(temp);
+    } else if (ele.type == "agent") {
+      result.agents.push(temp);
+    } else if (ele.type == "automation") {
+      result.automations.push(temp);
+    }
+  });
+  console.log(result);
+  return result;
+};
+
 const BasicFlow: React.FC<BasicFlowProps> = ({
   serviceJson,
   agentJson,
-  nodeOptions,
+  backendRes,
   onFlowChange,
   height = "100vh",
   width = "100%",
 }) => {
   const { fitView } = useReactFlow();
+
+  const nodeOptions = convertBackendRes(backendRes);
 
   type HistorySnapshot = {
     nodes: Partial<Node>[];
@@ -120,6 +155,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     source: edge.source,
     sourceHandle: edge.sourceHandle,
     target: edge.target,
+    data: edge.data,
     targetHandle: edge.targetHandle,
     markerEnd: edge.markerEnd,
   });
@@ -284,12 +320,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     edge: Edge
   ) => {
     event.stopPropagation();
-    
+
     // Show sidebar if it's hidden
     if (!showDefaultSidebar) {
       setShowDefaultSidebar(true);
     }
-    
+
     setCurrEdge(edge);
     setCurrNode(null); // Clear node selection when edge is selected
     setAbilityAgentData(null); // Clear ability agent data
@@ -427,12 +463,12 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     node: Node
   ) => {
     event.stopPropagation();
-    
+
     // Show sidebar if it's hidden
     if (!showDefaultSidebar) {
       setShowDefaultSidebar(true);
     }
-    
+
     setNodes((nodes) =>
       nodes.map((n) =>
         n.id === node.id
@@ -503,16 +539,15 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   //   edge: Edge
   // ) => {
   //   event.stopPropagation();
-    
+
   //   // Show sidebar if it's hidden
   //   if (!showDefaultSidebar) {
   //     setShowDefaultSidebar(true);
   //   }
-    
+
   //   setCurrNode(null);
   //   setCurrEdge(edge);
   // };
-
 
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
@@ -605,6 +640,7 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
                 setAbilityAgentData(null); // Clear ability agent data when showing sidebar
               }
             }}
+            backendAbilityRes={backendRes}
           />
           {modalData && (
             <NodeSelectionModal
@@ -774,7 +810,7 @@ export default BasicFlow;
 export const flowWrapper: React.FC<BasicFlowProps> = ({
   serviceJson,
   agentJson,
-  nodeOptions,
+  backendRes,
   onFlowChange,
   height = "100vh",
   width = "100%",
@@ -793,7 +829,7 @@ export const flowWrapper: React.FC<BasicFlowProps> = ({
         <BasicFlow
           serviceJson={serviceJson}
           agentJson={agentJson}
-          nodeOptions={nodeOptions}
+          backendRes={backendRes}
           onFlowChange={onFlowChange}
           height={height}
           width={width}

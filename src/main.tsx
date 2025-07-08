@@ -5,17 +5,17 @@ import "./index.css";
 import { App } from "./App.tsx";
 import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { agentJson } from "./testJson/AgentJson.ts";
-import { nodeOptionsJson } from "./testJson/NodeOptions.ts";
 import { updatdServiceJson } from "./testJson/ServiceJson.ts";
+import { backendRes } from "./testJson/BackendResponse.ts";
 
 const props: BasicFlowProps = {
   serviceJson: updatdServiceJson,
   agentJson: agentJson,
-  nodeOptions: nodeOptionsJson,
+  backendRes: backendRes,
   onFlowChange: (data) => {
-    console.log('Flow updated:', data);
-    console.log('Nodes count:', data.nodes.length);
-    console.log('Edges count:', data.edges.length);
+    console.log("Flow updated:", data);
+    console.log("Nodes count:", data.nodes.length);
+    console.log("Edges count:", data.edges.length);
   },
 };
 

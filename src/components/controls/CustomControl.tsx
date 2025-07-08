@@ -6,6 +6,7 @@ import { ZoomControl } from "./ZoomControl";
 import ClearButton from "./Clear";
 import SettingsButton from "./SettingsButton";
 import { Minus } from "lucide-react";
+import { BackendAbilityRes } from "@/testJson/BackendResponse";
 
 type CustomControlProps = {
   undo: () => void;
@@ -13,6 +14,26 @@ type CustomControlProps = {
   addMenuFocus: boolean;
   setAddMenuFocus: React.Dispatch<React.SetStateAction<boolean>>;
   onToggleSettings: () => void;
+  backendAbilityRes: BackendAbilityRes[];
+};
+
+const convertBackendRes = (backendRes: BackendAbilityRes[]) => {
+  const result: Record<string, Record<string, any>> = {};
+  backendRes.forEach((ele) => {
+    if (ele.type == "action") {
+      ele.type = "tools";
+    }
+    if (!result[ele.type]) {
+      result[ele.type] = {};
+    }
+
+    result[ele.type][ele.title] = {
+      title: ele.title,
+      description: ele.description,
+    };
+  });
+  console.log(result);
+  return result;
 };
 
 function Divider() {
@@ -38,6 +59,7 @@ export function CustomControls({
   onToggleSettings,
   addMenuFocus,
   setAddMenuFocus,
+  backendAbilityRes,
 }: CustomControlProps) {
   const style: CSSProperties = {
     position: "absolute",
@@ -52,14 +74,16 @@ export function CustomControls({
     background: "#ffffff",
     padding: "10px",
     boxShadow: "rgba(0, 0, 0, 0.12) 0px 5px 15px",
-    
   };
+
+  const option = convertBackendRes(backendAbilityRes);
 
   return (
     <div style={style}>
       <ControlAddButton
         addMenuFocus={addMenuFocus}
         setAddMenuFocus={setAddMenuFocus}
+        res={option}
       />
       <Divider />
       <UndoRedo undo={undo} redo={redo} />
