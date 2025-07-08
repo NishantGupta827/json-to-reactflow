@@ -8,6 +8,13 @@ const wrapperClassMap: Record<Position, string> = {
   [Position.Right]: "handle-wrapper horizontal handle-offset-right",
 };
 
+const hoverAreaClassMap: Record<Position, string> = {
+  [Position.Top]: "handle-hover-area hover-area-top",
+  [Position.Bottom]: "handle-hover-area hover-area-bottom",
+  [Position.Left]: "handle-hover-area hover-area-left",
+  [Position.Right]: "handle-hover-area hover-area-right",
+};
+
 export const ButtonHandle = ({
   showButton = true,
   position = Position.Bottom,
@@ -15,14 +22,17 @@ export const ButtonHandle = ({
   ...props
 }: HandleProps & { showButton?: boolean }) => {
   const wrapperClassName = wrapperClassMap[position || Position.Bottom];
+  const hoverAreaClassName = hoverAreaClassMap[position || Position.Bottom];
   const vertical = position === Position.Top || position === Position.Bottom;
 
   return (
     <Handle position={position} id={props.id} {...props}>
       {showButton && (
-        <div className={wrapperClassName}>
-          <div className={`handle-line ${vertical ? "vertical" : "horizontal"}`} />
-          <div className="nodrag nopan">{children}</div>
+        <div className={hoverAreaClassName}>
+          <div className={wrapperClassName}>
+            <div className={`handle-line ${vertical ? "vertical" : "horizontal"}`} />
+            <div className="nodrag nopan">{children}</div>
+          </div>
         </div>
       )}
     </Handle>

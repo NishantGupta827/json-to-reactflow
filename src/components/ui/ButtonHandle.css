@@ -58,3 +58,43 @@
 .nodrag.nopan {
   pointer-events: auto;
 }
+
+/* Expanded hover areas */
+.handle-hover-area {
+  position: absolute;
+  pointer-events: auto;
+  /* Invisible background for debugging - remove in production */
+  /* background-color: rgba(255, 0, 0, 0.1); */
+}
+
+.hover-area-top {
+  width: 40px;
+  height: 40px;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+}
+
+.hover-area-bottom {
+  width: 40px;
+  height: 40px;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+}
+
+.hover-area-left {
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  left: -10px;
+  transform: translateY(-50%);
+}
+
+.hover-area-right {
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  left: 6px;
+  transform: translateY(-50%);
+}

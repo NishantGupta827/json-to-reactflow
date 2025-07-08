@@ -128,8 +128,7 @@ export default function AgentNodeContent({
     return colorCombinations[colorIndex];
   };
 
-  const { icon: iconColor, background: iconBackgroundColor } =
-    getColorFromId(id);
+  const { icon: iconColor } = getColorFromId(id);
 
   let IconComponent: ForwardRefExoticComponent<
     LucideProps & RefAttributes<SVGSVGElement>
@@ -154,10 +153,7 @@ export default function AgentNodeContent({
         style={data.style}
       >
         <div className="agent-node-header">
-          <div
-            className="agent-node-icon-box"
-            style={{ backgroundColor: iconBackgroundColor }}
-          >
+          <div className="agent-node-icon-box">
             <IconComponent
               className="agent-node-icon"
               style={{ color: iconColor }}
