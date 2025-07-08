@@ -203,10 +203,10 @@ export default function ControlAddButton({
             <SubComponent
               icon={"bot"}
               text={"AI agent"}
-              type="agents"
+              type="agent"
               bottom={false}
               style={
-                type == "agents"
+                type == "agent"
                   ? {
                       color: "#5D50BF",
                       backgroundColor: "#6C5CE70D",
