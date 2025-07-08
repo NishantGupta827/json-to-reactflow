@@ -6,7 +6,6 @@ import { ZoomControl } from "./ZoomControl";
 import ClearButton from "./Clear";
 import SettingsButton from "./SettingsButton";
 import { Minus } from "lucide-react";
-import { BackendAbilityRes } from "@/testJson/BackendResponse";
 
 type CustomControlProps = {
   undo: () => void;
