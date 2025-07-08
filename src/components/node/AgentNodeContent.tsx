@@ -329,7 +329,7 @@ export function NodeSelectionModal({
                               <IconComponent size={20} />
                             </div>
                             <div className="node-info">
-                              <div className="node-title">{item.node.data.title}</div>
+                              <div className="modal-node-title">{item.node.data.title}</div>
                             </div>
                           </div>
                         ))}
