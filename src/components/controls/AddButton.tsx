@@ -13,117 +13,6 @@ type subcomponentProps = {
   handleClick: (arg0: string) => void;
 };
 
-const nodeOptionsJson: Record<string, Record<string, any>> = {
-  tools: {
-    "API Client": {
-      title: "API Client",
-      description: "Tool for making API requests.",
-      inputs: ["url", "method", "headers", "payload"],
-      outputs: ["responseData"],
-    },
-    "Header Manager": {
-      title: "Header Manager",
-      description: "Manages API request headers.",
-      inputs: ["baseHeaders", "authToken"],
-      outputs: ["preparedHeaders"],
-    },
-    "Data Cleaner": {
-      title: "Data Cleaner",
-      description: "Cleans and formats raw data.",
-      inputs: ["rawData"],
-      outputs: ["cleanData"],
-    },
-    Logger: {
-      title: "Logger",
-      description: "Logs events or messages.",
-      inputs: ["message"],
-      outputs: ["logId"],
-    },
-    "Data Merger": {
-      title: "Data Merger",
-      description: "Combines multiple data sources.",
-      inputs: ["sourceA", "sourceB"],
-      outputs: ["mergedResult"],
-    },
-    "JSON Parser": {
-      title: "JSON Parser",
-      description: "Parses JSON strings into objects.",
-      inputs: ["jsonString"],
-      outputs: ["jsonObject"],
-    },
-  },
-  agents: {
-    "AI Helper": {
-      title: "AI Helper",
-      description: "Handles AI decision-making.",
-      inputs: ["prompt"],
-      outputs: ["response"],
-    },
-    "Scheduler Agent": {
-      title: "Scheduler Agent",
-      description: "Schedules tasks based on time or event.",
-      inputs: ["task", "schedule"],
-      outputs: ["scheduleId"],
-    },
-    "Summarizer Agent": {
-      title: "Summarizer Agent",
-      description: "Summarizes long form content.",
-      inputs: ["text"],
-      outputs: ["summary"],
-    },
-    "Translator Agent": {
-      title: "Translator Agent",
-      description: "Translates text between languages.",
-      inputs: ["text", "targetLang"],
-      outputs: ["translatedText"],
-    },
-    "Research Agent": {
-      title: "Research Agent",
-      description: "Fetches and analyzes external content.",
-      inputs: ["query"],
-      outputs: ["insights"],
-    },
-  },
-  automations: {
-    "HTTP Request": {
-      title: "HTTP Request",
-      description: "Handles outgoing HTTP requests.",
-      inputs: ["url", "method", "headers"],
-      outputs: ["response"],
-    },
-    "Retry on Failure": {
-      title: "Retry on Failure",
-      description: "Retries a failed request automatically.",
-      inputs: ["request", "retries"],
-      outputs: ["finalResponse"],
-    },
-    "Email Automation": {
-      title: "Email Automation",
-      description: "Sends automated emails.",
-      inputs: ["recipient", "subject", "body"],
-      outputs: ["status"],
-    },
-    "Delay Step": {
-      title: "Delay Step",
-      description: "Waits for a specified duration.",
-      inputs: ["duration"],
-      outputs: ["nextTrigger"],
-    },
-    "Conditional Logic": {
-      title: "Conditional Logic",
-      description: "Routes based on true/false condition.",
-      inputs: ["condition"],
-      outputs: ["truePath", "falsePath"],
-    },
-    "Loop Automation": {
-      title: "Loop Automation",
-      description: "Repeats a step for each item in a list.",
-      inputs: ["items", "action"],
-      outputs: ["results"],
-    },
-  },
-};
-
 const icons: Record<string, JSX.Element> = {
   bot: <LucideIcons.Bot strokeWidth={1} />,
   wrench: <LucideIcons.Wrench strokeWidth={1} />,
@@ -169,11 +58,13 @@ function SubComponent({
 type controlAddButtonProps = {
   addMenuFocus: boolean;
   setAddMenuFocus: React.Dispatch<React.SetStateAction<boolean>>;
+  res: Record<string, Record<string, any>>;
 };
 
 export default function ControlAddButton({
   addMenuFocus,
   setAddMenuFocus,
+  res,
 }: controlAddButtonProps) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -215,8 +106,9 @@ export default function ControlAddButton({
   }, [addMenuFocus]);
 
   useEffect(() => {
-    const temp = nodeOptionsJson[type];
+    const temp = res[type];
     if (!temp) {
+      setOption([]);
       return;
     }
 
@@ -264,6 +156,8 @@ export default function ControlAddButton({
     };
 
     addNodes(payload);
+    setOpen(false);
+    setAddMenuFocus(false);
   };
 
   const [openSub, setOpenSub] = useState(false);
@@ -282,7 +176,8 @@ export default function ControlAddButton({
           width: "32px",
           height: "32px",
           cursor: "pointer",
-          backgroundColor: open && addMenuFocus ? "#f0f1fb" : hovered ? "#f3f4f6" : "#ffffff",
+          backgroundColor:
+            open && addMenuFocus ? "#f0f1fb" : hovered ? "#f3f4f6" : "#ffffff",
           transition: "background-color 0.2s ease",
         }}
       >
