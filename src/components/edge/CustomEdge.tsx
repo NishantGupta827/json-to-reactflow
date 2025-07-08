@@ -49,19 +49,19 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
               cursor: "default",
               width: "200px",
               textAlign: "center",
-              color: " #000000",
-              background: "#ffffff",
+              color: "rgba(0, 58, 37, 1)",
+              background: "rgba(245, 255, 252, 1)",
             }}
             className="edge-label-renderer__custom-edge nodrag nopan"
           >
             <span
               style={{
-                fontWeight: "1000",
+                fontWeight: "600",
               }}
             >
               <b>{displayLabel + " - "}</b>
             </span>
-            <span style={{ fontWeight: "50" }}> {outcomeLabel}</span>
+            <span style={{ fontWeight: "400" }}> {outcomeLabel}</span>
           </div>
         </EdgeLabelRenderer>
       )}
