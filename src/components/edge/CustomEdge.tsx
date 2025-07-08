@@ -59,7 +59,7 @@ const CustomEdge: FC<EdgeProps<Edge<{ label?: string; focus?: boolean }>>> = ({
                 fontWeight: "600",
               }}
             >
-              <b>{displayLabel + " - "}</b>
+              {displayLabel + " - "}
             </span>
             <span style={{ fontWeight: "400" }}> {outcomeLabel}</span>
           </div>
