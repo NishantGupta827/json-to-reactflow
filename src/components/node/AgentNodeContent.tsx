@@ -5,7 +5,7 @@ import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
 import { Plus } from "lucide-react";
 import { ButtonHandle } from "../ui/ButtonHandle";
 import "./AgentNode.css";
-import { NodeOptionsJson } from "../BasicFlow";
+import { NodeOptionsJson } from "@/types/nodeOption";
 
 type AgentNodeProps = {
   data: any;
@@ -195,29 +195,39 @@ export function NodeSelectionModal({
   const [category, setCategory] = useState<Category>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set()
+  );
 
   // Get all nodes or filtered by category
   const getAllNodes = () => {
-    const allCategories: (keyof NodeOptionsJson)[] = ["agents", "automations", "tools", "triggers"];
+    const allCategories: (keyof NodeOptionsJson)[] = [
+      "agents",
+      "automations",
+      "tools",
+      "triggers",
+    ];
     if (category === "all") {
-      return allCategories.flatMap(cat => nodeOptionsJson[cat] || []);
+      return allCategories.flatMap((cat) => nodeOptionsJson[cat] || []);
     }
     return nodeOptionsJson[category as keyof NodeOptionsJson] || [];
   };
 
   // Filter nodes by search term
-  const filteredNodes = getAllNodes().filter(item =>
-    item.node.data.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.node.data.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredNodes = getAllNodes().filter(
+    (item) =>
+      item.node.data.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.node.data.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
   );
 
   // Group nodes by category for display
   const groupedNodes = filteredNodes.reduce((acc, item) => {
-    const cat = Object.keys(nodeOptionsJson).find(key => 
+    const cat = Object.keys(nodeOptionsJson).find((key) =>
       nodeOptionsJson[key as keyof NodeOptionsJson]?.includes(item)
     ) as keyof NodeOptionsJson;
-    
+
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(item);
     return acc;
@@ -225,10 +235,10 @@ export function NodeSelectionModal({
 
   const categoryIcons = {
     all: LucideIcons.Home,
-    agents: LucideIcons.Bot, 
+    agents: LucideIcons.Bot,
     automations: LucideIcons.Settings,
     tools: LucideIcons.Wrench,
-    triggers: LucideIcons.Zap
+    triggers: LucideIcons.Zap,
   };
 
   const handleInsert = () => {
@@ -250,7 +260,10 @@ export function NodeSelectionModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="node-selection-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="node-selection-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Full Width Header */}
         <div className="modal-header">
           <h2>Choose next step</h2>
@@ -263,23 +276,29 @@ export function NodeSelectionModal({
         <div className="modal-content">
           {/* Left Section - Categories */}
           <div className="modal-sidebar">
-            {(["all", "agents", "automations", "tools", "triggers"] as Category[]).map(
-              (cat) => {
-                const IconComponent = categoryIcons[cat];
-                return (
-                  <button
-                    key={cat}
-                    className={`modal-category-btn ${
-                      category === cat ? "active" : ""
-                    }`}
-                    onClick={() => setCategory(cat)}
-                  >
-                    <IconComponent size={16} className="category-icon" />
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </button>
-                );
-              }
-            )}
+            {(
+              [
+                "all",
+                "agents",
+                "automations",
+                "tools",
+                "triggers",
+              ] as Category[]
+            ).map((cat) => {
+              const IconComponent = categoryIcons[cat];
+              return (
+                <button
+                  key={cat}
+                  className={`modal-category-btn ${
+                    category === cat ? "active" : ""
+                  }`}
+                  onClick={() => setCategory(cat)}
+                >
+                  <IconComponent size={16} className="category-icon" />
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              );
+            })}
           </div>
 
           {/* Right Section - Search + Content + Footer */}
@@ -301,20 +320,24 @@ export function NodeSelectionModal({
 
             <div className="modal-main">
               {Object.entries(groupedNodes).map(([categoryName, nodes]) => {
-                const IconComponent = categoryIcons[categoryName as keyof typeof categoryIcons];
+                const IconComponent =
+                  categoryIcons[categoryName as keyof typeof categoryIcons];
                 const isCollapsed = collapsedCategories.has(categoryName);
                 return (
                   <div key={categoryName} className="category-section">
-                    <div 
+                    <div
                       className="category-title-container"
                       onClick={() => toggleCategory(categoryName)}
                     >
                       <h3 className="category-title">
-                        {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+                        {categoryName.charAt(0).toUpperCase() +
+                          categoryName.slice(1)}
                       </h3>
-                      <LucideIcons.ChevronDown 
-                        size={16} 
-                        className={`collapse-icon ${isCollapsed ? 'collapsed' : ''}`}
+                      <LucideIcons.ChevronDown
+                        size={16}
+                        className={`collapse-icon ${
+                          isCollapsed ? "collapsed" : ""
+                        }`}
                       />
                     </div>
                     {!isCollapsed && (
@@ -322,21 +345,25 @@ export function NodeSelectionModal({
                         {nodes.map((item) => (
                           <div
                             key={item.id}
-                            className={`node-card ${selectedNode?.id === item.id ? 'selected' : ''}`}
+                            className={`node-card ${
+                              selectedNode?.id === item.id ? "selected" : ""
+                            }`}
                             onClick={() => setSelectedNode(item.node)}
                           >
                             <div className="node-icon">
                               <IconComponent size={20} />
                             </div>
                             <div className="node-info">
-                              <div className="modal-node-title">{item.node.data.title}</div>
+                              <div className="modal-node-title">
+                                {item.node.data.title}
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-                )
+                );
               })}
             </div>
 
@@ -344,8 +371,10 @@ export function NodeSelectionModal({
               <button className="modal-btn cancel-btn" onClick={onClose}>
                 Cancel
               </button>
-              <button 
-                className={`modal-btn insert-btn ${!selectedNode ? 'disabled' : ''}`} 
+              <button
+                className={`modal-btn insert-btn ${
+                  !selectedNode ? "disabled" : ""
+                }`}
                 onClick={handleInsert}
                 disabled={!selectedNode}
               >
