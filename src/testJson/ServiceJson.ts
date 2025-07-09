@@ -1,62 +1,6 @@
-import { ServiceStep } from "@/types/service";
 import { FlowJson } from "@/types/flowJson";
 
-export const ServiceJson: ServiceStep[] = [
-  {
-    id: "trigger_http_request",
-    type: "trigger",
-    target_id: [
-      {
-        id: "if_query_param_present",
-      },
-    ],
-    step_no: 1,
-    title: "HTTP Request Trigger",
-    description:
-      "This event is triggered when HTTP GET/POST  requests are made to a webhook URL.",
-  },
-  {
-    id: "if_query_param_present",
-    type: "if",
-    target_id: [
-      {
-        id: "ability_send_email",
-        label: "If query parameter is present",
-      },
-      {
-        id: "ability_send_sms",
-        label: "If query parameter is NOT present",
-      },
-    ],
-    step_no: 2,
-    condition: "Query parameter is present in HTTP request body/params",
-    title: "Check for Query Parameter",
-    description:
-      "Checks if a specific query parameter is present in the incoming HTTP request.",
-  },
-  {
-    id: "ability_send_email",
-    type: "ability",
-    target_id: [
-      {
-        id: "ability_send_sms",
-      },
-    ],
-    step_no: 3,
-    title: "Send Email",
-    description: "This action sends an email from a SendGrid account.",
-  },
-  {
-    id: "ability_send_sms",
-    type: "ability",
-    target_id: [],
-    step_no: 4,
-    title: "Send SMS",
-    description: "This action sends an SMS using the Twilio account.",
-  },
-];
-
-export const updatdServiceJson: FlowJson = {
+export const updatedServiceJson: FlowJson = {
   nodes: [
     {
       id: "trigger_1",

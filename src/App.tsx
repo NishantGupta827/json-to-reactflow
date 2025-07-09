@@ -1,7 +1,8 @@
 import React from "react";
-import { flowWrapper, type BasicFlowProps } from "./components/BasicFlow";
-import '@fontsource/inter/400.css'
-import './index.css'
+import "@fontsource/inter/400.css";
+import "./index.css";
+import { BasicFlowProps } from ".";
+import { flowWrapper } from "./components/flow/BasicFlow";
 
 export const App: React.FC<BasicFlowProps> = (props: BasicFlowProps) => {
   return flowWrapper(props);

@@ -3,13 +3,13 @@ import { createRoot } from "react-dom/client";
 import "@fontsource/inter/400.css";
 import "./index.css";
 import { App } from "./App.tsx";
-import { BasicFlowProps } from "./components/BasicFlow.tsx";
 import { agentJson } from "./testJson/AgentJson.ts";
-import { updatdServiceJson } from "./testJson/ServiceJson.ts";
+import { updatedServiceJson } from "./testJson/ServiceJson.ts";
 import { backendRes } from "./testJson/BackendResponse.ts";
+import { BasicFlowProps } from "./components/flow/BasicFlow.tsx";
 
 const props: BasicFlowProps = {
-  serviceJson: updatdServiceJson,
+  serviceJson: updatedServiceJson,
   agentJson: agentJson,
   backendRes: backendRes,
   onFlowChange: (data) => {

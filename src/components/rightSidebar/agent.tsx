@@ -4,167 +4,27 @@ import { AgentConfig } from "@/types/agent";
 import CustomSelect from "./select";
 import { SideBarFooter } from "./footer";
 import "./RightSidebar.css";
-import ToggleSwitch from "./toggleSwitch";
-import { Trash } from "lucide-react";
-import { ConvertAgentInstructions } from "@/testJson/AgentNode";
 import { AgentPerformance } from "./performance";
 import { ConnectedAbilities } from "./connectedApps";
 import AgentIconUrl from "@/assets/agent-icon.svg";
 
-export function InputSchemaComponent({
-  data,
-  edit,
-  modal,
-}: {
-  data: AgentConfig;
-  edit: boolean;
-  modal: boolean;
-}) {
-  const [input, setInput] = useState<inputChange[]>(
-    data.input_schema.map((ele) => ({
-      id: ele.id,
-      name: ele.name,
-      desc: ele.description,
-      data: ele.type,
-      mandatory: ele.required,
-      action: false,
-      deleted: false,
-    }))
+export function ConvertAgentInstructions(role_setting: string) {
+  // Use the 's' flag to make '.' match newlines, and trim whitespace
+  const background = role_setting.match(
+    /<AgentBackground>(.*?)<\/AgentBackground>/s
+  );
+  const instruction = role_setting.match(
+    /<AgentInstruction>(.*?)<\/AgentInstruction>/s
+  );
+  const output = role_setting.match(
+    /<AgentOutputFormatting>(.*?)<\/AgentOutputFormatting>/s
   );
 
-  type inputChange = {
-    id: string;
-    name: string;
-    desc: string;
-    data: string;
-    mandatory: boolean;
-    action: boolean;
-    deleted: boolean;
+  return {
+    background: background ? [background[0], background[1].trim()] : null,
+    instruction: instruction ? [instruction[0], instruction[1].trim()] : null,
+    output: output ? [output[0], output[1].trim()] : null,
   };
-
-  useEffect(() => {
-    console.log("data: ", data);
-    console.log("data.input_schema: ", data.input_schema);
-    console.log("Input state changed:", input);
-  }, [input]);
-
-  useEffect(() => {
-    data.input_schema = [];
-    input.forEach((ele) => {
-      if (!ele.deleted) {
-        data.input_schema.push({
-          id: ele.id,
-          name: ele.name,
-          description: ele.desc,
-          type: ele.data,
-          isArray: ele.data != "enum" ? false : true,
-          required: ele.mandatory,
-          enumValues: [],
-          nestedProperties: [],
-        });
-      }
-    });
-  }, [edit]);
-
-  return (
-    <div className="sidebar-section">
-      <h4 className="section-label" style={{ marginBottom: "1em" }}>
-        Input Schema
-      </h4>
-      <div className="schema-table-container">
-        <table className="schema-table">
-          <tbody>
-            <tr className="schema-table-row">
-              <td className="property-name-column">Property Name</td>
-              <td className="description-column">Description</td>
-              <td className="data-type-column">Data Type</td>
-              <td className="mandatory-column">Mandatory</td>
-              <td className="actions-column"></td>
-            </tr>
-            {input.map((ele, id) => {
-              const updated = [...input];
-
-              return (
-                !updated[id].deleted && (
-                  <tr key={id} className="schema-table-row">
-                    <td className="property-name-column">
-                      <input
-                        value={ele.name}
-                        placeholder="Enter property name"
-                        disabled={!edit}
-                        onChange={(e) => {
-                          updated[id].name = e.target.value;
-                          setInput(updated);
-                        }}
-                      />
-                    </td>
-                    <td className="description-column">
-                      <input
-                        value={ele.desc}
-                        placeholder="Enter description"
-                        disabled={!edit}
-                        onChange={(e) => {
-                          const updated = [...input];
-                          updated[id].desc = e.target.value;
-                          setInput(updated);
-                        }}
-                      />
-                    </td>
-                    <td className="data-type-column">
-                      <CustomSelect
-                        options={[
-                          { label: "String", value: "string" },
-                          { label: "Number", value: "number" },
-                          { label: "Boolean", value: "boolean" },
-                          { label: "Object", value: "object" },
-                          { label: "Select", value: "select" },
-                        ]}
-                        value={{
-                          label:
-                            ele.data.charAt(0).toUpperCase() +
-                            ele.data.substring(1).toLowerCase(),
-                          value: ele.data,
-                        }}
-                        onChange={(selected) => {
-                          updated[id].data = selected?.value || "";
-                          setInput(updated);
-                        }}
-                        disabled={!edit}
-                        modal={modal}
-                      />
-                    </td>
-                    <td className="mandatory-column">
-                      <ToggleSwitch
-                        disabled={!edit}
-                        checked={ele.mandatory}
-                        onChange={(checked) => {
-                          updated[id].mandatory = checked;
-                          setInput(updated);
-                        }}
-                      />
-                    </td>
-                    <td className="actions-column">
-                      <Trash
-                        onClick={() => {
-                          if (edit) {
-                            updated[id].deleted = true;
-                            setInput(updated);
-                          }
-                        }}
-                        style={{
-                          cursor: "pointer",
-                        }}
-                      />
-                    </td>
-                  </tr>
-                )
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
 }
 
 export function AgentStatus({ data }: { data: AgentConfig }) {
@@ -312,14 +172,18 @@ function ModelConfig({ data, edit, modal, onDataChange }: ConfigProps) {
   }, [provider, modelOptions, authOptions]);
 
   // If this is abilityAgentData (missing required config options), show simplified view
-  if (!providerOptions.length && !Object.keys(modelOptions).length && !authOptions.length) {
+  if (
+    !providerOptions.length &&
+    !Object.keys(modelOptions).length &&
+    !authOptions.length
+  ) {
     return (
       <div className="sidebar-section">
         <h4 className="section-label">AI Setup</h4>
         <div className="config-not-available">
           Configuration options not available for this agent view.
         </div>
-        
+
         <div>
           <span className="config-label">Instruction</span>
           <textarea
@@ -480,13 +344,15 @@ export function Default({ data, modal, onDataChange }: AgentProps) {
       <div className="agent-setup-header">
         <div className="agent-icon-container">
           <div className="agent-bot-icon">
-            <img src={AgentIconUrl} alt="Agent" style={{ width: '80px', height: '80px' }} />
+            <img
+              src={AgentIconUrl}
+              alt="Agent"
+              style={{ width: "80px", height: "80px" }}
+            />
           </div>
         </div>
         <h2 className="agent-setup-title">{data.title}</h2>
-        <p className="agent-setup-description">
-          {data.description}
-        </p>
+        <p className="agent-setup-description">{data.description}</p>
       </div>
 
       <ConnectedAbilities data={data} />

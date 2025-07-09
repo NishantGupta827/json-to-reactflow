@@ -30,19 +30,21 @@ import {
 } from "@xyflow/react";
 import equal from "fast-deep-equal";
 import "@xyflow/react/dist/style.css";
-import { getLayoutedElements } from "@/utils/layoutUtil";
-import { NodeSelectionModal } from "./node/AgentNodeContent";
-import AgentNodeWrapper from "./node/GenericRevisedNode";
-import { Default } from "./rightSidebar/agent";
-import { EdgeSidebar } from "./rightSidebar/edge";
+import { getLayoutedElements } from "@/components/flow/layoutUtil";
+import { NodeSelectionModal } from "../node/AgentNodeContent";
+import AgentNodeWrapper from "../node/GenericRevisedNode";
+import { Default } from "../rightSidebar/agent";
+import { EdgeSidebar } from "../rightSidebar/edge";
 import { AgentConfig } from "@/types/agent";
-import NodeContent from "./rightSidebar/node";
-import { SideBarHeader } from "./rightSidebar/header";
-// import { ServiceToFlow } from "@/utils/ServiceToFlow"
+import NodeContent from "../rightSidebar/node";
+import { SideBarHeader } from "../rightSidebar/header";
 import { FlowJson } from "@/types/flowJson";
-import CustomEdge from "./edge/CustomEdge";
-import { CustomControls } from "./controls/CustomControl";
+import CustomEdge from "../edge/CustomEdge";
+import { CustomControls } from "../controls/CustomControl";
 import { X } from "lucide-react";
+import { convertBackendRes } from "./FlowFunctions";
+import { sanitizeNode, sanitizeEdge, HistorySnapshot } from "./UndoRedo";
+
 export interface BasicFlowProps {
   serviceJson: FlowJson;
   agentJson: AgentConfig;
@@ -52,108 +54,11 @@ export interface BasicFlowProps {
   width?: string | number;
 }
 
-export type NodeCategory = "tools" | "agents" | "automations" | "triggers";
-
 const edgeTypes: EdgeTypes = {
   custom: CustomEdge,
 };
 
-export interface NodeData {
-  title: string;
-  description: string;
-  inputs: string[];
-  outputs: string[];
-}
-
-export interface NodeDefinition {
-  id: string;
-  data: NodeData;
-}
-
-export interface NodeOption {
-  id: string;
-  label: string;
-  node: NodeDefinition;
-}
-
-export type NodeOptionsJson = {
-  [K in NodeCategory]: NodeOption[];
-};
-
 const proOptions = { hideAttribution: true };
-
-const convertBackendRes = (backendRes: Record<string, Record<string, any>>) => {
-  const result: NodeOptionsJson = {
-    tools: [],
-    agents: [],
-    automations: [],
-    triggers: [],
-  };
-  const tools: NodeOption[] = [];
-  if (backendRes.tools) {
-    Object.values(backendRes.tools).map((ele: any) => {
-      const temp: NodeOption = {
-        id: `${ele.title}`,
-        label: ele.title,
-        node: {
-          id: `${ele.title}`,
-          data: {
-            title: ele.title,
-            description: ele.description,
-            inputs: [],
-            outputs: [],
-          },
-        },
-      };
-      tools.push(temp);
-    });
-  }
-
-  const agents: NodeOption[] = [];
-  if (backendRes.agent) {
-    Object.values(backendRes.agent).map((ele: any) => {
-      const temp: NodeOption = {
-        id: `${ele.title}`,
-        label: ele.title,
-        node: {
-          id: `${ele.title}`,
-          data: {
-            title: ele.title,
-            description: ele.description,
-            inputs: [],
-            outputs: [],
-          },
-        },
-      };
-      agents.push(temp);
-    });
-  }
-
-  const automations: NodeOption[] = [];
-  if (backendRes.automations) {
-    backendRes.automations.forEach((ele: any) => {
-      const temp: NodeOption = {
-        id: `${ele.title}`,
-        label: ele.title,
-        node: {
-          id: `${ele.title}`,
-          data: {
-            title: ele.title,
-            description: ele.description,
-            inputs: [],
-            outputs: [],
-          },
-        },
-      };
-      automations.push(temp);
-    });
-  }
-  result.tools = tools;
-  result.agents = agents;
-  result.automations = automations;
-  console.log(result);
-  return result;
-};
 
 const BasicFlow: React.FC<BasicFlowProps> = ({
   serviceJson,
@@ -166,39 +71,71 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
   const { fitView } = useReactFlow();
 
   const nodeOptions = convertBackendRes(backendRes);
-
-  type HistorySnapshot = {
-    nodes: Partial<Node>[];
-    edges: Partial<Edge>[];
-  };
+  const reactFlowWrapper = useRef(null);
 
   const [history, setHistory] = useState<HistorySnapshot[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  const sanitizeNode = (node: Node): Partial<Node> => {
-    const { style, ...restData } = node.data;
-
-    return {
-      id: node.id,
-      type: node.type,
-      position: node.position,
-      data: restData,
-    };
-  };
-
-  const sanitizeEdge = (edge: Edge): Partial<Edge> => ({
-    id: edge.id,
-    type: edge.type,
-    label: edge.label,
-    source: edge.source,
-    sourceHandle: edge.sourceHandle,
-    target: edge.target,
-    data: edge.data,
-    targetHandle: edge.targetHandle,
-    markerEnd: edge.markerEnd,
-  });
-
   const changeSourceRef = useRef<"drag" | "manual" | null>(null);
+
+  const reactflow = useReactFlow();
+
+  // State to maintain agent data changes
+  const [currentAgentData, setCurrentAgentData] =
+    useState<AgentConfig>(agentJson);
+
+  // State to control sidebar visibility
+  const [showDefaultSidebar, setShowDefaultSidebar] = useState<boolean>(true);
+
+  // State to track agent data from abilities when showing ability agent details
+  const [abilityAgentData, setAbilityAgentData] = useState<AgentConfig | null>(
+    null
+  );
+
+  const [modalData, setModalData] = useState<{
+    nodeId: string;
+    handleId: string;
+    type: "source" | "target";
+    nodeData: any;
+  } | null>(null);
+
+  const nodeTypes = useMemo(() => {
+    return {
+      custom: (nodeProps: NodeProps) => (
+        <AgentNodeWrapper {...nodeProps} onHandleClick={setModalData} />
+      ),
+    };
+  }, [setModalData]);
+
+  const [currNode, setCurrNode] = useState<Node | null>(null);
+  const [currEdge, setCurrEdge] = useState<Edge | null>(null);
+  const [addMenuFocus, setAddMenuFocus] = useState(false);
+
+  const nodesInitialized = useNodesInitialized();
+  const [initial, setInitial] = useState(true);
+
+  const normalizedNodes: Node[] = serviceJson.nodes.map((ele) => ({
+    ...ele,
+    type: ele.type ?? "custom",
+    position: ele.position ?? { x: 0, y: 0 },
+    data: {
+      ...ele.data,
+      isIsland: false,
+    },
+  }));
+
+  const normalizedEdges: Edge[] = serviceJson.edges.map((ele) => ({
+    ...ele,
+    type: "custom",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 25,
+      height: 25,
+    },
+  }));
+
+  const [nodes, setNodes] = useNodesState(normalizedNodes);
+  const [edges, setEdges] = useEdgesState(normalizedEdges);
 
   const updateHistory = (
     nodes: Node[],
@@ -295,31 +232,14 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     }
   };
 
-  const reactflow = useReactFlow();
-
-  // State to maintain agent data changes
-  const [currentAgentData, setCurrentAgentData] =
-    useState<AgentConfig>(agentJson);
-
-  // State to control sidebar visibility
-  const [showDefaultSidebar, setShowDefaultSidebar] = useState<boolean>(true);
-
-  // State to track agent data from abilities when showing ability agent details
-  const [abilityAgentData, setAbilityAgentData] = useState<AgentConfig | null>(
-    null
-  );
-
   // Sync state with prop changes
   useEffect(() => {
     setCurrentAgentData(agentJson);
   }, [agentJson]);
 
-  // Callback to handle agent data updates
   const handleAgentDataChange = useCallback((updatedData: AgentConfig) => {
     setCurrentAgentData(updatedData);
     console.log("Agent data updated:", updatedData);
-
-    // Log agent instructions specifically
     console.log("Agent Instructions - Parent Update:", {
       agentTitle: updatedData.title,
       roleSetting: updatedData.role_setting,
@@ -327,31 +247,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
       modelId: updatedData.model_id,
     });
   }, []);
-
-  // Handle closing the default sidebar
-  // const handleCloseDefaultSidebar = useCallback(() => {
-  //   setShowDefaultSidebar(false);
-  // }, []);
-
-  const [modalData, setModalData] = useState<{
-    nodeId: string;
-    handleId: string;
-    type: "source" | "target";
-    nodeData: any;
-  } | null>(null);
-
-  const nodeTypes = useMemo(() => {
-    return {
-      custom: (nodeProps: NodeProps) => (
-        <AgentNodeWrapper {...nodeProps} onHandleClick={setModalData} />
-      ),
-    };
-  }, [setModalData]);
-
-  const [currNode, setCurrNode] = useState<Node | null>(null);
-  const [currEdge, setCurrEdge] = useState<Edge | null>(null);
-
-  const [addMenuFocus, setAddMenuFocus] = useState(false);
 
   const onEdgeDoubleClick: EdgeMouseHandler = (
     event: React.MouseEvent,
@@ -370,34 +265,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     console.log("Double clicked edge:", edge);
   };
 
-  // const flowJson = serviceJson
-  // useEffect(() => {
-  //   console.log("flowJson", JSON.stringify(flowJson));
-  // }, [flowJson]);
-
-  const normalizedNodes: Node[] = serviceJson.nodes.map((ele) => ({
-    ...ele,
-    type: ele.type ?? "custom",
-    position: ele.position ?? { x: 0, y: 0 },
-    data: {
-      ...ele.data,
-      isIsland: false, // ensure default isIsland is false
-    },
-  }));
-
-  const normalizedEdges: Edge[] = serviceJson.edges.map((ele) => ({
-    ...ele,
-    type: "custom",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 25,
-      height: 25,
-    },
-  }));
-
-  const [nodes, setNodes] = useNodesState(normalizedNodes);
-  const [edges, setEdges] = useEdgesState(normalizedEdges);
-
   useEffect(() => {
     if (
       changeSourceRef.current === "manual" ||
@@ -414,15 +281,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     }
   }, [nodes, edges]);
 
-  // Call onFlowChange whenever nodes or edges change
   useEffect(() => {
     if (onFlowChange) {
       onFlowChange({ nodes, edges });
     }
   }, [nodes, edges, onFlowChange]);
-
-  const nodesInitialized = useNodesInitialized();
-  const [initial, setInitial] = useState(true);
 
   useEffect(() => {
     if (nodesInitialized && initial) {
@@ -459,8 +322,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     [setEdges, changeSourceRef]
   );
 
-  const reactFlowWrapper = useRef(null);
-
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((eds) => {
@@ -491,18 +352,11 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     changeSourceRef.current = null;
   }, [changeSourceRef]);
 
-  const onDragOver = useCallback((event: React.DragEvent<HTMLElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
-
   const onNodeDoubleClick: NodeMouseHandler = (
     event: React.MouseEvent,
     node: Node
   ) => {
     event.stopPropagation();
-
-    // Show sidebar if it's hidden
     if (!showDefaultSidebar) {
       setShowDefaultSidebar(true);
     }
@@ -572,21 +426,6 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
     setCurrEdge(null);
   };
 
-  // const onEdgeClick: EdgeMouseHandler = (
-  //   event: React.MouseEvent,
-  //   edge: Edge
-  // ) => {
-  //   event.stopPropagation();
-
-  //   // Show sidebar if it's hidden
-  //   if (!showDefaultSidebar) {
-  //     setShowDefaultSidebar(true);
-  //   }
-
-  //   setCurrNode(null);
-  //   setCurrEdge(edge);
-  // };
-
   const onLayout = useCallback(
     (direction: "TB" | "LR" = "TB") => {
       const { nodes: layoutedNodes, edges: layoutedEdges } =
@@ -653,13 +492,10 @@ const BasicFlow: React.FC<BasicFlowProps> = ({
           onConnect={onConnect}
           onNodeDragStart={handleDragStart}
           onNodeDragStop={handleDragStop}
-          onDragOver={onDragOver}
           onNodeClick={onNodeDoubleClick}
-          // onEdgeClick={onEdgeClick}
           onEdgeClick={onEdgeDoubleClick}
           fitView
           fitViewOptions={{ duration: 0 }}
-          style={{ backgroundColor: "#F7F9FB" }}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           proOptions={proOptions}
