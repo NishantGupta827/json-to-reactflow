@@ -31,10 +31,10 @@
   height: 28px;
   border-radius: 6px;
   display: flex;
-  align-items: center;
   justify-content: center;
   flex-shrink: 0;
   padding-left: 5px;
+  padding-top: 2.5px;
 }
 
 .agent-node-icon {
