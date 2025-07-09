@@ -187,7 +187,7 @@ export const agentJson: AgentConfig = {
         connector_id: "9230134456674e95a4d569aaeebf72de",
         input_schema:
           '{\n  "type": "object",\n  "required": [\n    "stack_api_key",\n    "uid",\n    "name"\n  ],\n  "properties": {\n    "stack_api_key": {\n      "title": "Select Stack",\n      "type": "string",\n      "description": "Select a stack to create a new taxonomy.",\n      "default": "",\n      "minLength": 3,\n      "lookup": {\n        "id": "get_stack_api_keys_v5",\n        "authtoken": true\n      }\n    },\n    "uid": {\n      "title": "Taxonomy UID",\n      "description": "Specify a UID to create a taxonomy.",\n      "type": "string",\n      "minLength": 3\n    },\n    "name": {\n      "title": "Taxonomy Title",\n      "description": "Specify a title for the taxonomy.",\n      "type": "string",\n      "minLength": 3\n    },\n    "description": {\n      "title": "Taxonomy Description",\n      "description": "Specify a description for the taxonomy.",\n      "type": "string",\n      "format": "textarea"\n    }\n  }\n}',
-        group_name: "contentstack",
+      group_name: "contentstack",
         help: "https://www.contentstack.com/docs/developers/automation-hub-connectors/contentstack-management-taxonomy-actions#create-a-taxonomy",
         version: 1,
         published: true,
